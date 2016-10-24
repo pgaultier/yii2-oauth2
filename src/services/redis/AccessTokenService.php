@@ -20,7 +20,6 @@ use sweelix\oauth2\server\models\AccessToken;
 use sweelix\oauth2\server\interfaces\AccessTokenServiceInterface;
 use yii\db\Exception as DatabaseException;
 use Yii;
-use Exception;
 
 /**
  * This is the access token service for redis

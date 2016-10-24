@@ -14,6 +14,7 @@
 
 namespace sweelix\oauth2\server\traits\redis;
 
+use yii\base\InvalidParamException;
 use yii\helpers\Json;
 
 /**
@@ -64,6 +65,9 @@ trait TypeConverter
                 case 'integer':
                     break;
                 case 'array':
+                    if (is_array($value) === false) {
+                        $value = [];
+                    }
                     $value = Json::encode($value);
                     break;
                 case 'real':
@@ -98,7 +102,11 @@ trait TypeConverter
                     $value = (int) $value;
                     break;
                 case 'array':
-                    $value = Json::decode($value);
+                    try {
+                        $value = Json::decode($value);
+                    } catch (InvalidParamException $e) {
+                        $value = [];
+                    }
                     break;
                 case 'real':
                 case 'double':

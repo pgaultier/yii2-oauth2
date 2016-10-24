@@ -20,7 +20,6 @@ use sweelix\oauth2\server\models\Scope;
 use sweelix\oauth2\server\interfaces\ScopeServiceInterface;
 use yii\db\Exception as DatabaseException;
 use Yii;
-use Exception;
 
 /**
  * This is the scope service for redis

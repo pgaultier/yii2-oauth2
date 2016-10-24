@@ -20,7 +20,6 @@ use sweelix\oauth2\server\models\RefreshToken;
 use sweelix\oauth2\server\interfaces\RefreshTokenServiceInterface;
 use yii\db\Exception as DatabaseException;
 use Yii;
-use Exception;
 
 /**
  * This is the refresh token service for redis

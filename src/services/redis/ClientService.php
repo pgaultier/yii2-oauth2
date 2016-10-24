@@ -20,7 +20,6 @@ use sweelix\oauth2\server\models\Client;
 use sweelix\oauth2\server\interfaces\ClientServiceInterface;
 use yii\db\Exception as DatabaseException;
 use Yii;
-use Exception;
 
 /**
  * This is the client service for redis

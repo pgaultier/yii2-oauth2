@@ -9,14 +9,12 @@
  * @license http://www.sweelix.net/license license
  * @version XXX
  * @link http://www.sweelix.net
- * @since XXX
+ * @package sweelix\oauth2\server\models
  */
 
 namespace sweelix\oauth2\server\models;
 
-use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use Yii;
-
 
 /**
  * This is the scope model
@@ -30,27 +28,11 @@ use Yii;
  * @since XXX
  *
  * @property string $id
+ * @property bool $isDefault
  * @property string $definition
  */
-class Scope extends BaseModel implements ScopeEntityInterface
+class Scope extends BaseModel
 {
-
-    /**
-     * @inheritdoc
-     */
-    public function getIdentifier()
-    {
-        return $this->id;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function jsonSerialize()
-    {
-        //TODO: check if we should add the definition
-        return $this->getIdentifier();
-    }
 
     /**
      * @return \sweelix\oauth2\server\interfaces\ScopeServiceInterface
@@ -76,6 +58,7 @@ class Scope extends BaseModel implements ScopeEntityInterface
     {
         return [
             'id' => 'string',
+            'isDefault' => 'bool',
             'definition' => 'string',
         ];
     }

@@ -1,6 +1,6 @@
 <?php
 /**
- * RefreshToken.php
+ * Jti.php
  *
  * PHP version 5.6+
  *
@@ -9,7 +9,7 @@
  * @license http://www.sweelix.net/license license
  * @version XXX
  * @link http://www.sweelix.net
- * @package sweelix\oauth2\server\models
+ * @since XXX
  */
 
 namespace sweelix\oauth2\server\models;
@@ -17,7 +17,7 @@ namespace sweelix\oauth2\server\models;
 use Yii;
 
 /**
- * This is the refresh token model
+ * This is the jti model
  *
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
@@ -27,20 +27,21 @@ use Yii;
  * @package sweelix\oauth2\server\models
  * @since XXX
  *
- * @property string $id
- * @property string $clientId
- * @property string $userId
- * @property string $expiry
- * @property array $scopes
+ * @property string $issuer
+ * @property string $subject
+ * @property string $audience
+ * @property string $expires
+ * @property string $jti
  */
-class RefreshToken extends BaseModel
+class Jti extends BaseModel
 {
+
     /**
-     * @return \sweelix\oauth2\server\interfaces\RefreshTokenServiceInterface
+     * @return \sweelix\oauth2\server\interfaces\JtiServiceInterface
      */
     protected static function getDataService()
     {
-        return Yii::createObject('sweelix\oauth2\server\interfaces\RefreshTokenServiceInterface');
+        return Yii::createObject('sweelix\oauth2\server\interfaces\JtiServiceInterface');
     }
 
     /**
@@ -58,25 +59,29 @@ class RefreshToken extends BaseModel
     public function attributesDefinition()
     {
         return [
-            'id' => 'string',
-            'clientId' => 'string',
-            'userId' => 'string',
-            'expiry' => 'string',
-            'scopes' => 'array',
+            'issuer' => 'string',
+            'subject' => 'string',
+            'audience' => 'string',
+            'expires' => 'string',
+            'jti' => 'string',
         ];
     }
 
     /**
-     * Find one refresh token by its key
+     * Find one jti by its key
      *
-     * @param string $id
-     * @return RefreshToken|null
+     * @param string $issuer
+     * @param string $subject
+     * @param string $audience
+     * @param string $expires
+     * @param string $jti
+     * @return Jti|null
      * @since XXX
      * @throws \yii\base\UnknownClassException
      */
-    public static function findOne($id)
+    public static function findOne($issuer, $subject, $audience, $expires, $jti)
     {
-        return self::getDataService()->findOne($id);
+        return self::getDataService()->findOne($issuer, $subject, $audience, $expires, $jti);
     }
 
     /**

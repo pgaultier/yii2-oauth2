@@ -20,7 +20,6 @@ use sweelix\oauth2\server\models\AuthCode;
 use sweelix\oauth2\server\interfaces\AuthCodeServiceInterface;
 use yii\db\Exception as DatabaseException;
 use Yii;
-use Exception;
 
 /**
  * This is the auth code service for redis

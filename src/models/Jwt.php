@@ -16,7 +16,6 @@ namespace sweelix\oauth2\server\models;
 
 use Yii;
 
-
 /**
  * This is the jwt model
  *
@@ -29,7 +28,8 @@ use Yii;
  * @since XXX
  *
  * @property string $id
- * @property string $definition
+ * @property string $subject
+ * @property string $publicKey
  */
 class Jwt extends BaseModel
 {
@@ -58,15 +58,16 @@ class Jwt extends BaseModel
     {
         return [
             'id' => 'string',
-            'definition' => 'string',
+            'subject' => 'string',
+            'publicKey' => 'string',
         ];
     }
 
     /**
-     * Find one scope by its key
+     * Find one jwt by its key
      *
      * @param string $id
-     * @return Scope|null
+     * @return Jwt|null
      * @since XXX
      * @throws \yii\base\UnknownClassException
      */

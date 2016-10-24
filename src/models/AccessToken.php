@@ -9,12 +9,11 @@
  * @license http://www.sweelix.net/license license
  * @version XXX
  * @link http://www.sweelix.net
- * @since XXX
+ * @package sweelix\oauth2\server\models
  */
 
 namespace sweelix\oauth2\server\models;
 
-use DateTime;
 use Yii;
 
 /**
@@ -29,10 +28,10 @@ use Yii;
  * @since XXX
  *
  * @property string $id
- * @property string $expiry
- * @property string $userId
- * @property array $scopes
  * @property string $clientId
+ * @property string $userId
+ * @property string $expiry
+ * @property array $scopes
  */
 class AccessToken extends BaseModel
 {
@@ -60,10 +59,10 @@ class AccessToken extends BaseModel
     {
         return [
             'id' => 'string',
-            'expiry' => 'string',
-            'userId' => 'string',
-            'scopes' => 'array',
             'clientId' => 'string',
+            'userId' => 'string',
+            'expiry' => 'string',
+            'scopes' => 'array',
         ];
     }
 

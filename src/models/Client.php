@@ -16,7 +16,6 @@ namespace sweelix\oauth2\server\models;
 
 use Yii;
 
-
 /**
  * This is the client model
  *
@@ -29,12 +28,12 @@ use Yii;
  * @since XXX
  *
  * @property string $id
- * @property string $name
- * @property string $redirectUri
  * @property string $secret
+ * @property string $redirectUri
  * @property array $grantTypes
  * @property string $userId
  * @property array $scopes
+ * @property string $name
  * @property bool $isPublic
  */
 class Client extends BaseModel
@@ -63,12 +62,12 @@ class Client extends BaseModel
     {
         return [
             'id' => 'string',
-            'name' => 'string',
-            'redirectUri' => 'string',
             'secret' => 'string',
+            'redirectUri' => 'string',
             'grantTypes' => 'array',
-            'scopes' => 'array',
             'userId' => 'string',
+            'scopes' => 'array',
+            'name' => 'string',
             'isPublic' => 'bool',
         ];
     }

@@ -40,13 +40,13 @@ class JwtService extends BaseService implements JwtServiceInterface
 {
 
     /**
-     * @param string $aid access token ID
+     * @param string $jid jwt ID
      * @return string access token Key
      * @since XXX
      */
-    protected function getAccessTokenKey($aid)
+    protected function getJwtKey($jid)
     {
-        return $this->namespace . ':' . $aid;
+        return $this->namespace . ':' . $jid;
     }
 
     /**
@@ -61,19 +61,19 @@ class JwtService extends BaseService implements JwtServiceInterface
     /**
      * @inheritdoc
      */
-    public function save(AccessToken $accessToken, $attributes)
+    public function save(Jwt $jwt, $attributes)
     {
-        if ($accessToken->getIsNewRecord()) {
-            $result = $this->insert($accessToken, $attributes);
+        if ($jwt->getIsNewRecord()) {
+            $result = $this->insert($jwt, $attributes);
         } else {
-            $result = $this->update($accessToken, $attributes);
+            $result = $this->update($jwt, $attributes);
         }
         return $result;
     }
 
     /**
-     * Save Access Token
-     * @param AccessToken $accessToken
+     * Save Jwt
+     * @param Jwt $jwt
      * @param null|array $attributes attributes to save
      * @return bool
      * @throws DatabaseException
@@ -81,23 +81,23 @@ class JwtService extends BaseService implements JwtServiceInterface
      * @throws DuplicateKeyException
      * @since XXX
      */
-    protected function insert(AccessToken $accessToken, $attributes)
+    protected function insert(Jwt $jwt, $attributes)
     {
         $result = false;
-        if (!$accessToken->beforeSave(true)) {
+        if (!$jwt->beforeSave(true)) {
             return $result;
         }
-        $accessTokenKey = $this->getAccessTokenKey($accessToken->id);
+        $jwtKey = $this->getJwtKey($jwt->id);
         $etagKey = $this->getEtagIndexKey();
         //check if record exists
-        $entityStatus = (int)$this->db->executeCommand('EXISTS', [$accessTokenKey]);
+        $entityStatus = (int)$this->db->executeCommand('EXISTS', [$jwtKey]);
         if ($entityStatus === 1) {
-            throw new DuplicateKeyException('Duplicate key "'.$accessTokenKey.'"');
+            throw new DuplicateKeyException('Duplicate key "'.$jwtKey.'"');
         }
 
-        $values = $accessToken->getDirtyAttributes($attributes);
-        $redisParameters = [$accessTokenKey];
-        $this->setAttributesDefinitions($accessToken->attributesDefinition());
+        $values = $jwt->getDirtyAttributes($attributes);
+        $redisParameters = [$jwtKey];
+        $this->setAttributesDefinitions($jwt->attributesDefinition());
         foreach ($values as $key => $value)
         {
             if ($value !== null) {
@@ -110,8 +110,8 @@ class JwtService extends BaseService implements JwtServiceInterface
         if ($transaction === true) {
             try {
                 $this->db->executeCommand('HMSET', $redisParameters);
-                $etag = $this->computeEtag($accessToken);
-                $this->db->executeCommand('HSET', [$etagKey, $accessToken->id, $etag]);
+                $etag = $this->computeEtag($jwt);
+                $this->db->executeCommand('HSET', [$etagKey, $jwt->id, $etag]);
                 $this->db->executeCommand('EXEC');
             } catch (DatabaseException $e) {
                 // @codeCoverageIgnoreStart
@@ -122,55 +122,55 @@ class JwtService extends BaseService implements JwtServiceInterface
             }
         }
         $changedAttributes = array_fill_keys(array_keys($values), null);
-        $accessToken->setOldAttributes($values);
-        $accessToken->afterSave(true, $changedAttributes);
+        $jwt->setOldAttributes($values);
+        $jwt->afterSave(true, $changedAttributes);
         $result = true;
         return $result;
     }
 
 
     /**
-     * Update Access Token
-     * @param AccessToken $accessToken
+     * Update Jwt
+     * @param Jwt $jwt
      * @param null|array $attributes attributes to save
      * @return bool
      * @throws DatabaseException
      * @throws DuplicateIndexException
      * @throws DuplicateKeyException
      */
-    protected function update(AccessToken $accessToken, $attributes)
+    protected function update(Jwt $jwt, $attributes)
     {
-        if (!$accessToken->beforeSave(false)) {
+        if (!$jwt->beforeSave(false)) {
             return false;
         }
 
         $etagKey = $this->getEtagIndexKey();
-        $values = $accessToken->getDirtyAttributes($attributes);
-        $accessTokenId = isset($values['id']) ? $values['id'] : $accessToken->id;
-        $accessTokenKey = $this->getAccessTokenKey($accessTokenId);
+        $values = $jwt->getDirtyAttributes($attributes);
+        $jwtId = isset($values['id']) ? $values['id'] : $jwt->id;
+        $jwtKey = $this->getJwtKey($jwtId);
 
 
         if (isset($values['id']) === true) {
-            $newAccessTokenKey = $this->getAccessTokenKey($values['id']);
-            $entityStatus = (int)$this->db->executeCommand('EXISTS', [$newAccessTokenKey]);
+            $newJwtKey = $this->getJwtKey($values['id']);
+            $entityStatus = (int)$this->db->executeCommand('EXISTS', [$newJwtKey]);
             if ($entityStatus === 1) {
-                throw new DuplicateKeyException('Duplicate key "'.$newAccessTokenKey.'"');
+                throw new DuplicateKeyException('Duplicate key "'.$newJwtKey.'"');
             }
         }
 
         $this->db->executeCommand('MULTI');
         try {
             if (array_key_exists('id', $values) === true) {
-                $oldId = $accessToken->getOldAttribute('id');
-                $oldAccessTokenKey = $this->getAccessTokenKey($oldId);
+                $oldId = $jwt->getOldAttribute('id');
+                $oldJwtKey = $this->getJwtKey($oldId);
 
-                $this->db->executeCommand('RENAMENX', [$oldAccessTokenKey, $accessTokenKey]);
-                $this->db->executeCommand('HDEL', [$etagKey, $oldAccessTokenKey]);
+                $this->db->executeCommand('RENAMENX', [$oldJwtKey, $jwtKey]);
+                $this->db->executeCommand('HDEL', [$etagKey, $oldJwtKey]);
             }
 
-            $redisUpdateParameters = [$accessTokenKey];
-            $redisDeleteParameters = [$accessTokenKey];
-            $this->setAttributesDefinitions($accessToken->attributesDefinition());
+            $redisUpdateParameters = [$jwtKey];
+            $redisDeleteParameters = [$jwtKey];
+            $this->setAttributesDefinitions($jwt->attributesDefinition());
             foreach ($values as $key => $value)
             {
                 if ($value === null) {
@@ -187,8 +187,8 @@ class JwtService extends BaseService implements JwtServiceInterface
                 $this->db->executeCommand('HMSET', $redisUpdateParameters);
             }
 
-            $etag = $this->computeEtag($accessToken);
-            $this->db->executeCommand('HSET', [$etagKey, $accessTokenId, $etag]);
+            $etag = $this->computeEtag($jwt);
+            $this->db->executeCommand('HSET', [$etagKey, $jwtId, $etag]);
 
             $this->db->executeCommand('EXEC');
         } catch (DatabaseException $e) {
@@ -201,11 +201,11 @@ class JwtService extends BaseService implements JwtServiceInterface
 
         $changedAttributes = [];
         foreach ($values as $name => $value) {
-            $oldAttributes = $accessToken->getOldAttributes();
+            $oldAttributes = $jwt->getOldAttributes();
             $changedAttributes[$name] = isset($oldAttributes[$name]) ? $oldAttributes[$name] : null;
-            $accessToken->setOldAttribute($name, $value);
+            $jwt->setOldAttribute($name, $value);
         }
-        $accessToken->afterSave(false, $changedAttributes);
+        $jwt->afterSave(false, $changedAttributes);
         return true;
     }
 
@@ -215,12 +215,12 @@ class JwtService extends BaseService implements JwtServiceInterface
     public function findOne($key)
     {
         $record = null;
-        $accessTokenKey = $this->getAccessTokenKey($key);
+        $accessTokenKey = $this->getJwtKey($key);
         $accessTokenExists = (bool)$this->db->executeCommand('EXISTS', [$accessTokenKey]);
         if ($accessTokenExists === true) {
             $accessTokenData = $this->db->executeCommand('HGETALL', [$accessTokenKey]);
-            $record = Yii::createObject(AccessToken::className());
-            /** @var AccessToken $record */
+            $record = Yii::createObject(Jwt::className());
+            /** @var Jwt $record */
             $properties = $record->attributesDefinition();
             $this->setAttributesDefinitions($properties);
             $attributes = [];
@@ -247,21 +247,21 @@ class JwtService extends BaseService implements JwtServiceInterface
     /**
      * @inheritdoc
      */
-    public function delete(AccessToken $accessToken)
+    public function delete(Jwt $jwt)
     {
         $result = false;
-        if ($accessToken->beforeDelete()) {
+        if ($jwt->beforeDelete()) {
             $etagKey = $this->getEtagIndexKey();
             $this->db->executeCommand('MULTI');
-            $id = $accessToken->getOldKey();
-            $accessTokenKey = $this->getAccessTokenKey($id);
+            $id = $jwt->getOldKey();
+            $accessTokenKey = $this->getJwtKey($id);
 
             $this->db->executeCommand('HDEL', [$etagKey, $id]);
             $this->db->executeCommand('DEL', [$accessTokenKey]);
             //TODO: check results to return correct information
             $queryResult = $this->db->executeCommand('EXEC');
-            $accessToken->setIsNewRecord(true);
-            $accessToken->afterDelete();
+            $jwt->setIsNewRecord(true);
+            $jwt->afterDelete();
             $result = true;
         }
         return $result;
