@@ -9,6 +9,7 @@
  * @license http://www.ibitux.com/license license
  * @version XXX
  * @link http://www.ibitux.com
+ * @package sweelix\oauth2\server\models
  */
 
 namespace sweelix\oauth2\server\storage;
@@ -16,6 +17,17 @@ namespace sweelix\oauth2\server\storage;
 use OAuth2\Storage\ScopeInterface;
 use sweelix\oauth2\server\models\Scope;
 
+/**
+ * This is the scope service interface
+ *
+ * @author Philippe Gaultier <pgaultier@sweelix.net>
+ * @copyright 2010-2016 Philippe Gaultier
+ * @license http://www.sweelix.net/license license
+ * @version XXX
+ * @link http://www.sweelix.net
+ * @package sweelix\oauth2\server\models
+ * @since XXX
+ */
 class ScopeStorage implements ScopeInterface
 {
     /**
