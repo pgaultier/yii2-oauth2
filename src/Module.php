@@ -79,6 +79,10 @@ class Module extends BaseModule implements BootstrapInterface
      */
     protected function setUpDi()
     {
+        if (Yii::$container->has('scope') === false) {
+            Yii::$container->set('scope', 'sweelix\oauth2\server\validators\ScopeValidator');
+        }
+
         if ($this->backend === 'redis') {
             Redis::register();
         }

@@ -126,6 +126,14 @@ class OauthClientStorageTest extends TestCase
         $this->assertTrue($client2->save());
 
         $client2 = Client::findOne('client2');
+        $client2->id = 'client3';
+        $client2->name = null;
+        $this->assertTrue($client2->save());
+
+        $client2->id = 'client2';
+        $this->assertTrue($client2->save());
+
+        $client2 = Client::findOne('client2');
         $client2->id = 'client1';
         $this->expectException(DuplicateKeyException::class);
         $client2->save();
