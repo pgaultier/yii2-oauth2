@@ -85,6 +85,9 @@ class Module extends BaseModule implements BootstrapInterface
         if (Yii::$container->has('sweelix\oauth2\server\interfaces\ClientModelInterface') === false) {
             Yii::$container->set('sweelix\oauth2\server\interfaces\ClientModelInterface', 'sweelix\oauth2\server\models\Client');
         }
+        if (Yii::$container->has('sweelix\oauth2\server\interfaces\ScopeModelInterface') === false) {
+            Yii::$container->set('sweelix\oauth2\server\interfaces\ScopeModelInterface', 'sweelix\oauth2\server\models\Scope');
+        }
 
         if ($this->backend === 'redis') {
             Redis::register();

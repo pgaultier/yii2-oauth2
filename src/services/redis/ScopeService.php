@@ -16,6 +16,7 @@ namespace sweelix\oauth2\server\services\redis;
 
 use sweelix\oauth2\server\exceptions\DuplicateIndexException;
 use sweelix\oauth2\server\exceptions\DuplicateKeyException;
+use sweelix\oauth2\server\interfaces\ScopeModelInterface;
 use sweelix\oauth2\server\models\Scope;
 use sweelix\oauth2\server\interfaces\ScopeServiceInterface;
 use yii\db\Exception as DatabaseException;
@@ -80,7 +81,7 @@ class ScopeService extends BaseService implements ScopeServiceInterface
     /**
      * @inheritdoc
      */
-    public function save(Scope $scope, $attributes)
+    public function save(ScopeModelInterface $scope, $attributes)
     {
         if ($scope->getIsNewRecord()) {
             $result = $this->insert($scope, $attributes);
@@ -92,7 +93,7 @@ class ScopeService extends BaseService implements ScopeServiceInterface
 
     /**
      * Save Scope
-     * @param Scope $scope
+     * @param ScopeModelInterface $scope
      * @param null|array $attributes attributes to save
      * @return bool
      * @throws DatabaseException
@@ -100,7 +101,7 @@ class ScopeService extends BaseService implements ScopeServiceInterface
      * @throws DuplicateKeyException
      * @since XXX
      */
-    protected function insert(Scope $scope, $attributes)
+    protected function insert(ScopeModelInterface $scope, $attributes)
     {
         $result = false;
         if (!$scope->beforeSave(true)) {
@@ -155,7 +156,7 @@ class ScopeService extends BaseService implements ScopeServiceInterface
 
 
     /**
-     * Update Scope
+     * Update ScopeModelInterface
      * @param Scope $scope
      * @param null|array $attributes attributes to save
      * @return bool
@@ -163,7 +164,7 @@ class ScopeService extends BaseService implements ScopeServiceInterface
      * @throws DuplicateIndexException
      * @throws DuplicateKeyException
      */
-    protected function update(Scope $scope, $attributes)
+    protected function update(ScopeModelInterface $scope, $attributes)
     {
         if (!$scope->beforeSave(false)) {
             return false;
@@ -258,8 +259,8 @@ class ScopeService extends BaseService implements ScopeServiceInterface
         $scopeExists = (bool)$this->db->executeCommand('EXISTS', [$scopeKey]);
         if ($scopeExists === true) {
             $scopeData = $this->db->executeCommand('HGETALL', [$scopeKey]);
-            $record = Yii::createObject(Scope::className());
-            /** @var Scope $record */
+            $record = Yii::createObject('sweelix\oauth2\server\interfaces\ScopeModelInterface');
+            /** @var ScopeModelInterface $record */
             $properties = $record->attributesDefinition();
             $this->setAttributesDefinitions($properties);
             $attributes = [];
@@ -305,7 +306,7 @@ class ScopeService extends BaseService implements ScopeServiceInterface
     /**
      * @inheritdoc
      */
-    public function delete(Scope $scope)
+    public function delete(ScopeModelInterface $scope)
     {
         $result = false;
         if ($scope->beforeDelete()) {

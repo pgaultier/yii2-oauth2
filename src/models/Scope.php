@@ -14,6 +14,7 @@
 
 namespace sweelix\oauth2\server\models;
 
+use sweelix\oauth2\server\interfaces\ScopeModelInterface;
 use Yii;
 
 /**
@@ -31,7 +32,7 @@ use Yii;
  * @property bool $isDefault
  * @property string $definition
  */
-class Scope extends BaseModel
+class Scope extends BaseModel implements ScopeModelInterface
 {
 
     /**
@@ -76,12 +77,7 @@ class Scope extends BaseModel
     }
 
     /**
-     * Find one scope by its key
-     *
-     * @param string $id
-     * @return Scope|null
-     * @since XXX
-     * @throws \yii\base\UnknownClassException
+     * @inheritdoc
      */
     public static function findOne($id)
     {
@@ -89,11 +85,7 @@ class Scope extends BaseModel
     }
 
     /**
-     * @param bool $runValidation
-     * @param null $attributes
-     * @return bool
-     * @since XXX
-     * @throws \yii\base\UnknownClassException
+     * @inheritdoc
      */
     public function save($runValidation = true, $attributes = null)
     {
@@ -107,9 +99,7 @@ class Scope extends BaseModel
     }
 
     /**
-     * @return bool
-     * @since XXX
-     * @throws \yii\base\UnknownClassException
+     * @inheritdoc
      */
     public function delete()
     {
@@ -117,8 +107,7 @@ class Scope extends BaseModel
     }
 
     /**
-     * @return array list of scope IDs
-     * @since XXX
+     * @inheritdoc
      */
     public static function findAvailableScopeIds()
     {
@@ -126,9 +115,7 @@ class Scope extends BaseModel
     }
 
     /**
-     * @param string $clientId
-     * @return array default scope for selected client Id
-     * @since XXX
+     * @inheritdoc
      */
     public static function findDefaultScopeIds($clientId = null)
     {

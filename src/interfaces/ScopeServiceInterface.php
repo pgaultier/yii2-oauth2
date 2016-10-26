@@ -31,24 +31,24 @@ interface ScopeServiceInterface
 {
     /**
      * Save or update scope depending on isNewRecord flag
-     * @param Scope $$scope
+     * @param ScopeModelInterface $scope
      * @param null|array $attributes attributes to save
      * @return boolean
      * @throws \Exception
      */
-    public function save(Scope $scope, $attributes);
+    public function save(ScopeModelInterface $scope, $attributes);
 
     /**
      * @param string $key
-     * @return Scope|null
+     * @return ScopeModelInterface|null
      */
     public function findOne($key);
 
     /**
-     * @param Scope $scope
+     * @param ScopeModelInterface $scope
      * @return boolean
      */
-    public function delete(Scope $scope);
+    public function delete(ScopeModelInterface $scope);
 
     /**
      * @return array list of scope IDs
