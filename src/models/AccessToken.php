@@ -43,8 +43,7 @@ class AccessToken extends BaseModel implements AccessTokenModelInterface
     {
         return [
             [['id', 'clientId', 'userId'], 'string'],
-            [['isDefault'], 'boolean', 'trueValue' => true, 'falseValue' => false, 'strict' => true],
-            [['id', 'isDefault'], 'required'],
+            [['scopes'], 'scope'],
         ];
     }
 
@@ -107,6 +106,17 @@ class AccessToken extends BaseModel implements AccessTokenModelInterface
     public function delete()
     {
         return self::getDataService()->delete($this);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function beforeSave($insert)
+    {
+        if ($this->scopes === null) {
+            $this->scopes = [];
+        }
+        return parent::beforeSave($insert);
     }
 
 }

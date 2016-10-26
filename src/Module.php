@@ -82,6 +82,9 @@ class Module extends BaseModule implements BootstrapInterface
         if (Yii::$container->has('scope') === false) {
             Yii::$container->set('scope', 'sweelix\oauth2\server\validators\ScopeValidator');
         }
+        if (Yii::$container->has('sweelix\oauth2\server\interfaces\AccessTokenModelInterface') === false) {
+            Yii::$container->set('sweelix\oauth2\server\interfaces\AccessTokenModelInterface', 'sweelix\oauth2\server\models\AccessToken');
+        }
         if (Yii::$container->has('sweelix\oauth2\server\interfaces\ClientModelInterface') === false) {
             Yii::$container->set('sweelix\oauth2\server\interfaces\ClientModelInterface', 'sweelix\oauth2\server\models\Client');
         }
