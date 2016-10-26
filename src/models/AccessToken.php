@@ -14,6 +14,7 @@
 
 namespace sweelix\oauth2\server\models;
 
+use sweelix\oauth2\server\interfaces\AccessTokenModelInterface;
 use Yii;
 
 /**
@@ -33,8 +34,20 @@ use Yii;
  * @property string $expiry
  * @property array $scopes
  */
-class AccessToken extends BaseModel
+class AccessToken extends BaseModel implements AccessTokenModelInterface
 {
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return [
+            [['id', 'clientId', 'userId'], 'string'],
+            [['isDefault'], 'boolean', 'trueValue' => true, 'falseValue' => false, 'strict' => true],
+            [['id', 'isDefault'], 'required'],
+        ];
+    }
+
     /**
      * @return \sweelix\oauth2\server\interfaces\AccessTokenServiceInterface
      */
@@ -67,12 +80,7 @@ class AccessToken extends BaseModel
     }
 
     /**
-     * Find one accessToken by its key
-     *
-     * @param string $id
-     * @return AccessToken|null
-     * @since XXX
-     * @throws \yii\base\UnknownClassException
+     * @inheritdoc
      */
     public static function findOne($id)
     {
@@ -80,11 +88,7 @@ class AccessToken extends BaseModel
     }
 
     /**
-     * @param bool $runValidation
-     * @param null $attributes
-     * @return bool
-     * @since XXX
-     * @throws \yii\base\UnknownClassException
+     * @inheritdoc
      */
     public function save($runValidation = true, $attributes = null)
     {
@@ -98,9 +102,7 @@ class AccessToken extends BaseModel
     }
 
     /**
-     * @return bool
-     * @since XXX
-     * @throws \yii\base\UnknownClassException
+     * @inheritdoc
      */
     public function delete()
     {

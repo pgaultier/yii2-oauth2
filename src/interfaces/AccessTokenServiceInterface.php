@@ -14,8 +14,6 @@
 
 namespace sweelix\oauth2\server\interfaces;
 
-use sweelix\oauth2\server\models\AccessToken;
-
 /**
  * This is the access token service interface
  *
@@ -31,23 +29,23 @@ interface AccessTokenServiceInterface
 {
     /**
      * Save or update Access Token depending on isNewRecord flag
-     * @param AccessToken $accessToken
+     * @param AccessTokenModelInterface $accessToken
      * @param null|array $attributes attributes to save
      * @return boolean
      * @throws \Exception
      */
-    public function save(AccessToken $accessToken, $attributes);
+    public function save(AccessTokenModelInterface $accessToken, $attributes);
 
     /**
      * @param string $key
-     * @return AccessToken|null
+     * @return AccessTokenModelInterface|null
      */
     public function findOne($key);
 
     /**
-     * @param AccessToken $accessToken
+     * @param AccessTokenModelInterface $accessToken
      * @return boolean
      */
-    public function delete(AccessToken $accessToken);
+    public function delete(AccessTokenModelInterface $accessToken);
 
 }

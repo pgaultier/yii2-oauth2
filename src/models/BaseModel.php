@@ -14,6 +14,7 @@
 
 namespace sweelix\oauth2\server\models;
 
+use sweelix\oauth2\server\interfaces\BaseModelInterface;
 use yii\base\InvalidParamException;
 use yii\base\Model;
 use yii\base\ModelEvent;
@@ -33,44 +34,8 @@ use yii\helpers\Inflector;
  * @package sweelix\oauth2\server\models
  * @since XXX
  */
-abstract class BaseModel extends Model
+abstract class BaseModel extends Model implements BaseModelInterface
 {
-    /**
-     * @event Event an event that is triggered when the record is initialized via [[init()]].
-     */
-    const EVENT_INIT = 'init';
-    /**
-     * @event Event an event that is triggered after the record is created and populated with query result.
-     */
-    const EVENT_AFTER_FIND = 'afterFind';
-    /**
-     * @event ModelEvent an event that is triggered before inserting a record.
-     * You may set [[ModelEvent::isValid]] to be false to stop the insertion.
-     */
-    const EVENT_BEFORE_INSERT = 'beforeInsert';
-    /**
-     * @event AfterSaveEvent an event that is triggered after a record is inserted.
-     */
-    const EVENT_AFTER_INSERT = 'afterInsert';
-    /**
-     * @event ModelEvent an event that is triggered before updating a record.
-     * You may set [[ModelEvent::isValid]] to be false to stop the update.
-     */
-    const EVENT_BEFORE_UPDATE = 'beforeUpdate';
-    /**
-     * @event AfterSaveEvent an event that is triggered after a record is updated.
-     */
-    const EVENT_AFTER_UPDATE = 'afterUpdate';
-    /**
-     * @event ModelEvent an event that is triggered before deleting a record.
-     * You may set [[ModelEvent::isValid]] to be false to stop the deletion.
-     */
-    const EVENT_BEFORE_DELETE = 'beforeDelete';
-    /**
-     * @event Event an event that is triggered after a record is deleted.
-     */
-    const EVENT_AFTER_DELETE = 'afterDelete';
-
     /**
      * @var array|null old attribute values indexed by attribute names.
      * This is `null` if the record [[isNewRecord|is new]].
@@ -118,19 +83,6 @@ abstract class BaseModel extends Model
     public function attributes()
     {
         return array_keys($this->attributesDefinition());
-    }
-
-    /**
-     * Find one model by its key
-     *
-     * @param string $id
-     * @return BaseModel|null
-     * @since XXX
-     * @codeCoverageIgnore
-     */
-    public static function findOne($id)
-    {
-        throw new NotSupportedException('You must implement BaseModel::findOne()');
     }
 
     /**

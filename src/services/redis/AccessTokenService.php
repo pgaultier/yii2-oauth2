@@ -16,7 +16,7 @@ namespace sweelix\oauth2\server\services\redis;
 
 use sweelix\oauth2\server\exceptions\DuplicateIndexException;
 use sweelix\oauth2\server\exceptions\DuplicateKeyException;
-use sweelix\oauth2\server\models\AccessToken;
+use sweelix\oauth2\server\interfaces\AccessTokenModelInterface;
 use sweelix\oauth2\server\interfaces\AccessTokenServiceInterface;
 use yii\db\Exception as DatabaseException;
 use Yii;
@@ -60,7 +60,7 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
     /**
      * @inheritdoc
      */
-    public function save(AccessToken $accessToken, $attributes)
+    public function save(AccessTokenModelInterface $accessToken, $attributes)
     {
         if ($accessToken->getIsNewRecord()) {
             $result = $this->insert($accessToken, $attributes);
@@ -72,7 +72,7 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
 
     /**
      * Save Access Token
-     * @param AccessToken $accessToken
+     * @param AccessTokenModelInterface $accessToken
      * @param null|array $attributes attributes to save
      * @return bool
      * @throws DatabaseException
@@ -80,7 +80,7 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
      * @throws DuplicateKeyException
      * @since XXX
      */
-    protected function insert(AccessToken $accessToken, $attributes)
+    protected function insert(AccessTokenModelInterface $accessToken, $attributes)
     {
         $result = false;
         if (!$accessToken->beforeSave(true)) {
@@ -130,14 +130,14 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
 
     /**
      * Update Access Token
-     * @param AccessToken $accessToken
+     * @param AccessTokenModelInterface $accessToken
      * @param null|array $attributes attributes to save
      * @return bool
      * @throws DatabaseException
      * @throws DuplicateIndexException
      * @throws DuplicateKeyException
      */
-    protected function update(AccessToken $accessToken, $attributes)
+    protected function update(AccessTokenModelInterface $accessToken, $attributes)
     {
         if (!$accessToken->beforeSave(false)) {
             return false;
@@ -218,8 +218,8 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
         $accessTokenExists = (bool)$this->db->executeCommand('EXISTS', [$accessTokenKey]);
         if ($accessTokenExists === true) {
             $accessTokenData = $this->db->executeCommand('HGETALL', [$accessTokenKey]);
-            $record = Yii::createObject(AccessToken::className());
-            /** @var AccessToken $record */
+            $record = Yii::createObject('sweelix\oauth2\server\interfaces\AccessTokenModelInterface');
+            /** @var AccessTokenModelInterface $record */
             $properties = $record->attributesDefinition();
             $this->setAttributesDefinitions($properties);
             $attributes = [];
@@ -246,7 +246,7 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
     /**
      * @inheritdoc
      */
-    public function delete(AccessToken $accessToken)
+    public function delete(AccessTokenModelInterface $accessToken)
     {
         $result = false;
         if ($accessToken->beforeDelete()) {

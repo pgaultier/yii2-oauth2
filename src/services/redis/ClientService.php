@@ -16,7 +16,7 @@ namespace sweelix\oauth2\server\services\redis;
 
 use sweelix\oauth2\server\exceptions\DuplicateIndexException;
 use sweelix\oauth2\server\exceptions\DuplicateKeyException;
-use sweelix\oauth2\server\models\Client;
+use sweelix\oauth2\server\interfaces\ClientModelInterface;
 use sweelix\oauth2\server\interfaces\ClientServiceInterface;
 use yii\db\Exception as DatabaseException;
 use Yii;
@@ -60,7 +60,7 @@ class ClientService extends BaseService implements ClientServiceInterface
     /**
      * @inheritdoc
      */
-    public function save(Client $client, $attributes)
+    public function save(ClientModelInterface $client, $attributes)
     {
         if ($client->getIsNewRecord()) {
             $result = $this->insert($client, $attributes);
@@ -72,7 +72,7 @@ class ClientService extends BaseService implements ClientServiceInterface
 
     /**
      * Save Client
-     * @param Client $client
+     * @param ClientModelInterface $client
      * @param null|array $attributes attributes to save
      * @return bool
      * @throws DatabaseException
@@ -80,7 +80,7 @@ class ClientService extends BaseService implements ClientServiceInterface
      * @throws DuplicateKeyException
      * @since XXX
      */
-    protected function insert(Client $client, $attributes)
+    protected function insert(ClientModelInterface $client, $attributes)
     {
         $result = false;
         if (!$client->beforeSave(true)) {
@@ -130,14 +130,14 @@ class ClientService extends BaseService implements ClientServiceInterface
 
     /**
      * Update Client
-     * @param Client $client
+     * @param ClientModelInterface $client
      * @param null|array $attributes attributes to save
      * @return bool
      * @throws DatabaseException
      * @throws DuplicateIndexException
      * @throws DuplicateKeyException
      */
-    protected function update(Client $client, $attributes)
+    protected function update(ClientModelInterface $client, $attributes)
     {
         if (!$client->beforeSave(false)) {
             return false;
@@ -218,8 +218,8 @@ class ClientService extends BaseService implements ClientServiceInterface
         $clientExists = (bool)$this->db->executeCommand('EXISTS', [$clientKey]);
         if ($clientExists === true) {
             $clientData = $this->db->executeCommand('HGETALL', [$clientKey]);
-            $record = Yii::createObject(Client::className());
-            /** @var Client $record */
+            $record = Yii::createObject('sweelix\oauth2\server\interfaces\ClientModelInterface');
+            /** @var ClientModelInterface $record */
             $properties = $record->attributesDefinition();
             $this->setAttributesDefinitions($properties);
             $attributes = [];
@@ -246,7 +246,7 @@ class ClientService extends BaseService implements ClientServiceInterface
     /**
      * @inheritdoc
      */
-    public function delete(Client $client)
+    public function delete(ClientModelInterface $client)
     {
         $result = false;
         if ($client->beforeDelete()) {

@@ -14,6 +14,7 @@
 
 namespace sweelix\oauth2\server\services\redis;
 
+use sweelix\oauth2\server\interfaces\BaseModelInterface;
 use sweelix\oauth2\server\models\BaseModel;
 use sweelix\oauth2\server\traits\redis\TypeConverter;
 use yii\base\Object;
@@ -57,11 +58,11 @@ class BaseService extends Object
 
     /**
      * Compute etag based on model attributes
-     * @param BaseModel $model
+     * @param BaseModelInterface $model
      * @return string
      * @since XXX
      */
-    protected function computeEtag(BaseModel $model)
+    protected function computeEtag(BaseModelInterface $model)
     {
         return $this->encodeAttributes($model->attributes);
     }

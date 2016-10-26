@@ -75,6 +75,17 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
         $scope->isDefault = false;
         $scope->definition = 'Email Scope';
         $scope->save();
-
     }
+
+    /**
+     * Clean everything from database
+     */
+    protected function cleanDatabase()
+    {
+        $keys = Yii::$app->redis->executeCommand('KEYS', ['oauth2:*']);
+        if (empty($keys) === false) {
+            Yii::$app->redis->executeCommand('DEL', $keys);
+        }
+    }
+
 }

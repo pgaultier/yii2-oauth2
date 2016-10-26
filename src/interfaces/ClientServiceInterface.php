@@ -14,8 +14,6 @@
 
 namespace sweelix\oauth2\server\interfaces;
 
-use sweelix\oauth2\server\models\Client;
-
 /**
  * This is the client service interface
  *
@@ -31,23 +29,23 @@ interface ClientServiceInterface
 {
     /**
      * Save or update client depending on isNewRecord flag
-     * @param Client $client
+     * @param ClientModelInterface $client
      * @param null|array $attributes attributes to save
      * @return boolean
      * @throws \Exception
      */
-    public function save(Client $client, $attributes);
+    public function save(ClientModelInterface $client, $attributes);
 
     /**
      * @param string $key
-     * @return Client|null
+     * @return ClientModelInterface|null
      */
     public function findOne($key);
 
     /**
-     * @param Client $client
+     * @param ClientModelInterface $client
      * @return boolean
      */
-    public function delete(Client $client);
+    public function delete(ClientModelInterface $client);
 
 }

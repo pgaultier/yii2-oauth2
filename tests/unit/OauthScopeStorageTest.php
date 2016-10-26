@@ -205,11 +205,4 @@ class OauthScopeStorageTest extends TestCase
 
     }
 
-    protected function cleanDatabase()
-    {
-        $keys = Yii::$app->redis->executeCommand('KEYS', ['oauth2:*']);
-        if (empty($keys) === false) {
-            Yii::$app->redis->executeCommand('DEL', $keys);
-        }
-    }
 }
