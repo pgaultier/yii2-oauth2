@@ -28,11 +28,13 @@ use Yii;
  * @since XXX
  *
  * @property string $id
+ * @property string $clientId
  * @property string $subject
  * @property string $publicKey
  */
 class Jwt extends BaseModel
 {
+    const HASH_ALGO = 'sha256';
 
     /**
      * @return \sweelix\oauth2\server\interfaces\JwtServiceInterface
@@ -58,6 +60,7 @@ class Jwt extends BaseModel
     {
         return [
             'id' => 'string',
+            'clientId' => 'string',
             'subject' => 'string',
             'publicKey' => 'string',
         ];
@@ -66,14 +69,19 @@ class Jwt extends BaseModel
     /**
      * Find one jwt by its key
      *
-     * @param string $id
+     * @param array|string $condition
      * @return Jwt|null
      * @since XXX
      * @throws \yii\base\UnknownClassException
      */
-    public static function findOne($id)
+    public static function findOne($condition)
     {
-        return self::getDataService()->findOne($id);
+        if (is_array($condition) === true) {
+            $clientId = isset($condition['clientId']) ? $condition['clientId'] : '';
+            $subject = isset($condition['subject']) ? $condition['subject'] : '';
+            $condition = self::getFingerprint($clientId, $subject);
+        }
+        return self::getDataService()->findOne($condition);
     }
 
     /**
@@ -102,6 +110,27 @@ class Jwt extends BaseModel
     public function delete()
     {
         return self::getDataService()->delete($this);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function beforeSave($insert)
+    {
+        // regenerate jwt id before saving data
+        $this->id = self::getFingerprint($this->clientId, $this->subject);
+        return parent::beforeSave($insert);
+    }
+
+    /**
+     * @param string $clientId
+     * @param string $subject
+     * @return string jwt fingerprint
+     * @since XXX
+     */
+    public static function getFingerprint($clientId, $subject)
+    {
+        return hash(self::HASH_ALGO, $clientId.':'.$subject);
     }
 
 }

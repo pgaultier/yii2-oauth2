@@ -1,6 +1,6 @@
 <?php
 /**
- * JwtService.php
+ * CypherKeyService.php
  *
  * PHP version 5.6+
  *
@@ -16,17 +16,16 @@ namespace sweelix\oauth2\server\services\redis;
 
 use sweelix\oauth2\server\exceptions\DuplicateIndexException;
 use sweelix\oauth2\server\exceptions\DuplicateKeyException;
-use sweelix\oauth2\server\models\Jwt;
-use sweelix\oauth2\server\interfaces\JwtServiceInterface;
+use sweelix\oauth2\server\models\CypherKey;
+use sweelix\oauth2\server\interfaces\CypherKeyServiceInterface;
 use yii\db\Exception as DatabaseException;
 use Yii;
-use Exception;
 
 /**
- * This is the jwt service for redis
+ * This is the cypher key service for redis
  *  database structure
- *    * oauth2:jwt:<jid> : hash (Jwt)
- *    * oauth2:jwt:etags : hash <jid> -> <etag>
+ *    * oauth2:cypherKeys:<aid> : hash (CypherKey)
+ *    * oauth2:cypherKeys:etags : hash <aid> -> <etag>
  *
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
@@ -36,17 +35,17 @@ use Exception;
  * @package sweelix\oauth2\server\services\redis
  * @since XXX
  */
-class JwtService extends BaseService implements JwtServiceInterface
+class CypherKeyService extends BaseService implements CypherKeyServiceInterface
 {
 
     /**
-     * @param string $jid jwt ID
-     * @return string access token Key
+     * @param string $aid cypher key ID
+     * @return string cypher key Key
      * @since XXX
      */
-    protected function getJwtKey($jid)
+    protected function getCypherKeyKey($aid)
     {
-        return $this->namespace . ':' . $jid;
+        return $this->namespace . ':' . $aid;
     }
 
     /**
@@ -61,19 +60,19 @@ class JwtService extends BaseService implements JwtServiceInterface
     /**
      * @inheritdoc
      */
-    public function save(Jwt $jwt, $attributes)
+    public function save(CypherKey $cypherKey, $attributes)
     {
-        if ($jwt->getIsNewRecord()) {
-            $result = $this->insert($jwt, $attributes);
+        if ($cypherKey->getIsNewRecord()) {
+            $result = $this->insert($cypherKey, $attributes);
         } else {
-            $result = $this->update($jwt, $attributes);
+            $result = $this->update($cypherKey, $attributes);
         }
         return $result;
     }
 
     /**
-     * Save Jwt
-     * @param Jwt $jwt
+     * Save Cypher Key
+     * @param CypherKey $cypherKey
      * @param null|array $attributes attributes to save
      * @return bool
      * @throws DatabaseException
@@ -81,23 +80,23 @@ class JwtService extends BaseService implements JwtServiceInterface
      * @throws DuplicateKeyException
      * @since XXX
      */
-    protected function insert(Jwt $jwt, $attributes)
+    protected function insert(CypherKey $cypherKey, $attributes)
     {
         $result = false;
-        if (!$jwt->beforeSave(true)) {
+        if (!$cypherKey->beforeSave(true)) {
             return $result;
         }
-        $jwtKey = $this->getJwtKey($jwt->id);
+        $cypherKeyKey = $this->getCypherKeyKey($cypherKey->id);
         $etagKey = $this->getEtagIndexKey();
         //check if record exists
-        $entityStatus = (int)$this->db->executeCommand('EXISTS', [$jwtKey]);
+        $entityStatus = (int)$this->db->executeCommand('EXISTS', [$cypherKeyKey]);
         if ($entityStatus === 1) {
-            throw new DuplicateKeyException('Duplicate key "'.$jwtKey.'"');
+            throw new DuplicateKeyException('Duplicate key "'.$cypherKeyKey.'"');
         }
 
-        $values = $jwt->getDirtyAttributes($attributes);
-        $redisParameters = [$jwtKey];
-        $this->setAttributesDefinitions($jwt->attributesDefinition());
+        $values = $cypherKey->getDirtyAttributes($attributes);
+        $redisParameters = [$cypherKeyKey];
+        $this->setAttributesDefinitions($cypherKey->attributesDefinition());
         foreach ($values as $key => $value)
         {
             if ($value !== null) {
@@ -110,8 +109,8 @@ class JwtService extends BaseService implements JwtServiceInterface
         if ($transaction === true) {
             try {
                 $this->db->executeCommand('HMSET', $redisParameters);
-                $etag = $this->computeEtag($jwt);
-                $this->db->executeCommand('HSET', [$etagKey, $jwt->id, $etag]);
+                $etag = $this->computeEtag($cypherKey);
+                $this->db->executeCommand('HSET', [$etagKey, $cypherKey->id, $etag]);
                 $this->db->executeCommand('EXEC');
             } catch (DatabaseException $e) {
                 // @codeCoverageIgnoreStart
@@ -122,55 +121,55 @@ class JwtService extends BaseService implements JwtServiceInterface
             }
         }
         $changedAttributes = array_fill_keys(array_keys($values), null);
-        $jwt->setOldAttributes($values);
-        $jwt->afterSave(true, $changedAttributes);
+        $cypherKey->setOldAttributes($values);
+        $cypherKey->afterSave(true, $changedAttributes);
         $result = true;
         return $result;
     }
 
 
     /**
-     * Update Jwt
-     * @param Jwt $jwt
+     * Update Cypher Key
+     * @param CypherKey $cypherKey
      * @param null|array $attributes attributes to save
      * @return bool
      * @throws DatabaseException
      * @throws DuplicateIndexException
      * @throws DuplicateKeyException
      */
-    protected function update(Jwt $jwt, $attributes)
+    protected function update(CypherKey $cypherKey, $attributes)
     {
-        if (!$jwt->beforeSave(false)) {
+        if (!$cypherKey->beforeSave(false)) {
             return false;
         }
 
         $etagKey = $this->getEtagIndexKey();
-        $values = $jwt->getDirtyAttributes($attributes);
-        $jwtId = isset($values['id']) ? $values['id'] : $jwt->id;
-        $jwtKey = $this->getJwtKey($jwtId);
+        $values = $cypherKey->getDirtyAttributes($attributes);
+        $cypherKeyId = isset($values['id']) ? $values['id'] : $cypherKey->id;
+        $cypherKeyKey = $this->getCypherKeyKey($cypherKeyId);
 
 
         if (isset($values['id']) === true) {
-            $newJwtKey = $this->getJwtKey($values['id']);
-            $entityStatus = (int)$this->db->executeCommand('EXISTS', [$newJwtKey]);
+            $newCypherKeyKey = $this->getCypherKeyKey($values['id']);
+            $entityStatus = (int)$this->db->executeCommand('EXISTS', [$newCypherKeyKey]);
             if ($entityStatus === 1) {
-                throw new DuplicateKeyException('Duplicate key "'.$newJwtKey.'"');
+                throw new DuplicateKeyException('Duplicate key "'.$newCypherKeyKey.'"');
             }
         }
 
         $this->db->executeCommand('MULTI');
         try {
             if (array_key_exists('id', $values) === true) {
-                $oldId = $jwt->getOldAttribute('id');
-                $oldJwtKey = $this->getJwtKey($oldId);
+                $oldId = $cypherKey->getOldAttribute('id');
+                $oldCypherKeyKey = $this->getCypherKeyKey($oldId);
 
-                $this->db->executeCommand('RENAMENX', [$oldJwtKey, $jwtKey]);
-                $this->db->executeCommand('HDEL', [$etagKey, $oldJwtKey]);
+                $this->db->executeCommand('RENAMENX', [$oldCypherKeyKey, $cypherKeyKey]);
+                $this->db->executeCommand('HDEL', [$etagKey, $oldCypherKeyKey]);
             }
 
-            $redisUpdateParameters = [$jwtKey];
-            $redisDeleteParameters = [$jwtKey];
-            $this->setAttributesDefinitions($jwt->attributesDefinition());
+            $redisUpdateParameters = [$cypherKeyKey];
+            $redisDeleteParameters = [$cypherKeyKey];
+            $this->setAttributesDefinitions($cypherKey->attributesDefinition());
             foreach ($values as $key => $value)
             {
                 if ($value === null) {
@@ -187,8 +186,8 @@ class JwtService extends BaseService implements JwtServiceInterface
                 $this->db->executeCommand('HMSET', $redisUpdateParameters);
             }
 
-            $etag = $this->computeEtag($jwt);
-            $this->db->executeCommand('HSET', [$etagKey, $jwtId, $etag]);
+            $etag = $this->computeEtag($cypherKey);
+            $this->db->executeCommand('HSET', [$etagKey, $cypherKeyId, $etag]);
 
             $this->db->executeCommand('EXEC');
         } catch (DatabaseException $e) {
@@ -201,11 +200,11 @@ class JwtService extends BaseService implements JwtServiceInterface
 
         $changedAttributes = [];
         foreach ($values as $name => $value) {
-            $oldAttributes = $jwt->getOldAttributes();
+            $oldAttributes = $cypherKey->getOldAttributes();
             $changedAttributes[$name] = isset($oldAttributes[$name]) ? $oldAttributes[$name] : null;
-            $jwt->setOldAttribute($name, $value);
+            $cypherKey->setOldAttribute($name, $value);
         }
-        $jwt->afterSave(false, $changedAttributes);
+        $cypherKey->afterSave(false, $changedAttributes);
         return true;
     }
 
@@ -215,24 +214,24 @@ class JwtService extends BaseService implements JwtServiceInterface
     public function findOne($key)
     {
         $record = null;
-        $accessTokenKey = $this->getJwtKey($key);
-        $accessTokenExists = (bool)$this->db->executeCommand('EXISTS', [$accessTokenKey]);
-        if ($accessTokenExists === true) {
-            $accessTokenData = $this->db->executeCommand('HGETALL', [$accessTokenKey]);
-            $record = Yii::createObject(Jwt::className());
-            /** @var Jwt $record */
+        $cypherKeyKey = $this->getCypherKeyKey($key);
+        $cypherKeyExists = (bool)$this->db->executeCommand('EXISTS', [$cypherKeyKey]);
+        if ($cypherKeyExists === true) {
+            $cypherKeyData = $this->db->executeCommand('HGETALL', [$cypherKeyKey]);
+            $record = Yii::createObject(CypherKey::className());
+            /** @var CypherKey $record */
             $properties = $record->attributesDefinition();
             $this->setAttributesDefinitions($properties);
             $attributes = [];
-            for ($i = 0; $i < count($accessTokenData); $i += 2) {
-                if (isset($properties[$accessTokenData[$i]]) === true) {
-                    $accessTokenData[$i + 1] = $this->convertToModel($accessTokenData[$i], $accessTokenData[($i + 1)]);
-                    $record->setAttribute($accessTokenData[$i], $accessTokenData[$i + 1]);
-                    $attributes[$accessTokenData[$i]] = $accessTokenData[$i + 1];
+            for ($i = 0; $i < count($cypherKeyData); $i += 2) {
+                if (isset($properties[$cypherKeyData[$i]]) === true) {
+                    $cypherKeyData[$i + 1] = $this->convertToModel($cypherKeyData[$i], $cypherKeyData[($i + 1)]);
+                    $record->setAttribute($cypherKeyData[$i], $cypherKeyData[$i + 1]);
+                    $attributes[$cypherKeyData[$i]] = $cypherKeyData[$i + 1];
                 // @codeCoverageIgnoreStart
-                } elseif ($record->canSetProperty($accessTokenData[$i])) {
+                } elseif ($record->canSetProperty($cypherKeyData[$i])) {
                     // TODO: find a way to test attribute population
-                    $record->{$accessTokenData[$i]} = $accessTokenData[$i + 1];
+                    $record->{$cypherKeyData[$i]} = $cypherKeyData[$i + 1];
                 }
                 // @codeCoverageIgnoreEnd
             }
@@ -247,21 +246,21 @@ class JwtService extends BaseService implements JwtServiceInterface
     /**
      * @inheritdoc
      */
-    public function delete(Jwt $jwt)
+    public function delete(CypherKey $cypherKey)
     {
         $result = false;
-        if ($jwt->beforeDelete()) {
+        if ($cypherKey->beforeDelete()) {
             $etagKey = $this->getEtagIndexKey();
             $this->db->executeCommand('MULTI');
-            $id = $jwt->getOldKey();
-            $jwtKey = $this->getJwtKey($id);
+            $id = $cypherKey->getOldKey();
+            $cypherKeyKey = $this->getCypherKeyKey($id);
 
             $this->db->executeCommand('HDEL', [$etagKey, $id]);
-            $this->db->executeCommand('DEL', [$jwtKey]);
+            $this->db->executeCommand('DEL', [$cypherKeyKey]);
             //TODO: check results to return correct information
             $queryResult = $this->db->executeCommand('EXEC');
-            $jwt->setIsNewRecord(true);
-            $jwt->afterDelete();
+            $cypherKey->setIsNewRecord(true);
+            $cypherKey->afterDelete();
             $result = true;
         }
         return $result;

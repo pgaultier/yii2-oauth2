@@ -14,9 +14,10 @@
 namespace sweelix\oauth2\server\storage;
 
 use OAuth2\Storage\AccessTokenInterface;
+use OAuth2\Storage\JwtAccessTokenInterface;
 use sweelix\oauth2\server\models\AccessToken;
 
-class AccessTokenStorage implements AccessTokenInterface
+class AccessTokenStorage implements AccessTokenInterface, JwtAccessTokenInterface
 {
     /**
      * @inheritdoc

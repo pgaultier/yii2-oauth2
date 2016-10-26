@@ -1,6 +1,6 @@
 <?php
 /**
- * Jti.php
+ * AccessToken.php
  *
  * PHP version 5.6+
  *
@@ -9,7 +9,7 @@
  * @license http://www.sweelix.net/license license
  * @version XXX
  * @link http://www.sweelix.net
- * @since XXX
+ * @package sweelix\oauth2\server\models
  */
 
 namespace sweelix\oauth2\server\models;
@@ -17,7 +17,7 @@ namespace sweelix\oauth2\server\models;
 use Yii;
 
 /**
- * This is the jti model
+ * This is the cypher key model
  *
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
@@ -28,22 +28,25 @@ use Yii;
  * @since XXX
  *
  * @property string $id
- * @property string $clientId
- * @property string $subject
- * @property string $audience
- * @property string $expires
- * @property string $jti
+ * @property string $publicKey
+ * @property string $privateKey
+ * @property string $encryptionAlgoritm
  */
-class Jti extends BaseModel
+class CypherKey extends BaseModel
 {
-    const HASH_ALGO = 'sha256';
+    const DEFAULT_KEY = 'default';
 
     /**
-     * @return \sweelix\oauth2\server\interfaces\JtiServiceInterface
+     * @string JwtAccessToken supported algos are hash_hmac HS256, HS384, HS512 or openssl_sign RS256, RS384, RS512
+     */
+    const HASH_ALGO = 'RS256';
+
+    /**
+     * @return \sweelix\oauth2\server\interfaces\CypherKeyServiceInterface
      */
     protected static function getDataService()
     {
-        return Yii::createObject('sweelix\oauth2\server\interfaces\JtiServiceInterface');
+        return Yii::createObject('sweelix\oauth2\server\interfaces\CypherKeyServiceInterface');
     }
 
     /**
@@ -62,33 +65,23 @@ class Jti extends BaseModel
     {
         return [
             'id' => 'string',
-            'clientId' => 'string',
-            'subject' => 'string',
-            'audience' => 'string',
-            'expires' => 'string',
-            'jti' => 'string',
+            'publicKey' => 'string',
+            'privateKey' => 'string',
+            'encryptionAlgorithm' => 'string',
         ];
     }
 
     /**
-     * Find one jti by its key
+     * Find one accessToken by its key
      *
-     * @param array|string $condition
-     * @return Jti|null
+     * @param string $id
+     * @return CypherKey|null
      * @since XXX
      * @throws \yii\base\UnknownClassException
      */
-    public static function findOne($condition)
+    public static function findOne($id)
     {
-        if (is_array($condition) === true) {
-            $clientId = isset($condition['clientId']) ? $condition['clientId'] : '';
-            $subject = isset($condition['subject']) ? $condition['subject'] : '';
-            $audience = isset($condition['audience']) ? $condition['audience'] : '';
-            $expires = isset($condition['expires']) ? $condition['expires'] : '';
-            $jti = isset($condition['jti']) ? $condition['jti'] : '';
-            $condition = self::getFingerprint($clientId, $subject, $audience, $expires, $jti);
-        }
-        return self::getDataService()->findOne($condition);
+        return self::getDataService()->findOne($id);
     }
 
     /**
@@ -124,22 +117,30 @@ class Jti extends BaseModel
      */
     public function beforeSave($insert)
     {
-        // regenerate jti id before saving data
-        $this->id = self::getFingerprint($this->clientId, $this->subject, $this->audience, $this->expires, $this->jti);
+        if ($this->encryptionAlgoritm === null) {
+            $this->encryptionAlgoritm = self::HASH_ALGO;
+        }
         return parent::beforeSave($insert);
     }
 
     /**
-     * @param string $clientId
-     * @param string $subject
-     * @param string $audience
-     * @param string $expires
-     * @param $jti
-     * @return string jti fingerprint
+     * @return array containing generated public and private keys ['public' => 'xxx', 'private' => 'yyy']
      * @since XXX
      */
-    public static function getFingerprint($clientId, $subject, $audience, $expires, $jti)
+    public static function generateKeys()
     {
-        return hash(self::HASH_ALGO, $clientId.':'.$subject.':'.$audience.':'.$expires.':'.$jti);
+        $opensslHandle = openssl_pkey_new([
+            'private_key_bits' => 2048,
+            'private_key_type' => OPENSSL_KEYTYPE_RSA
+        ]);
+
+        openssl_pkey_export($opensslHandle, $privateKey);
+        $details = openssl_pkey_get_details($opensslHandle);
+        $publicKey = $details['key'];
+        openssl_free_key($opensslHandle);
+        return [
+            'public' => $publicKey,
+            'private' => $privateKey,
+        ];
     }
 }

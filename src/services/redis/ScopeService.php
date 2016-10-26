@@ -25,6 +25,8 @@ use Yii;
  * This is the scope service for redis
  *  database structure
  *    * oauth2:scopes:<sid> : hash (Scope)
+ *    * oauth2:scopes:keys : set scopeIds
+ *    * oauth2:scopes:defaultkeys : set default scopeIds
  *    * oauth2:scopes:etags : hash <sid> -> <etag>
  *
  * @author Philippe Gaultier <pgaultier@sweelix.net>
@@ -46,6 +48,24 @@ class ScopeService extends BaseService implements ScopeServiceInterface
     protected function getScopeKey($sid)
     {
         return $this->namespace . ':' . $sid;
+    }
+
+    /**
+     * @return string key of all scopes list
+     * @since XXX
+     */
+    protected function getScopeListKey()
+    {
+        return $this->namespace . ':keys';
+    }
+
+    /**
+     * @return string key of default scopes list
+     * @since XXX
+     */
+    protected function getScopeDefaultListKey()
+    {
+        return $this->namespace . ':defaultkeys';
     }
 
     /**
@@ -87,6 +107,8 @@ class ScopeService extends BaseService implements ScopeServiceInterface
             return $result;
         }
         $scopeKey = $this->getScopeKey($scope->id);
+        $scopeListKey = $this->getScopeListKey();
+        $scopeDefaultListKey = $this->getScopeDefaultListKey();
         $etagKey = $this->getEtagIndexKey();
         //check if record exists
         $entityStatus = (int)$this->db->executeCommand('EXISTS', [$scopeKey]);
@@ -111,6 +133,10 @@ class ScopeService extends BaseService implements ScopeServiceInterface
                 $this->db->executeCommand('HMSET', $redisParameters);
                 $etag = $this->computeEtag($scope);
                 $this->db->executeCommand('HSET', [$etagKey, $scope->id, $etag]);
+                $this->db->executeCommand('SADD', [$scopeListKey, $scope->id]);
+                if ($scope->isDefault === true) {
+                    $this->db->executeCommand('SADD', [$scopeDefaultListKey, $scope->id]);
+                }
                 $this->db->executeCommand('EXEC');
             } catch (DatabaseException $e) {
                 // @codeCoverageIgnoreStart
@@ -147,6 +173,8 @@ class ScopeService extends BaseService implements ScopeServiceInterface
         $values = $scope->getDirtyAttributes($attributes);
         $scopeId = isset($values['id']) ? $values['id'] : $scope->id;
         $scopeKey = $this->getScopeKey($scopeId);
+        $scopeListKey = $this->getScopeListKey();
+        $scopeDefaultListKey = $this->getScopeDefaultListKey();
 
 
         if (isset($values['id']) === true) {
@@ -159,12 +187,16 @@ class ScopeService extends BaseService implements ScopeServiceInterface
 
         $this->db->executeCommand('MULTI');
         try {
+            $reAddKeyInList = false;
             if (array_key_exists('id', $values) === true) {
                 $oldId = $scope->getOldAttribute('id');
                 $oldScopeKey = $this->getScopeKey($oldId);
 
                 $this->db->executeCommand('RENAMENX', [$oldScopeKey, $scopeKey]);
                 $this->db->executeCommand('HDEL', [$etagKey, $oldScopeKey]);
+                $this->db->executeCommand('SREM', [$scopeListKey, $oldScopeKey]);
+                $this->db->executeCommand('SREM', [$scopeDefaultListKey, $oldScopeKey]);
+                $reAddKeyInList = true;
             }
 
             $redisUpdateParameters = [$scopeKey];
@@ -188,6 +220,14 @@ class ScopeService extends BaseService implements ScopeServiceInterface
 
             $etag = $this->computeEtag($scope);
             $this->db->executeCommand('HSET', [$etagKey, $scopeId, $etag]);
+            if ($reAddKeyInList === true) {
+                $this->db->executeCommand('SADD', [$scopeListKey, $scopeId]);
+            }
+            if ($scope->isDefault === true) {
+                $this->db->executeCommand('SADD', [$scopeDefaultListKey, $scopeId]);
+            } else {
+                $this->db->executeCommand('SREM', [$scopeDefaultListKey, $scopeId]);
+            }
 
             $this->db->executeCommand('EXEC');
         } catch (DatabaseException $e) {
@@ -246,6 +286,25 @@ class ScopeService extends BaseService implements ScopeServiceInterface
     /**
      * @inheritdoc
      */
+    public function findAvailableScopeIds()
+    {
+        $scopeListKey = $this->getScopeListKey();
+        return $this->db->executeCommand('SMEMBERS', [$scopeListKey]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function findDefaultScopeIds($clientId = null)
+    {
+        //TODO: add default scopes for clients
+        $scopeDefaultListKey = $this->getScopeDefaultListKey();
+        return $this->db->executeCommand('SMEMBERS', [$scopeDefaultListKey]);
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function delete(Scope $scope)
     {
         $result = false;
@@ -254,9 +313,14 @@ class ScopeService extends BaseService implements ScopeServiceInterface
             $this->db->executeCommand('MULTI');
             $id = $scope->getOldKey();
             $scopeKey = $this->getScopeKey($id);
+            $scopeListKey = $this->getScopeListKey();
+            $scopeDefaultListKey = $this->getScopeDefaultListKey();
+
 
             $this->db->executeCommand('HDEL', [$etagKey, $id]);
             $this->db->executeCommand('DEL', [$scopeKey]);
+            $this->db->executeCommand('SREM', [$scopeListKey, $id]);
+            $this->db->executeCommand('SREM', [$scopeDefaultListKey, $id]);
             //TODO: check results to return correct information
             $queryResult = $this->db->executeCommand('EXEC');
             $scope->setIsNewRecord(true);

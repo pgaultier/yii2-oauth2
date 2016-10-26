@@ -104,4 +104,23 @@ class Scope extends BaseModel
         return self::getDataService()->delete($this);
     }
 
+    /**
+     * @return array list of scope IDs
+     * @since XXX
+     */
+    public static function findAvailableScopeIds()
+    {
+        return self::getDataService()->findAvailableScopeIds();
+    }
+
+    /**
+     * @param string $clientId
+     * @return array default scope for selected client Id
+     * @since XXX
+     */
+    public static function findDefaultScopeIds($clientId = null)
+    {
+        return self::getDataService()->findDefaultScopeIds($clientId);
+    }
+
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * JtiServiceInterface.php
+ * CypherKeyServiceInterface.php
  *
  * PHP version 5.6+
  *
@@ -14,10 +14,10 @@
 
 namespace sweelix\oauth2\server\interfaces;
 
-use sweelix\oauth2\server\models\Jti;
+use sweelix\oauth2\server\models\CypherKey;
 
 /**
- * This is the jti service interface
+ * This is the cypher key service interface
  *
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
@@ -27,27 +27,27 @@ use sweelix\oauth2\server\models\Jti;
  * @package sweelix\oauth2\server\interfaces
  * @since XXX
  */
-interface JtiServiceInterface
+interface CypherKeyServiceInterface
 {
     /**
-     * Save or update jti depending on isNewRecord flag
-     * @param Jti $jti
+     * Save or update Cypher Key depending on isNewRecord flag
+     * @param CypherKey $accessToken
      * @param null|array $attributes attributes to save
      * @return boolean
      * @throws \Exception
      */
-    public function save(Jti $jti, $attributes);
+    public function save(CypherKey $accessToken, $attributes);
 
     /**
      * @param string $key
-     * @return Jti|null
+     * @return CypherKey|null
      */
     public function findOne($key);
 
     /**
-     * @param Jti $jti
+     * @param CypherKey $accessToken
      * @return boolean
      */
-    public function delete(Jti $jti);
+    public function delete(CypherKey $accessToken);
 
 }

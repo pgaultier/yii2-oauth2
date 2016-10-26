@@ -50,4 +50,17 @@ interface ScopeServiceInterface
      */
     public function delete(Scope $scope);
 
+    /**
+     * @return array list of scope IDs
+     * @since XXX
+     */
+    public function findAvailableScopeIds();
+
+    /**
+     * @param string $clientId
+     * @return array list of default scope IDs for selected client Id
+     * @since XXX
+     */
+    public function findDefaultScopeIds($clientId = null);
+
 }
