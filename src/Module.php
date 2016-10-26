@@ -41,21 +41,6 @@ class Module extends BaseModule implements BootstrapInterface
     public $user;
 
     /**
-     * @var string path alias to private key
-     */
-    public $privateKey;
-
-    /**
-     * @var string path alias to public key
-     */
-    public $publicKey;
-
-    /**
-     * @var string|null rsa key passphrase
-     */
-    public $passphrase;
-
-    /**
      * @var string change base end point
      */
     public $baseEndPoint = '';
@@ -97,7 +82,6 @@ class Module extends BaseModule implements BootstrapInterface
         if ($this->backend === 'redis') {
             Redis::register();
         }
-        Oauth::register();
     }
 
     /**
@@ -105,8 +89,6 @@ class Module extends BaseModule implements BootstrapInterface
      */
     public function bootstrap($app)
     {
-        $this->privateKey = Yii::getAlias($this->privateKey);
-        $this->publicKey = Yii::getAlias($this->publicKey);
         $this->setUpDi();
         if (empty($this->baseEndPoint) === false) {
             $this->baseEndPoint = trim($this->baseEndPoint, '/').'/';

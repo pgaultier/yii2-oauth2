@@ -35,6 +35,18 @@ class Scope extends BaseModel
 {
 
     /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return [
+            [['id', 'definition'], 'string'],
+            [['isDefault'], 'boolean', 'trueValue' => true, 'falseValue' => false, 'strict' => true],
+            [['id', 'isDefault'], 'required'],
+        ];
+    }
+
+    /**
      * @return \sweelix\oauth2\server\interfaces\ScopeServiceInterface
      */
     protected static function getDataService()

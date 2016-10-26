@@ -58,9 +58,27 @@ class Redis implements ServiceBootstrapInterface
                 'namespace' => 'oauth2:clients',
             ]);
         }
+        if (Yii::$container->hasSingleton('sweelix\oauth2\server\interfaces\CypherKeyInterface') === false) {
+            Yii::$container->setSingleton('sweelix\oauth2\server\interfaces\CypherKeyInterface', [
+                'class' => ClientService::className(),
+                'namespace' => 'oauth2:cypherKeys',
+            ]);
+        }
+        if (Yii::$container->hasSingleton('sweelix\oauth2\server\interfaces\JtiInterface') === false) {
+            Yii::$container->setSingleton('sweelix\oauth2\server\interfaces\JtiInterface', [
+                'class' => ClientService::className(),
+                'namespace' => 'oauth2:jti',
+            ]);
+        }
+        if (Yii::$container->hasSingleton('sweelix\oauth2\server\interfaces\JwtServiceInterface') === false) {
+            Yii::$container->setSingleton('sweelix\oauth2\server\interfaces\JwtServiceInterface', [
+                'class' => RefreshTokenService::className(),
+                'namespace' => 'oauth2:jwt',
+            ]);
+        }
         if (Yii::$container->hasSingleton('sweelix\oauth2\server\interfaces\RefreshTokenServiceInterface') === false) {
             Yii::$container->setSingleton('sweelix\oauth2\server\interfaces\RefreshTokenServiceInterface', [
-                'class' => RefreshTokenService::className(),
+                'class' => AccessTokenService::className(),
                 'namespace' => 'oauth2:refreshTokens',
             ]);
         }
