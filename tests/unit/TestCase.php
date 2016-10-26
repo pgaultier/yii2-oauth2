@@ -3,6 +3,7 @@
 namespace tests\unit;
 
 use yii\helpers\ArrayHelper;
+use Yii;
 
 abstract class TestCase extends \PHPUnit_Framework_TestCase
 {
@@ -52,6 +53,28 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
      */
     protected function destroyApplication()
     {
-        \Yii::$app = null;
+        Yii::$app = null;
+    }
+
+    /**
+     * populate database with scopes basic and email
+     * @since XXX
+     */
+    protected function populateScopes()
+    {
+        $scope = Yii::createObject('sweelix\oauth2\server\models\Scope');
+        /* @var \sweelix\oauth2\server\models\Scope $scope */
+        $scope->id = 'basic';
+        $scope->isDefault = true;
+        $scope->definition = 'Basic Scope';
+        $scope->save();
+
+        $scope = Yii::createObject('sweelix\oauth2\server\models\Scope');
+        /* @var \sweelix\oauth2\server\models\Scope $scope */
+        $scope->id = 'email';
+        $scope->isDefault = false;
+        $scope->definition = 'Email Scope';
+        $scope->save();
+
     }
 }

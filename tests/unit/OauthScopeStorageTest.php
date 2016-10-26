@@ -3,6 +3,7 @@
 namespace tests\unit;
 use sweelix\oauth2\server\exceptions\DuplicateKeyException;
 use sweelix\oauth2\server\models\Scope;
+use sweelix\oauth2\server\storage\ScopeStorage;
 use Yii;
 /**
  * ManagerTestCase
@@ -167,6 +168,40 @@ class OauthScopeStorageTest extends TestCase
 
         $this->assertEquals(1, count($defaultScopes));
         $this->assertContains('basic', $defaultScopes);
+
+    }
+
+    public function testStorage()
+    {
+        $storage = Yii::createObject('sweelix\oauth2\server\storage\ScopeStorage');
+        /* @var ScopeStorage $storage */
+        $this->assertInstanceOf(ScopeStorage::class, $storage);
+        $defaultScope = $storage->getDefaultScope();
+        $this->assertNull($defaultScope);
+
+        $basicScope = Yii::createObject('sweelix\oauth2\server\models\Scope');
+        /* @var Scope $basicScope */
+        $this->assertInstanceOf(Scope::className(), $basicScope);
+        $basicScope->id = 'basic';
+        $basicScope->isDefault = true;
+        $basicScope->definition = 'Basic Scope';
+        $this->assertTrue($basicScope->save());
+
+        $defaultScope = $storage->getDefaultScope();
+        $this->assertEquals('basic', $defaultScope);
+
+        $this->assertFalse($storage->scopeExists('fail'));
+        $this->assertTrue($storage->scopeExists('basic'));
+
+        $emailScope = Yii::createObject('sweelix\oauth2\server\models\Scope');
+        /* @var Scope $basicScope */
+        $this->assertInstanceOf(Scope::className(), $emailScope);
+        $emailScope->id = 'email';
+        $emailScope->isDefault = false;
+        $emailScope->definition = 'Email Scope';
+        $this->assertTrue($emailScope->save());
+        $this->assertTrue($storage->scopeExists('basic email'));
+        $this->assertTrue($storage->scopeExists('email basic'));
 
     }
 

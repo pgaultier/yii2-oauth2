@@ -1,0 +1,228 @@
+<?php
+
+namespace tests\unit;
+use sweelix\oauth2\server\exceptions\DuplicateKeyException;
+use sweelix\oauth2\server\models\Client;
+use sweelix\oauth2\server\storage\ClientStorage;
+use Yii;
+/**
+ * ManagerTestCase
+ */
+class OauthClientStorageTest extends TestCase
+{
+    protected function setUp()
+    {
+        parent::setUp();
+        $this->mockApplication([
+        ]);
+        $this->cleanDatabase();
+    }
+    protected function tearDown()
+    {
+        parent::tearDown();
+    }
+
+    public function testInsert()
+    {
+        $client = Yii::createObject('sweelix\oauth2\server\models\Client');
+        /* @var Client $client */
+        $this->assertInstanceOf(Client::className(), $client);
+        $client->id = 'client1';
+        $client->secret = 'secret1';
+        $client->isPublic = true;
+        $client->grantTypes = [];
+        $client->redirectUri = 'http://sweelix.net';
+        $client->userId = 'uid';
+        $client->scopes = [];
+        $client->name = 'Test client';
+
+        $this->assertTrue($client->save());
+
+        $insertedClient = Client::findOne('client1');
+        $this->assertInstanceOf(Client::className(), $insertedClient);
+        $this->assertEquals($client->id, $insertedClient->id);
+        $this->assertEquals($client->secret, $insertedClient->secret);
+        $this->assertEquals($client->isPublic, $insertedClient->isPublic);
+        $this->assertTrue(is_array($client->grantTypes));
+        $this->assertTrue(empty($client->grantTypes));
+        $this->assertEquals($client->redirectUri, $insertedClient->redirectUri);
+        $this->assertEquals($client->userId, $insertedClient->userId);
+        $this->assertTrue(is_array($client->scopes));
+        $this->assertTrue(empty($client->scopes));
+        $this->assertEquals($client->name, $insertedClient->name);
+
+        $client = Yii::createObject('sweelix\oauth2\server\models\Client');
+        /* @var Client $client */
+        $this->assertInstanceOf(Client::className(), $client);
+        $client->id = 'scopedClient';
+        $client->secret = 'secret2';
+        $client->isPublic = true;
+        $client->grantTypes = [];
+        $client->redirectUri = 'http://sweelix.net';
+        $client->userId = 'uid';
+        $client->scopes = ['basic'];
+        $client->name = 'Test client';
+
+        $this->assertFalse($client->save());
+        $this->assertTrue($client->hasErrors('scopes'));
+
+        $this->populateScopes();
+
+        $this->assertTrue($client->save());
+
+
+        $client = Yii::createObject('sweelix\oauth2\server\models\Client');
+        /* @var Client $client */
+        $this->assertInstanceOf(Client::className(), $client);
+        $client->id = 'client2';
+        $client->name = 'Test Client 2';
+        $this->assertFalse($client->save());
+
+
+        $client = Yii::createObject('sweelix\oauth2\server\models\Client');
+        /* @var Client $client */
+        $this->assertInstanceOf(Client::className(), $client);
+        $client->id = 'client1';
+        $client->secret = 'secret1';
+        $client->isPublic = true;
+        $client->grantTypes = [];
+        $client->userId = 'uid';
+        $client->scopes = [];
+        $client->name = 'Test client';
+        $this->expectException(DuplicateKeyException::class);
+        $client->save();
+    }
+
+    public function testUpdate()
+    {
+        $client1 = Yii::createObject('sweelix\oauth2\server\models\Client');
+        /* @var Client $client1 */
+        $this->assertInstanceOf(Client::className(), $client1);
+        $client1->id = 'client1';
+        $client1->secret = 'secret1';
+        $client1->isPublic = true;
+        $client1->grantTypes = [];
+        $client1->userId = 'uid';
+        $client1->scopes = [];
+        $client1->name = 'Test client';
+        $this->assertTrue($client1->save());
+
+        $client2 = Yii::createObject('sweelix\oauth2\server\models\Client');
+        /* @var Client $client2 */
+        $this->assertInstanceOf(Client::className(), $client2);
+        $client2->id = 'client2';
+        $client2->secret = 'secret1';
+        $client2->isPublic = true;
+        $client2->grantTypes = [];
+        $client2->userId = 'uid';
+        $client2->scopes = ['basic'];
+        $client2->name = 'Test client';
+        $this->assertFalse($client2->save());
+        $this->populateScopes();
+        $this->assertTrue($client2->save());
+
+        $client2 = Client::findOne('client2');
+        $client2->secret = 'secret2';
+        $this->assertTrue($client2->save());
+
+        $client2 = Client::findOne('client2');
+        $client2->id = 'client1';
+        $this->expectException(DuplicateKeyException::class);
+        $client2->save();
+    }
+
+    public function testDelete()
+    {
+        $client = Yii::createObject('sweelix\oauth2\server\models\Client');
+        /* @var Client $client */
+        $this->assertInstanceOf(Client::className(), $client);
+        $client->id = 'client1';
+        $client->secret = 'secret1';
+        $client->isPublic = true;
+        $client->userId = 'uid';
+        $client->name = 'Test client';
+        $this->assertTrue($client->save());
+
+        $client->delete();
+        $deletedClient = Client::findOne('client1');
+        $this->assertNull($deletedClient);
+
+    }
+
+    public function testStorage()
+    {
+        $client = Yii::createObject('sweelix\oauth2\server\models\Client');
+        /* @var Client $client */
+        $this->assertInstanceOf(Client::className(), $client);
+        $client->id = 'client1';
+        $client->secret = 'secret1';
+        $client->isPublic = true;
+        $client->userId = 'uid';
+        $client->name = 'Test client';
+        $this->assertTrue($client->save());
+
+        $storage = Yii::createObject('sweelix\oauth2\server\storage\ClientStorage');
+        /* @var ClientStorage $storage */
+        $this->assertInstanceOf(ClientStorage::class, $storage);
+
+        $storageClient = $storage->getClientDetails('fail');
+        $this->assertFalse($storageClient);
+        $storageClient = $storage->getClientDetails('client1');
+        $this->assertArrayHasKey('client_id', $storageClient);
+        $this->assertArrayHasKey('redirect_uri', $storageClient);
+        $this->assertArrayHasKey('grant_types', $storageClient);
+        $this->assertArrayHasKey('user_id', $storageClient);
+        $this->assertArrayHasKey('scope', $storageClient);
+        $this->assertEquals($client->id, $storageClient['client_id']);
+        $this->assertEquals($client->redirectUri, $storageClient['redirect_uri']);
+        $this->assertTrue(is_array($storageClient['grant_types']));
+        $this->assertTrue(empty($storageClient['grant_types']));
+        $this->assertEquals($client->userId, $storageClient['user_id']);
+        $this->assertEquals(implode(' ', $client->scopes), $storageClient['scope']);
+
+        $scope = $storage->getClientScope('client1');
+        $this->assertEquals('', $scope);
+
+        $isPublic = $storage->isPublicClient('client1');
+        $this->assertTrue($isPublic);
+        $hasCredentials = $storage->checkClientCredentials('client1');
+        $this->assertFalse($hasCredentials);
+        $hasCredentials = $storage->checkClientCredentials('client1', 'secret1');
+        $this->assertTrue($hasCredentials);
+
+        $client = Yii::createObject('sweelix\oauth2\server\models\Client');
+        /* @var Client $client */
+        $this->assertInstanceOf(Client::className(), $client);
+        $client->id = 'client2';
+        $client->secret = 'secret2';
+        $client->isPublic = false;
+        $client->userId = 'uid';
+        $client->name = 'Test client 2';
+        $this->assertTrue($client->save());
+
+        $isPublic = $storage->isPublicClient('client2');
+        $this->assertFalse($isPublic);
+
+        $isRestricted = $storage->checkRestrictedGrantType('client2', 'password');
+        $this->assertTrue($isRestricted);
+        $client->grantTypes = ['password'];
+        $this->assertTrue($client->save());
+        $isRestricted = $storage->checkRestrictedGrantType('client2', 'password');
+        $this->assertTrue($isRestricted);
+        $isRestricted = $storage->checkRestrictedGrantType('client2', 'code');
+        $this->assertFalse($isRestricted);
+
+        $this->populateScopes();
+
+
+
+    }
+
+    protected function cleanDatabase()
+    {
+        $keys = Yii::$app->redis->executeCommand('KEYS', ['oauth2:*']);
+        if (empty($keys) === false) {
+            Yii::$app->redis->executeCommand('DEL', $keys);
+        }
+    }
+}
