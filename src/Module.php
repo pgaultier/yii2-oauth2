@@ -38,7 +38,7 @@ class Module extends BaseModule implements BootstrapInterface
      * The class must implement \sweelix\oauth2\server\interfaces\UserInterface
      * @var string|array user class definition.
      */
-    public $user;
+    public $identityClass;
 
     /**
      * @var string change base end point
@@ -94,6 +94,9 @@ class Module extends BaseModule implements BootstrapInterface
         if (Yii::$container->has('sweelix\oauth2\server\interfaces\ScopeModelInterface') === false) {
             Yii::$container->set('sweelix\oauth2\server\interfaces\ScopeModelInterface', 'sweelix\oauth2\server\models\Scope');
         }
+        if ((Yii::$container->has('sweelix\oauth2\server\interfaces\UserInterface') === false) && ($this->identityClass !== null)) {
+            Yii::$container->set('sweelix\oauth2\server\interfaces\UserInterface', $this->identityClass);
+        }
 
         if ($this->backend === 'redis') {
             Redis::register();
@@ -105,6 +108,10 @@ class Module extends BaseModule implements BootstrapInterface
      */
     public function bootstrap($app)
     {
+        // use the registered identity class if not overloaded
+        if (($this->identityClass === null) && (isset($app->user) === true)) {
+            $this->identityClass = $app->user->identityClass;
+        }
         $this->setUpDi();
         if (empty($this->baseEndPoint) === false) {
             $this->baseEndPoint = trim($this->baseEndPoint, '/').'/';

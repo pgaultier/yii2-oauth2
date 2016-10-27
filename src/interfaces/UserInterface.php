@@ -14,8 +14,7 @@
 
 namespace sweelix\oauth2\server\interfaces;
 
-use League\OAuth2\Server\Entities\UserEntityInterface;
-use sweelix\oauth2\server\models\Client;
+use yii\web\IdentityInterface;
 
 /**
  * This is the user interface
@@ -28,14 +27,24 @@ use sweelix\oauth2\server\models\Client;
  * @package sweelix\oauth2\server\interfaces
  * @since XXX
  */
-interface UserInterface extends UserEntityInterface
+interface UserInterface extends IdentityInterface
 {
     /**
      * @param string $username
      * @param string $password
-     * @param string $grantType
-     * @param Client $client
      * @return UserInterface
      */
-    public static function findByUsernameAndPassword($username, $password, $grantType = null, Client $client = null);
+    public static function findByUsernameAndPassword($username, $password);
+
+    /**
+     * @param string $username
+     * @return UserInterface
+     */
+    public static function findByUsername($username);
+
+    /**
+     * @return array list of scopes for current user
+     * @since XXX
+     */
+    public function getScopes();
 }
