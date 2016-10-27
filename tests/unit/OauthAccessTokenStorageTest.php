@@ -24,7 +24,7 @@ class OauthAccessTokenStorageTest extends TestCase
 
     public function testInsert()
     {
-        $accessToken = Yii::createObject('sweelix\oauth2\server\models\AccessToken');
+        $accessToken = Yii::createObject('sweelix\oauth2\server\interfaces\AccessTokenModelInterface');
         /* @var AccessToken $accessToken */
         $this->assertInstanceOf(AccessToken::className(), $accessToken);
         $accessToken->id = 'accessToken1';
@@ -44,7 +44,7 @@ class OauthAccessTokenStorageTest extends TestCase
 
         $this->populateScopes();
 
-        $accessToken = Yii::createObject('sweelix\oauth2\server\models\AccessToken');
+        $accessToken = Yii::createObject('sweelix\oauth2\server\interfaces\AccessTokenModelInterface');
         /* @var AccessToken $accessToken */
         $this->assertInstanceOf(AccessToken::className(), $accessToken);
         $accessToken->id = 'accessToken2';
@@ -54,7 +54,7 @@ class OauthAccessTokenStorageTest extends TestCase
         $accessToken->scopes = ['basic'];
         $this->assertTrue($accessToken->save());
 
-        $accessToken = Yii::createObject('sweelix\oauth2\server\models\AccessToken');
+        $accessToken = Yii::createObject('sweelix\oauth2\server\interfaces\AccessTokenModelInterface');
         /* @var AccessToken $accessToken */
         $this->assertInstanceOf(AccessToken::className(), $accessToken);
         $accessToken->id = 'accessToken3';
@@ -73,7 +73,7 @@ class OauthAccessTokenStorageTest extends TestCase
 
     public function testUpdate()
     {
-        $accessToken = Yii::createObject('sweelix\oauth2\server\models\AccessToken');
+        $accessToken = Yii::createObject('sweelix\oauth2\server\interfaces\AccessTokenModelInterface');
         /* @var AccessToken $accessToken */
         $this->assertInstanceOf(AccessToken::className(), $accessToken);
         $accessToken->id = 'accessToken1';
@@ -89,7 +89,7 @@ class OauthAccessTokenStorageTest extends TestCase
         $insertedAccessToken->expiry = null;
         $this->assertTrue($insertedAccessToken->save());
 
-        $accessToken = Yii::createObject('sweelix\oauth2\server\models\AccessToken');
+        $accessToken = Yii::createObject('sweelix\oauth2\server\interfaces\AccessTokenModelInterface');
         /* @var AccessToken $accessToken */
         $this->assertInstanceOf(AccessToken::className(), $accessToken);
         $accessToken->id = 'accessToken1';
@@ -106,7 +106,7 @@ class OauthAccessTokenStorageTest extends TestCase
 
     public function testDelete()
     {
-        $accessToken = Yii::createObject('sweelix\oauth2\server\models\AccessToken');
+        $accessToken = Yii::createObject('sweelix\oauth2\server\interfaces\AccessTokenModelInterface');
         /* @var AccessToken $accessToken */
         $this->assertInstanceOf(AccessToken::className(), $accessToken);
         $accessToken->id = 'accessToken1';

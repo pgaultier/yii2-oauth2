@@ -14,18 +14,37 @@
 namespace sweelix\oauth2\server\storage;
 
 use OAuth2\Storage\PublicKeyInterface;
-use sweelix\oauth2\server\models\CypherKey;
+use Yii;
 
 class CypherKeyStorage implements PublicKeyInterface
 {
+    /**
+     * @var string
+     */
+    private $cypherKeyClass;
+
+    /**
+     * @return string classname for selected interface
+     * @since XXX
+     */
+    public function getCypherKeyClass()
+    {
+        if ($this->cypherKeyClass === null) {
+            $client = Yii::createObject('sweelix\oauth2\server\interfaces\CypherKeyModelInterface');
+            $this->cypherKeyClass = get_class($client);
+        }
+        return $this->cypherKeyClass;
+    }
+
     /**
      * @inheritdoc
      */
     public function getPublicKey($client_id = null)
     {
-        $cypherKey = CypherKey::findOne($client_id);
+        $cypherKeyClass = $this->getCypherKeyClass();
+        $cypherKey = $cypherKeyClass::findOne($client_id);
         if ($cypherKey === null) {
-            $cypherKey = CypherKey::findOne(CypherKey::DEFAULT_KEY);
+            $cypherKey = $cypherKeyClass::findOne($cypherKeyClass::DEFAULT_KEY);
         }
         if ($cypherKey !== null) {
             $cypherKey = $cypherKey->publicKey;
@@ -38,9 +57,10 @@ class CypherKeyStorage implements PublicKeyInterface
      */
     public function getPrivateKey($client_id = null)
     {
-        $cypherKey = CypherKey::findOne($client_id);
+        $cypherKeyClass = $this->getCypherKeyClass();
+        $cypherKey = $cypherKeyClass::findOne($client_id);
         if ($cypherKey === null) {
-            $cypherKey = CypherKey::findOne(CypherKey::DEFAULT_KEY);
+            $cypherKey = $cypherKeyClass::findOne($cypherKeyClass::DEFAULT_KEY);
         }
         if ($cypherKey !== null) {
             $cypherKey = $cypherKey->privateKey;
@@ -53,9 +73,10 @@ class CypherKeyStorage implements PublicKeyInterface
      */
     public function getEncryptionAlgorithm($client_id = null)
     {
-        $cypherKey = CypherKey::findOne($client_id);
+        $cypherKeyClass = $this->getCypherKeyClass();
+        $cypherKey = $cypherKeyClass::findOne($client_id);
         if ($cypherKey === null) {
-            $cypherKey = CypherKey::findOne(CypherKey::DEFAULT_KEY);
+            $cypherKey = $cypherKeyClass::findOne($cypherKeyClass::DEFAULT_KEY);
         }
         if ($cypherKey !== null) {
             $cypherKey = $cypherKey->encryptionAlgoritm;

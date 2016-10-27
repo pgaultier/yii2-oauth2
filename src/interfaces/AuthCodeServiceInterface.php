@@ -14,8 +14,6 @@
 
 namespace sweelix\oauth2\server\interfaces;
 
-use sweelix\oauth2\server\models\AuthCode;
-
 /**
  * This is the auth code service interface
  *
@@ -31,23 +29,23 @@ interface AuthCodeServiceInterface
 {
     /**
      * Save or update auth code depending on isNewRecord flag
-     * @param AuthCode $authCode
+     * @param AuthCodeModelInterface $authCode
      * @param null|array $attributes attributes to save
      * @return boolean
      * @throws \Exception
      */
-    public function save(AuthCode $authCode, $attributes);
+    public function save(AuthCodeModelInterface $authCode, $attributes);
 
     /**
      * @param string $key
-     * @return AuthCode|null
+     * @return AuthCodeModelInterface|null
      */
     public function findOne($key);
 
     /**
-     * @param AuthCode $authCode
+     * @param AuthCodeModelInterface $authCode
      * @return boolean
      */
-    public function delete(AuthCode $authCode);
+    public function delete(AuthCodeModelInterface $authCode);
 
 }

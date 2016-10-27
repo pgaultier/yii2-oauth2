@@ -14,6 +14,7 @@
 
 namespace sweelix\oauth2\server\models;
 
+use sweelix\oauth2\server\behaviors\EmptyArrayBehavior;
 use sweelix\oauth2\server\interfaces\AccessTokenModelInterface;
 use Yii;
 
@@ -36,6 +37,20 @@ use Yii;
  */
 class AccessToken extends BaseModel implements AccessTokenModelInterface
 {
+
+    /**
+     * @inheritdoc
+     */
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        $behaviors['emptyArray'] = [
+            'class' => EmptyArrayBehavior::className(),
+            'attributes' => ['scopes'],
+        ];
+        return $behaviors;
+    }
+
     /**
      * @inheritdoc
      */
@@ -107,16 +122,4 @@ class AccessToken extends BaseModel implements AccessTokenModelInterface
     {
         return self::getDataService()->delete($this);
     }
-
-    /**
-     * @inheritdoc
-     */
-    public function beforeSave($insert)
-    {
-        if ($this->scopes === null) {
-            $this->scopes = [];
-        }
-        return parent::beforeSave($insert);
-    }
-
 }

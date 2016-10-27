@@ -14,14 +14,32 @@
 namespace sweelix\oauth2\server\storage;
 
 use OAuth2\Storage\AuthorizationCodeInterface;
-use sweelix\oauth2\server\models\AuthCode;
+use Yii;
 
 class AuthCodeStorage implements AuthorizationCodeInterface
 {
+    /**
+     * @var string
+     */
+    private $authCodeClass;
+
+    /**
+     * @return string classname for selected interface
+     * @since XXX
+     */
+    public function getAuthCodeClass()
+    {
+        if ($this->authCodeClass === null) {
+            $client = Yii::createObject('sweelix\oauth2\server\interfaces\AuthCodeModelInterface');
+            $this->authCodeClass = get_class($client);
+        }
+        return $this->authCodeClass;
+    }
 
     public function getAuthorizationCode($code)
     {
-        $authCode = AuthCode::findOne($code);
+        $authCodeClass = $this->getAuthCodeClass();
+        $authCode = $authCodeClass::findOne($code);
         if ($authCode !== null) {
             $finalCode = [
                 'client_id' => $authCode->clientId,
@@ -37,7 +55,7 @@ class AuthCodeStorage implements AuthorizationCodeInterface
 
     public function setAuthorizationCode($code, $client_id, $user_id, $redirect_uri, $expires, $scope = null)
     {
-        $authCode = new AuthCode();
+        $authCode = Yii::createObject('sweelix\oauth2\server\interfaces\AuthCodeModelInterface');
         $authCode->id = $code;
         $authCode->clientId = $client_id;
         $authCode->userId = $user_id;
@@ -55,7 +73,8 @@ class AuthCodeStorage implements AuthorizationCodeInterface
 
     public function expireAuthorizationCode($code)
     {
-        $authCode = AuthCode::findOne($code);
+        $authCodeClass = $this->getAuthCodeClass();
+        $authCode = $authCodeClass::findOne($code);
         if ($authCode !== null) {
             $authCode->delete();
         }

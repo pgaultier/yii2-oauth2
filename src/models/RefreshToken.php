@@ -14,6 +14,7 @@
 
 namespace sweelix\oauth2\server\models;
 
+use sweelix\oauth2\server\behaviors\EmptyArrayBehavior;
 use Yii;
 
 /**
@@ -35,6 +36,19 @@ use Yii;
  */
 class RefreshToken extends BaseModel
 {
+    /**
+     * @inheritdoc
+     */
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        $behaviors['emptyArray'] = [
+            'class' => EmptyArrayBehavior::className(),
+            'attributes' => ['scopes'],
+        ];
+        return $behaviors;
+    }
+
     /**
      * @return \sweelix\oauth2\server\interfaces\RefreshTokenServiceInterface
      */

@@ -14,6 +14,7 @@
 
 namespace sweelix\oauth2\server\models;
 
+use sweelix\oauth2\server\behaviors\EmptyArrayBehavior;
 use sweelix\oauth2\server\interfaces\ClientModelInterface;
 use Yii;
 
@@ -39,6 +40,19 @@ use Yii;
  */
 class Client extends BaseModel implements ClientModelInterface
 {
+
+    /**
+     * @inheritdoc
+     */
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        $behaviors['emptyArray'] = [
+            'class' => EmptyArrayBehavior::className(),
+            'attributes' => ['scopes', 'grantTypes'],
+        ];
+        return $behaviors;
+    }
 
     /**
      * @inheritdoc
@@ -116,20 +130,6 @@ class Client extends BaseModel implements ClientModelInterface
     public function delete()
     {
         return self::getDataService()->delete($this);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function beforeSave($insert)
-    {
-        if ($this->grantTypes === null) {
-            $this->grantTypes = [];
-        }
-        if ($this->scopes === null) {
-            $this->scopes = [];
-        }
-        return parent::beforeSave($insert);
     }
 
 }

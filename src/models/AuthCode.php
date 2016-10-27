@@ -14,6 +14,8 @@
 
 namespace sweelix\oauth2\server\models;
 
+use sweelix\oauth2\server\behaviors\EmptyArrayBehavior;
+use sweelix\oauth2\server\interfaces\AuthCodeModelInterface;
 use Yii;
 
 /**
@@ -35,8 +37,34 @@ use Yii;
  * @property array $scopes
  * @property string $tokenId
  */
-class AuthCode extends BaseModel
+class AuthCode extends BaseModel implements AuthCodeModelInterface
 {
+
+    /**
+     * @inheritdoc
+     */
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        $behaviors['emptyArray'] = [
+            'class' => EmptyArrayBehavior::className(),
+            'attributes' => ['scopes'],
+        ];
+        return $behaviors;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return [
+            [['id', 'clientId', 'userId', 'tokenId'], 'string'],
+            [['redirectUri'], 'url'],
+            [['scopes'], 'scope'],
+            [['id'], 'required'],
+        ];
+    }
 
     /**
      * @return \sweelix\oauth2\server\interfaces\AuthCodeServiceInterface
@@ -72,12 +100,7 @@ class AuthCode extends BaseModel
     }
 
     /**
-     * Find one scope by its key
-     *
-     * @param string $id
-     * @return AuthCode|null
-     * @since XXX
-     * @throws \yii\base\UnknownClassException
+     * @inheritdoc
      */
     public static function findOne($id)
     {
@@ -85,11 +108,7 @@ class AuthCode extends BaseModel
     }
 
     /**
-     * @param bool $runValidation
-     * @param null $attributes
-     * @return bool
-     * @since XXX
-     * @throws \yii\base\UnknownClassException
+     * @inheritdoc
      */
     public function save($runValidation = true, $attributes = null)
     {
@@ -103,9 +122,7 @@ class AuthCode extends BaseModel
     }
 
     /**
-     * @return bool
-     * @since XXX
-     * @throws \yii\base\UnknownClassException
+     * @inheritdoc
      */
     public function delete()
     {

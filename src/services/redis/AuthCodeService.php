@@ -16,7 +16,7 @@ namespace sweelix\oauth2\server\services\redis;
 
 use sweelix\oauth2\server\exceptions\DuplicateIndexException;
 use sweelix\oauth2\server\exceptions\DuplicateKeyException;
-use sweelix\oauth2\server\models\AuthCode;
+use sweelix\oauth2\server\interfaces\AuthCodeModelInterface;
 use sweelix\oauth2\server\interfaces\AuthCodeServiceInterface;
 use yii\db\Exception as DatabaseException;
 use Yii;
@@ -60,7 +60,7 @@ class AuthCodeService extends BaseService implements AuthCodeServiceInterface
     /**
      * @inheritdoc
      */
-    public function save(AuthCode $authCode, $attributes)
+    public function save(AuthCodeModelInterface $authCode, $attributes)
     {
         if ($authCode->getIsNewRecord()) {
             $result = $this->insert($authCode, $attributes);
@@ -72,7 +72,7 @@ class AuthCodeService extends BaseService implements AuthCodeServiceInterface
 
     /**
      * Save Auth Code
-     * @param AuthCode $authCode
+     * @param AuthCodeModelInterface $authCode
      * @param null|array $attributes attributes to save
      * @return bool
      * @throws DatabaseException
@@ -80,7 +80,7 @@ class AuthCodeService extends BaseService implements AuthCodeServiceInterface
      * @throws DuplicateKeyException
      * @since XXX
      */
-    protected function insert(AuthCode $authCode, $attributes)
+    protected function insert(AuthCodeModelInterface $authCode, $attributes)
     {
         $result = false;
         if (!$authCode->beforeSave(true)) {
@@ -130,14 +130,14 @@ class AuthCodeService extends BaseService implements AuthCodeServiceInterface
 
     /**
      * Update Auth Code
-     * @param AuthCode $authCode
+     * @param AuthCodeModelInterface $authCode
      * @param null|array $attributes attributes to save
      * @return bool
      * @throws DatabaseException
      * @throws DuplicateIndexException
      * @throws DuplicateKeyException
      */
-    protected function update(AuthCode $authCode, $attributes)
+    protected function update(AuthCodeModelInterface $authCode, $attributes)
     {
         if (!$authCode->beforeSave(false)) {
             return false;
@@ -218,8 +218,8 @@ class AuthCodeService extends BaseService implements AuthCodeServiceInterface
         $authCodeExists = (bool)$this->db->executeCommand('EXISTS', [$authCodeKey]);
         if ($authCodeExists === true) {
             $authCodeData = $this->db->executeCommand('HGETALL', [$authCodeKey]);
-            $record = Yii::createObject(AuthCode::className());
-            /** @var AuthCode $record */
+            $record = Yii::createObject('sweelix\oauth2\server\interfaces\AuthCodeModelInterface');
+            /** @var AuthCodeModelInterface $record */
             $properties = $record->attributesDefinition();
             $this->setAttributesDefinitions($properties);
             $attributes = [];
@@ -246,7 +246,7 @@ class AuthCodeService extends BaseService implements AuthCodeServiceInterface
     /**
      * @inheritdoc
      */
-    public function delete(AuthCode $authCode)
+    public function delete(AuthCodeModelInterface $authCode)
     {
         $result = false;
         if ($authCode->beforeDelete()) {
