@@ -16,6 +16,7 @@ namespace sweelix\oauth2\server\storage;
 use OAuth2\Storage\AccessTokenInterface;
 use OAuth2\Storage\JwtAccessTokenInterface;
 use sweelix\oauth2\server\models\AccessToken;
+use Yii;
 
 class AccessTokenStorage implements AccessTokenInterface, JwtAccessTokenInterface
 {
@@ -43,7 +44,8 @@ class AccessTokenStorage implements AccessTokenInterface, JwtAccessTokenInterfac
      */
     public function setAccessToken($oauth_token, $client_id, $user_id, $expires, $scope = null)
     {
-        $accessToken = new AccessToken();
+        $accessToken = Yii::createObject('sweelix\oauth2\server\interfaces\AccessTokenModelInterface');
+        /* @var AccessToken $accessToken */
         $accessToken->id = $oauth_token;
         $accessToken->clientId = $client_id;
         $accessToken->userId = $user_id;
