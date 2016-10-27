@@ -1,10 +1,10 @@
 <?php
 
 namespace tests\unit;
+use OAuth2\Storage\AuthorizationCodeInterface;
 use sweelix\oauth2\server\exceptions\DuplicateKeyException;
 use sweelix\oauth2\server\interfaces\AuthCodeModelInterface;
 use sweelix\oauth2\server\models\AuthCode;
-use sweelix\oauth2\server\storage\AuthCodeStorage;
 use Yii;
 /**
  * ManagerTestCase
@@ -128,17 +128,18 @@ class OauthAuthCodeStorageTest extends TestCase
     public function testStorage()
     {
         $this->populateScopes();
-        $storage = Yii::createObject('sweelix\oauth2\server\storage\AuthCodeStorage');
-        /* @var AuthCodeStorage $storage */
-        $this->assertInstanceOf(AuthCodeStorage::class, $storage);
+        $storage = Yii::createObject('sweelix\oauth2\server\storage\OauthStorage');
+        /* @var AuthorizationCodeInterface $storage */
+        $this->assertInstanceOf(AuthorizationCodeInterface::class, $storage);
 
-        $this->assertTrue($storage->setAuthorizationCode('authCode1', 'client1', 'user1', null, 154, 'basic'));
+        $this->assertTrue($storage->setAuthorizationCode('authCode1', 'client1', 'user1', null, 154, 'basic', 'accessToken1'));
 
         $authCode = AuthCode::findOne('authCode1');
         $this->assertEquals('authCode1', $authCode->id);
         $this->assertEquals('client1', $authCode->clientId);
         $this->assertEquals('user1', $authCode->userId);
         $this->assertNull($authCode->redirectUri);
+        $this->assertEquals('accessToken1', $authCode->tokenId);
         $this->assertContains('basic', $authCode->scopes);
 
         $authCodeData = $storage->getAuthorizationCode('authCode1');

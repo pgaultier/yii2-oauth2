@@ -1,9 +1,9 @@
 <?php
 
 namespace tests\unit;
+use OAuth2\Storage\ScopeInterface;
 use sweelix\oauth2\server\exceptions\DuplicateKeyException;
 use sweelix\oauth2\server\models\Scope;
-use sweelix\oauth2\server\storage\ScopeStorage;
 use Yii;
 /**
  * ManagerTestCase
@@ -173,9 +173,9 @@ class OauthScopeStorageTest extends TestCase
 
     public function testStorage()
     {
-        $storage = Yii::createObject('sweelix\oauth2\server\storage\ScopeStorage');
-        /* @var ScopeStorage $storage */
-        $this->assertInstanceOf(ScopeStorage::class, $storage);
+        $storage = Yii::createObject('sweelix\oauth2\server\storage\OauthStorage');
+        /* @var ScopeInterface $storage */
+        $this->assertInstanceOf(ScopeInterface::class, $storage);
         $defaultScope = $storage->getDefaultScope();
         $this->assertNull($defaultScope);
 

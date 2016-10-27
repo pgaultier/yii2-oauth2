@@ -1,9 +1,9 @@
 <?php
 
 namespace tests\unit;
+use OAuth2\Storage\ClientCredentialsInterface;
 use sweelix\oauth2\server\exceptions\DuplicateKeyException;
 use sweelix\oauth2\server\models\Client;
-use sweelix\oauth2\server\storage\ClientStorage;
 use Yii;
 /**
  * ManagerTestCase
@@ -169,9 +169,9 @@ class OauthClientStorageTest extends TestCase
         $client->name = 'Test client';
         $this->assertTrue($client->save());
 
-        $storage = Yii::createObject('sweelix\oauth2\server\storage\ClientStorage');
-        /* @var ClientStorage $storage */
-        $this->assertInstanceOf(ClientStorage::class, $storage);
+        $storage = Yii::createObject('sweelix\oauth2\server\storage\OauthStorage');
+        /* @var ClientCredentialsInterface $storage */
+        $this->assertInstanceOf(ClientCredentialsInterface::class, $storage);
 
         $storageClient = $storage->getClientDetails('fail');
         $this->assertFalse($storageClient);

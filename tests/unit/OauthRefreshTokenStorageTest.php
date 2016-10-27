@@ -1,9 +1,9 @@
 <?php
 
 namespace tests\unit;
+use OAuth2\Storage\RefreshTokenInterface;
 use sweelix\oauth2\server\exceptions\DuplicateKeyException;
 use sweelix\oauth2\server\models\RefreshToken;
-use sweelix\oauth2\server\storage\RefreshTokenStorage;
 use Yii;
 /**
  * ManagerTestCase
@@ -123,9 +123,9 @@ class OauthRefreshTokenStorageTest extends TestCase
 
     public function testStorage()
     {
-        $storage = Yii::createObject('sweelix\oauth2\server\storage\RefreshTokenStorage');
-        /* @var RefreshTokenStorage $storage */
-        $this->assertInstanceOf(RefreshTokenStorage::class, $storage);
+        $storage = Yii::createObject('sweelix\oauth2\server\storage\OauthStorage');
+        /* @var RefreshTokenInterface $storage */
+        $this->assertInstanceOf(RefreshTokenInterface::class, $storage);
         $this->assertTrue($storage->setRefreshToken('refreshToken1', 'client1', 'user1', 1250));
         $refreshToken = RefreshToken::findOne('refreshToken1');
         $this->assertInstanceOf(RefreshToken::className(), $refreshToken);

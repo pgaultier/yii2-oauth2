@@ -1,9 +1,9 @@
 <?php
 
 namespace tests\unit;
+use OAuth2\Storage\AccessTokenInterface;
 use sweelix\oauth2\server\exceptions\DuplicateKeyException;
 use sweelix\oauth2\server\models\AccessToken;
-use sweelix\oauth2\server\storage\AccessTokenStorage;
 use Yii;
 /**
  * ManagerTestCase
@@ -123,9 +123,9 @@ class OauthAccessTokenStorageTest extends TestCase
 
     public function testStorage()
     {
-        $storage = Yii::createObject('sweelix\oauth2\server\storage\AccessTokenStorage');
-        /* @var AccessTokenStorage $storage */
-        $this->assertInstanceOf(AccessTokenStorage::class, $storage);
+        $storage = Yii::createObject('sweelix\oauth2\server\storage\OauthStorage');
+        /* @var AccessTokenInterface $storage */
+        $this->assertInstanceOf(AccessTokenInterface::class, $storage);
         $this->assertTrue($storage->setAccessToken('accessToken1', 'client1', 'user1', 1250));
         $accessToken = AccessToken::findOne('accessToken1');
         $this->assertInstanceOf(AccessToken::className(), $accessToken);
