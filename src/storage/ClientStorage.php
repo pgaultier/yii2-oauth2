@@ -15,16 +15,34 @@ namespace sweelix\oauth2\server\storage;
 
 
 use OAuth2\Storage\ClientCredentialsInterface;
-use sweelix\oauth2\server\models\Client;
+use Yii;
 
 class ClientStorage implements ClientCredentialsInterface
 {
+    /**
+     * @var string
+     */
+    private $clientClass;
+
+    /**
+     * @return string classname for selected interface
+     * @since XXX
+     */
+    public function getClientClass()
+    {
+        if ($this->clientClass === null) {
+            $client = Yii::createObject('sweelix\oauth2\server\interfaces\ClientModelInterface');
+            $this->clientClass = get_class($client);
+        }
+        return $this->clientClass;
+    }
     /**
      * @inheritdoc
      */
     public function getClientDetails($client_id)
     {
-        $client = Client::findOne($client_id);
+        $clientClass = $this->getClientClass();
+        $client = $clientClass::findOne($client_id);
         if ($client !== null) {
             $finalClient = [
                 'redirect_uri' => $client->redirectUri,
@@ -43,7 +61,8 @@ class ClientStorage implements ClientCredentialsInterface
      */
     public function getClientScope($client_id)
     {
-        $client = Client::findOne($client_id);
+        $clientClass = $this->getClientClass();
+        $client = $clientClass::findOne($client_id);
         $scopes = '';
         if ($client !== null) {
             $scopes = implode(' ', $client->scopes);
@@ -56,7 +75,8 @@ class ClientStorage implements ClientCredentialsInterface
      */
     public function checkRestrictedGrantType($client_id, $grant_type)
     {
-        $client = Client::findOne($client_id);
+        $clientClass = $this->getClientClass();
+        $client = $clientClass::findOne($client_id);
         $notRestricted = true;
         if ($client !== null) {
             if (empty($client->grantTypes) === false) {
@@ -71,7 +91,8 @@ class ClientStorage implements ClientCredentialsInterface
      */
     public function checkClientCredentials($client_id, $client_secret = null)
     {
-        $client = Client::findOne($client_id);
+        $clientClass = $this->getClientClass();
+        $client = $clientClass::findOne($client_id);
         return ($client !== null) ? ($client->secret === $client_secret) : false;
     }
 
@@ -80,7 +101,8 @@ class ClientStorage implements ClientCredentialsInterface
      */
     public function isPublicClient($client_id)
     {
-        $client = Client::findOne($client_id);
+        $clientClass = $this->getClientClass();
+        $client = $clientClass::findOne($client_id);
         return ($client !== null) ? $client->isPublic : false;
     }
 }

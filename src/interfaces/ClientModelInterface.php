@@ -24,6 +24,15 @@ namespace sweelix\oauth2\server\interfaces;
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\interfaces
  * @since XXX
+ *
+ * @property string $id
+ * @property string $secret
+ * @property string $redirectUri
+ * @property array $grantTypes
+ * @property string $userId
+ * @property array $scopes
+ * @property string $name
+ * @property bool $isPublic
  */
 interface ClientModelInterface extends BaseModelInterface
 {

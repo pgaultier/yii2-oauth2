@@ -24,6 +24,10 @@ namespace sweelix\oauth2\server\interfaces;
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\interfaces
  * @since XXX
+ *
+ * @property string $id
+ * @property bool $isDefault
+ * @property string $definition
  */
 interface ScopeModelInterface extends BaseModelInterface
 {

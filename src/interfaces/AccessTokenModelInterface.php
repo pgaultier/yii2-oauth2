@@ -24,6 +24,12 @@ namespace sweelix\oauth2\server\interfaces;
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\interfaces
  * @since XXX
+ *
+ * @property string $id
+ * @property string $clientId
+ * @property string $userId
+ * @property string $expiry
+ * @property array $scopes
  */
 interface AccessTokenModelInterface extends BaseModelInterface
 {

@@ -15,17 +15,36 @@ namespace sweelix\oauth2\server\storage;
 
 use OAuth2\Storage\AccessTokenInterface;
 use OAuth2\Storage\JwtAccessTokenInterface;
-use sweelix\oauth2\server\models\AccessToken;
 use Yii;
 
 class AccessTokenStorage implements AccessTokenInterface, JwtAccessTokenInterface
 {
     /**
+     * @var string
+     */
+    private $accessTokenClass;
+
+    /**
+     * @return string classname for selected interface
+     * @since XXX
+     */
+    public function getAccessTokenClass()
+    {
+        if ($this->accessTokenClass === null) {
+            $client = Yii::createObject('sweelix\oauth2\server\interfaces\AccessTokenModelInterface');
+            $this->accessTokenClass = get_class($client);
+        }
+        return $this->accessTokenClass;
+    }
+
+    /**
      * @inheritdoc
      */
     public function getAccessToken($oauth_token)
     {
-        $accessToken = AccessToken::findOne($oauth_token);
+        $accessTokenClass = $this->getAccessTokenClass();
+        $accessToken = $accessTokenClass::findOne($oauth_token);
+        /* @var \sweelix\oauth2\server\interfaces\AccessTokenModelInterface $accessToken */
         if ($accessToken !== null) {
             $finalToken = [
                 'expires' => $accessToken->expiry,
@@ -45,7 +64,7 @@ class AccessTokenStorage implements AccessTokenInterface, JwtAccessTokenInterfac
     public function setAccessToken($oauth_token, $client_id, $user_id, $expires, $scope = null)
     {
         $accessToken = Yii::createObject('sweelix\oauth2\server\interfaces\AccessTokenModelInterface');
-        /* @var AccessToken $accessToken */
+        /* @var \sweelix\oauth2\server\interfaces\AccessTokenModelInterface $accessToken */
         $accessToken->id = $oauth_token;
         $accessToken->clientId = $client_id;
         $accessToken->userId = $user_id;
@@ -65,7 +84,9 @@ class AccessTokenStorage implements AccessTokenInterface, JwtAccessTokenInterfac
      */
     public function unsetAccessToken($access_token)
     {
-        $accessToken = AccessToken::findOne($access_token);
+        $accessTokenClass = $this->getAccessTokenClass();
+        $accessToken = $accessTokenClass::findOne($access_token);
+        /* @var \sweelix\oauth2\server\interfaces\AccessTokenModelInterface $accessToken */
         if ($accessToken !== null) {
             $accessToken->delete();
         }
