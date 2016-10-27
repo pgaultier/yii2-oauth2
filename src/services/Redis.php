@@ -61,8 +61,8 @@ class Redis implements ServiceBootstrapInterface
                 'namespace' => 'oauth2:clients',
             ]);
         }
-        if (Yii::$container->hasSingleton('sweelix\oauth2\server\interfaces\CypherKeyInterface') === false) {
-            Yii::$container->setSingleton('sweelix\oauth2\server\interfaces\CypherKeyInterface', [
+        if (Yii::$container->hasSingleton('sweelix\oauth2\server\interfaces\CypherKeyServiceInterface') === false) {
+            Yii::$container->setSingleton('sweelix\oauth2\server\interfaces\CypherKeyServiceInterface', [
                 'class' => CypherKeyService::className(),
                 'namespace' => 'oauth2:cypherKeys',
             ]);

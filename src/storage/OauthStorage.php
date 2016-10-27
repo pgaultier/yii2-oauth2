@@ -18,6 +18,8 @@ use OAuth2\OpenID\Storage\AuthorizationCodeInterface;
 use OAuth2\Storage\AccessTokenInterface;
 use OAuth2\Storage\ClientCredentialsInterface;
 use OAuth2\Storage\JwtAccessTokenInterface;
+use OAuth2\Storage\JwtBearerInterface;
+use OAuth2\Storage\PublicKeyInterface;
 use OAuth2\Storage\RefreshTokenInterface;
 use OAuth2\Storage\ScopeInterface;
 use Yii;
@@ -40,6 +42,8 @@ class OauthStorage implements
     AuthorizationCodeInterface,
     ClientCredentialsInterface,
     JwtAccessTokenInterface, // identical to AccessTokenInterface
+    //JwtBearerInterface,
+    PublicKeyInterface,
     RefreshTokenInterface,
     ScopeInterface
 {
@@ -61,6 +65,21 @@ class OauthStorage implements
     /**
      * @var string
      */
+    private $cypherKeyClass;
+
+    /**
+     * @var string
+     */
+    private $jtiClass;
+
+    /**
+     * @var string
+     */
+    private $jwtClass;
+
+    /**
+     * @var string
+     */
     private $refreshTokenClass;
 
     /**
@@ -72,11 +91,11 @@ class OauthStorage implements
      * @return string classname for selected interface
      * @since XXX
      */
-    public function getAccessTokenClass()
+    protected function getAccessTokenClass()
     {
         if ($this->accessTokenClass === null) {
-            $client = Yii::createObject('sweelix\oauth2\server\interfaces\AccessTokenModelInterface');
-            $this->accessTokenClass = get_class($client);
+            $accessToken = Yii::createObject('sweelix\oauth2\server\interfaces\AccessTokenModelInterface');
+            $this->accessTokenClass = get_class($accessToken);
         }
         return $this->accessTokenClass;
     }
@@ -85,11 +104,11 @@ class OauthStorage implements
      * @return string classname for selected interface
      * @since XXX
      */
-    public function getAuthCodeClass()
+    protected function getAuthCodeClass()
     {
         if ($this->authCodeClass === null) {
-            $client = Yii::createObject('sweelix\oauth2\server\interfaces\AuthCodeModelInterface');
-            $this->authCodeClass = get_class($client);
+            $authCode = Yii::createObject('sweelix\oauth2\server\interfaces\AuthCodeModelInterface');
+            $this->authCodeClass = get_class($authCode);
         }
         return $this->authCodeClass;
     }
@@ -98,7 +117,7 @@ class OauthStorage implements
      * @return string classname for selected interface
      * @since XXX
      */
-    public function getClientClass()
+    protected function getClientClass()
     {
         if ($this->clientClass === null) {
             $client = Yii::createObject('sweelix\oauth2\server\interfaces\ClientModelInterface');
@@ -111,13 +130,65 @@ class OauthStorage implements
      * @return string classname for selected interface
      * @since XXX
      */
-    public function getRefreshTokenClass()
+    protected function getCypherKeyClass()
+    {
+        if ($this->cypherKeyClass === null) {
+            $cypherKey = Yii::createObject('sweelix\oauth2\server\interfaces\CypherKeyModelInterface');
+            $this->cypherKeyClass = get_class($cypherKey);
+        }
+        return $this->cypherKeyClass;
+    }
+
+    /**
+     * @return string classname for selected interface
+     * @since XXX
+     */
+    protected function getJtiClass()
+    {
+        if ($this->jtiClass === null) {
+            $jti = Yii::createObject('sweelix\oauth2\server\interfaces\JtiModelInterface');
+            $this->jtiClass = get_class($jti);
+        }
+        return $this->jtiClass;
+    }
+
+    /**
+     * @return string classname for selected interface
+     * @since XXX
+     */
+    protected function getJwtClass()
+    {
+        if ($this->jwtClass === null) {
+            $jwt = Yii::createObject('sweelix\oauth2\server\interfaces\JwtModelInterface');
+            $this->jwtClass = get_class($jwt);
+        }
+        return $this->jwtClass;
+    }
+
+    /**
+     * @return string classname for selected interface
+     * @since XXX
+     */
+    protected function getRefreshTokenClass()
     {
         if ($this->refreshTokenClass === null) {
-            $client = Yii::createObject('sweelix\oauth2\server\interfaces\RefreshTokenModelInterface');
-            $this->refreshTokenClass = get_class($client);
+            $refreshToken = Yii::createObject('sweelix\oauth2\server\interfaces\RefreshTokenModelInterface');
+            $this->refreshTokenClass = get_class($refreshToken);
         }
         return $this->refreshTokenClass;
+    }
+
+    /**
+     * @return string classname for selected interface
+     * @since XXX
+     */
+    public function getScopeClass()
+    {
+        if ($this->scopeClass === null) {
+            $scope = Yii::createObject('sweelix\oauth2\server\interfaces\ScopeModelInterface');
+            $this->scopeClass = get_class($scope);
+        }
+        return $this->scopeClass;
     }
 
     /**
@@ -139,19 +210,6 @@ class OauthStorage implements
             $accessToken = $finalToken;
         }
         return $accessToken;
-    }
-
-    /**
-     * @return string classname for selected interface
-     * @since XXX
-     */
-    public function getScopeClass()
-    {
-        if ($this->scopeClass === null) {
-            $scope = Yii::createObject('sweelix\oauth2\server\interfaces\ScopeModelInterface');
-            $this->scopeClass = get_class($scope);
-        }
-        return $this->scopeClass;
     }
 
     /**
@@ -312,6 +370,63 @@ class OauthStorage implements
         $clientClass = $this->getClientClass();
         $client = $clientClass::findOne($client_id);
         return ($client !== null) ? $client->isPublic : false;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getPublicKey($client_id = null)
+    {
+        $cypherKeyClass = $this->getCypherKeyClass();
+        if ($client_id === null) {
+            $client_id = $cypherKeyClass::DEFAULT_KEY;
+        }
+        $cypherKey = $cypherKeyClass::findOne($client_id);
+        if ($cypherKey === null) {
+            $cypherKey = $cypherKeyClass::findOne($cypherKeyClass::DEFAULT_KEY);
+        }
+        if ($cypherKey !== null) {
+            $cypherKey = $cypherKey->publicKey;
+        }
+        return $cypherKey;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getPrivateKey($client_id = null)
+    {
+        $cypherKeyClass = $this->getCypherKeyClass();
+        if ($client_id === null) {
+            $client_id = $cypherKeyClass::DEFAULT_KEY;
+        }
+        $cypherKey = $cypherKeyClass::findOne($client_id);
+        if ($cypherKey === null) {
+            $cypherKey = $cypherKeyClass::findOne($cypherKeyClass::DEFAULT_KEY);
+        }
+        if ($cypherKey !== null) {
+            $cypherKey = $cypherKey->privateKey;
+        }
+        return $cypherKey;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getEncryptionAlgorithm($client_id = null)
+    {
+        $cypherKeyClass = $this->getCypherKeyClass();
+        if ($client_id === null) {
+            $client_id = $cypherKeyClass::DEFAULT_KEY;
+        }
+        $cypherKey = $cypherKeyClass::findOne($client_id);
+        if ($cypherKey === null) {
+            $cypherKey = $cypherKeyClass::findOne($cypherKeyClass::DEFAULT_KEY);
+        }
+        if ($cypherKey !== null) {
+            $cypherKey = $cypherKey->encryptionAlgorithm;
+        }
+        return $cypherKey;
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace tests\unit;
 use OAuth2\Storage\ClientCredentialsInterface;
 use sweelix\oauth2\server\exceptions\DuplicateKeyException;
+use sweelix\oauth2\server\interfaces\ClientModelInterface;
 use sweelix\oauth2\server\models\Client;
 use Yii;
 /**
@@ -24,9 +25,9 @@ class OauthClientStorageTest extends TestCase
 
     public function testInsert()
     {
-        $client = Yii::createObject('sweelix\oauth2\server\models\Client');
-        /* @var Client $client */
-        $this->assertInstanceOf(Client::className(), $client);
+        $client = Yii::createObject('sweelix\oauth2\server\interfaces\ClientModelInterface');
+        /* @var ClientModelInterface $client */
+        $this->assertInstanceOf(ClientModelInterface::class, $client);
         $client->id = 'client1';
         $client->secret = 'secret1';
         $client->isPublic = true;
@@ -39,7 +40,7 @@ class OauthClientStorageTest extends TestCase
         $this->assertTrue($client->save());
 
         $insertedClient = Client::findOne('client1');
-        $this->assertInstanceOf(Client::className(), $insertedClient);
+        $this->assertInstanceOf(ClientModelInterface::class, $insertedClient);
         $this->assertEquals($client->id, $insertedClient->id);
         $this->assertEquals($client->secret, $insertedClient->secret);
         $this->assertEquals($client->isPublic, $insertedClient->isPublic);
@@ -51,9 +52,9 @@ class OauthClientStorageTest extends TestCase
         $this->assertTrue(empty($client->scopes));
         $this->assertEquals($client->name, $insertedClient->name);
 
-        $client = Yii::createObject('sweelix\oauth2\server\models\Client');
-        /* @var Client $client */
-        $this->assertInstanceOf(Client::className(), $client);
+        $client = Yii::createObject('sweelix\oauth2\server\interfaces\ClientModelInterface');
+        /* @var ClientModelInterface $client */
+        $this->assertInstanceOf(ClientModelInterface::class, $client);
         $client->id = 'scopedClient';
         $client->secret = 'secret2';
         $client->isPublic = true;
@@ -71,17 +72,17 @@ class OauthClientStorageTest extends TestCase
         $this->assertTrue($client->save());
 
 
-        $client = Yii::createObject('sweelix\oauth2\server\models\Client');
-        /* @var Client $client */
-        $this->assertInstanceOf(Client::className(), $client);
+        $client = Yii::createObject('sweelix\oauth2\server\interfaces\ClientModelInterface');
+        /* @var ClientModelInterface $client */
+        $this->assertInstanceOf(ClientModelInterface::class, $client);
         $client->id = 'client2';
         $client->name = 'Test Client 2';
         $this->assertFalse($client->save());
 
 
-        $client = Yii::createObject('sweelix\oauth2\server\models\Client');
-        /* @var Client $client */
-        $this->assertInstanceOf(Client::className(), $client);
+        $client = Yii::createObject('sweelix\oauth2\server\interfaces\ClientModelInterface');
+        /* @var ClientModelInterface $client */
+        $this->assertInstanceOf(ClientModelInterface::class, $client);
         $client->id = 'client1';
         $client->secret = 'secret1';
         $client->isPublic = true;
@@ -95,9 +96,9 @@ class OauthClientStorageTest extends TestCase
 
     public function testUpdate()
     {
-        $client1 = Yii::createObject('sweelix\oauth2\server\models\Client');
-        /* @var Client $client1 */
-        $this->assertInstanceOf(Client::className(), $client1);
+        $client1 = Yii::createObject('sweelix\oauth2\server\interfaces\ClientModelInterface');
+        /* @var ClientModelInterface $client1 */
+        $this->assertInstanceOf(ClientModelInterface::class, $client1);
         $client1->id = 'client1';
         $client1->secret = 'secret1';
         $client1->isPublic = true;
@@ -107,9 +108,9 @@ class OauthClientStorageTest extends TestCase
         $client1->name = 'Test client';
         $this->assertTrue($client1->save());
 
-        $client2 = Yii::createObject('sweelix\oauth2\server\models\Client');
-        /* @var Client $client2 */
-        $this->assertInstanceOf(Client::className(), $client2);
+        $client2 = Yii::createObject('sweelix\oauth2\server\interfaces\ClientModelInterface');
+        /* @var ClientModelInterface $client2 */
+        $this->assertInstanceOf(ClientModelInterface::class, $client2);
         $client2->id = 'client2';
         $client2->secret = 'secret1';
         $client2->isPublic = true;
@@ -141,9 +142,9 @@ class OauthClientStorageTest extends TestCase
 
     public function testDelete()
     {
-        $client = Yii::createObject('sweelix\oauth2\server\models\Client');
-        /* @var Client $client */
-        $this->assertInstanceOf(Client::className(), $client);
+        $client = Yii::createObject('sweelix\oauth2\server\interfaces\ClientModelInterface');
+        /* @var ClientModelInterface $client */
+        $this->assertInstanceOf(ClientModelInterface::class, $client);
         $client->id = 'client1';
         $client->secret = 'secret1';
         $client->isPublic = true;
@@ -159,9 +160,9 @@ class OauthClientStorageTest extends TestCase
 
     public function testStorage()
     {
-        $client = Yii::createObject('sweelix\oauth2\server\models\Client');
+        $client = Yii::createObject('sweelix\oauth2\server\interfaces\ClientModelInterface');
         /* @var Client $client */
-        $this->assertInstanceOf(Client::className(), $client);
+        $this->assertInstanceOf(ClientModelInterface::class, $client);
         $client->id = 'client1';
         $client->secret = 'secret1';
         $client->isPublic = true;
@@ -198,9 +199,9 @@ class OauthClientStorageTest extends TestCase
         $hasCredentials = $storage->checkClientCredentials('client1', 'secret1');
         $this->assertTrue($hasCredentials);
 
-        $client = Yii::createObject('sweelix\oauth2\server\models\Client');
+        $client = Yii::createObject('sweelix\oauth2\server\interfaces\ClientModelInterface');
         /* @var Client $client */
-        $this->assertInstanceOf(Client::className(), $client);
+        $this->assertInstanceOf(ClientModelInterface::class, $client);
         $client->id = 'client2';
         $client->secret = 'secret2';
         $client->isPublic = false;

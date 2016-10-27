@@ -14,6 +14,7 @@
 
 namespace sweelix\oauth2\server\models;
 
+use sweelix\oauth2\server\interfaces\CypherKeyModelInterface;
 use Yii;
 
 /**
@@ -30,16 +31,21 @@ use Yii;
  * @property string $id
  * @property string $publicKey
  * @property string $privateKey
- * @property string $encryptionAlgoritm
+ * @property string $encryptionAlgorithm
  */
-class CypherKey extends BaseModel
+class CypherKey extends BaseModel implements CypherKeyModelInterface
 {
-    const DEFAULT_KEY = 'default';
 
     /**
-     * @string JwtAccessToken supported algos are hash_hmac HS256, HS384, HS512 or openssl_sign RS256, RS384, RS512
+     * @inheritdoc
      */
-    const HASH_ALGO = 'RS256';
+    public function rules()
+    {
+        return [
+            [['id', 'publicKey', 'privateKey'], 'string'],
+            [['id', 'publicKey', 'privateKey'], 'required'],
+        ];
+    }
 
     /**
      * @return \sweelix\oauth2\server\interfaces\CypherKeyServiceInterface
@@ -72,12 +78,7 @@ class CypherKey extends BaseModel
     }
 
     /**
-     * Find one accessToken by its key
-     *
-     * @param string $id
-     * @return CypherKey|null
-     * @since XXX
-     * @throws \yii\base\UnknownClassException
+     * @inheritdoc
      */
     public static function findOne($id)
     {
@@ -85,11 +86,7 @@ class CypherKey extends BaseModel
     }
 
     /**
-     * @param bool $runValidation
-     * @param null $attributes
-     * @return bool
-     * @since XXX
-     * @throws \yii\base\UnknownClassException
+     * @inheritdoc
      */
     public function save($runValidation = true, $attributes = null)
     {
@@ -103,9 +100,7 @@ class CypherKey extends BaseModel
     }
 
     /**
-     * @return bool
-     * @since XXX
-     * @throws \yii\base\UnknownClassException
+     * @inheritdoc
      */
     public function delete()
     {
@@ -117,30 +112,27 @@ class CypherKey extends BaseModel
      */
     public function beforeSave($insert)
     {
-        if ($this->encryptionAlgoritm === null) {
-            $this->encryptionAlgoritm = self::HASH_ALGO;
+        if ($this->encryptionAlgorithm === null) {
+            $this->encryptionAlgorithm = self::HASH_ALGO;
         }
         return parent::beforeSave($insert);
     }
 
     /**
-     * @return array containing generated public and private keys ['public' => 'xxx', 'private' => 'yyy']
-     * @since XXX
+     * @inheritdoc
      */
-    public static function generateKeys()
+    public function generateKeys($bits = 2048, $type = OPENSSL_KEYTYPE_RSA)
     {
         $opensslHandle = openssl_pkey_new([
-            'private_key_bits' => 2048,
-            'private_key_type' => OPENSSL_KEYTYPE_RSA
+            'private_key_bits' => $bits,
+            'private_key_type' => $type
         ]);
 
         openssl_pkey_export($opensslHandle, $privateKey);
         $details = openssl_pkey_get_details($opensslHandle);
         $publicKey = $details['key'];
         openssl_free_key($opensslHandle);
-        return [
-            'public' => $publicKey,
-            'private' => $privateKey,
-        ];
+        $this->publicKey = $publicKey;
+        $this->privateKey = $privateKey;
     }
 }

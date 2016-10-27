@@ -151,5 +151,26 @@ class OauthAuthCodeStorageTest extends TestCase
         $storage->expireAuthorizationCode('authCode1');
         $authCodeData = $storage->getAuthorizationCode('authCode1');
         $this->assertNull($authCodeData);
+
+        $this->assertTrue($storage->setAuthorizationCode('authCode1', 'client1', 'user1', null, 154, null, 'accessToken1'));
+
+        $authCode = AuthCode::findOne('authCode1');
+        $this->assertEquals('authCode1', $authCode->id);
+        $this->assertEquals('client1', $authCode->clientId);
+        $this->assertEquals('user1', $authCode->userId);
+        $this->assertNull($authCode->redirectUri);
+        $this->assertEquals('accessToken1', $authCode->tokenId);
+        $this->assertTrue(empty($authCode->scopes));
+
+        $authCodeData = $storage->getAuthorizationCode('authCode1');
+        $this->assertEquals('client1',$authCodeData['client_id']);
+        $this->assertEquals('user1',$authCodeData['user_id']);
+        $this->assertEquals('154',$authCodeData['expires']);
+        $this->assertEquals('',$authCodeData['scope']);
+
+        $storage->expireAuthorizationCode('authCode1');
+        $authCodeData = $storage->getAuthorizationCode('authCode1');
+        $this->assertNull($authCodeData);
+
     }
 }
