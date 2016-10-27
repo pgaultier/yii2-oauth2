@@ -13,7 +13,6 @@
  */
 namespace sweelix\oauth2\server;
 
-use sweelix\oauth2\server\services\Oauth;
 use sweelix\oauth2\server\services\Redis;
 use yii\base\BootstrapInterface;
 use yii\base\Module as BaseModule;
@@ -36,6 +35,7 @@ class Module extends BaseModule implements BootstrapInterface
     /**
      * This user class will be used to link oauth2 authorization system with the application.
      * The class must implement \sweelix\oauth2\server\interfaces\UserInterface
+     * If not defined, the Yii::$app->user->identityClass value will be used
      * @var string|array user class definition.
      */
     public $identityClass;
@@ -90,6 +90,9 @@ class Module extends BaseModule implements BootstrapInterface
         }
         if (Yii::$container->has('sweelix\oauth2\server\interfaces\ClientModelInterface') === false) {
             Yii::$container->set('sweelix\oauth2\server\interfaces\ClientModelInterface', 'sweelix\oauth2\server\models\Client');
+        }
+        if (Yii::$container->has('sweelix\oauth2\server\interfaces\RefreshTokenModelInterface') === false) {
+            Yii::$container->set('sweelix\oauth2\server\interfaces\RefreshTokenModelInterface', 'sweelix\oauth2\server\models\RefreshToken');
         }
         if (Yii::$container->has('sweelix\oauth2\server\interfaces\ScopeModelInterface') === false) {
             Yii::$container->set('sweelix\oauth2\server\interfaces\ScopeModelInterface', 'sweelix\oauth2\server\models\Scope');
