@@ -15,6 +15,7 @@ namespace sweelix\oauth2\server\storage;
 
 use OAuth2\Storage\RefreshTokenInterface;
 use sweelix\oauth2\server\models\RefreshToken;
+use Yii;
 
 class RefreshTokenStorage implements RefreshTokenInterface
 {
@@ -43,17 +44,18 @@ class RefreshTokenStorage implements RefreshTokenInterface
      */
     public function setRefreshToken($refresh_token, $client_id, $user_id, $expires, $scope = null)
     {
-        $refresToken = new RefreshToken();
-        $refresToken->id = $refresh_token;
-        $refresToken->clientId = $client_id;
-        $refresToken->userId = $user_id;
+        $refreshToken = Yii::createObject('sweelix\oauth2\server\interfaces\RefreshTokenModelInterface');
+        $refreshToken->id = $refresh_token;
+        $refreshToken->clientId = $client_id;
+        $refreshToken->userId = $user_id;
+        $refreshToken->expiry = $expires;
         if ($scope === null) {
             $scopes = [];
         } else {
             $scopes = explode(' ', $scope);
         }
-        $refresToken->scopes = $scopes;
-        $refresToken->save();
+        $refreshToken->scopes = $scopes;
+        $refreshToken->save();
         return true;
     }
 

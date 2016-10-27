@@ -16,7 +16,7 @@ namespace sweelix\oauth2\server\services\redis;
 
 use sweelix\oauth2\server\exceptions\DuplicateIndexException;
 use sweelix\oauth2\server\exceptions\DuplicateKeyException;
-use sweelix\oauth2\server\models\RefreshToken;
+use sweelix\oauth2\server\interfaces\RefreshTokenModelInterface;
 use sweelix\oauth2\server\interfaces\RefreshTokenServiceInterface;
 use yii\db\Exception as DatabaseException;
 use Yii;
@@ -60,7 +60,7 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
     /**
      * @inheritdoc
      */
-    public function save(RefreshToken $refreshToken, $attributes)
+    public function save(RefreshTokenModelInterface $refreshToken, $attributes)
     {
         if ($refreshToken->getIsNewRecord()) {
             $result = $this->insert($refreshToken, $attributes);
@@ -72,7 +72,7 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
 
     /**
      * Save Refresh Token
-     * @param RefreshToken $refreshToken
+     * @param RefreshTokenModelInterface $refreshToken
      * @param null|array $attributes attributes to save
      * @return bool
      * @throws DatabaseException
@@ -80,7 +80,7 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
      * @throws DuplicateKeyException
      * @since XXX
      */
-    protected function insert(RefreshToken $refreshToken, $attributes)
+    protected function insert(RefreshTokenModelInterface $refreshToken, $attributes)
     {
         $result = false;
         if (!$refreshToken->beforeSave(true)) {
@@ -130,14 +130,14 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
 
     /**
      * Update Refresh Token
-     * @param RefreshToken $refreshToken
+     * @param RefreshTokenModelInterface $refreshToken
      * @param null|array $attributes attributes to save
      * @return bool
      * @throws DatabaseException
      * @throws DuplicateIndexException
      * @throws DuplicateKeyException
      */
-    protected function update(RefreshToken $refreshToken, $attributes)
+    protected function update(RefreshTokenModelInterface $refreshToken, $attributes)
     {
         if (!$refreshToken->beforeSave(false)) {
             return false;
@@ -218,8 +218,8 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
         $refreshTokenExists = (bool)$this->db->executeCommand('EXISTS', [$refreshTokenKey]);
         if ($refreshTokenExists === true) {
             $refreshTokenData = $this->db->executeCommand('HGETALL', [$refreshTokenKey]);
-            $record = Yii::createObject(RefreshToken::className());
-            /** @var RefreshToken $record */
+            $record = Yii::createObject('sweelix\oauth2\server\interfaces\RefreshTokenModelInterface');
+            /** @var RefreshTokenModelInterface $record */
             $properties = $record->attributesDefinition();
             $this->setAttributesDefinitions($properties);
             $attributes = [];
@@ -246,7 +246,7 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
     /**
      * @inheritdoc
      */
-    public function delete(RefreshToken $refreshToken)
+    public function delete(RefreshTokenModelInterface $refreshToken)
     {
         $result = false;
         if ($refreshToken->beforeDelete()) {

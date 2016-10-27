@@ -14,8 +14,6 @@
 
 namespace sweelix\oauth2\server\interfaces;
 
-use sweelix\oauth2\server\models\RefreshToken;
-
 /**
  * This is the refresh token service interface
  *
@@ -31,23 +29,23 @@ interface RefreshTokenServiceInterface
 {
     /**
      * Save or update Refresh Token depending on isNewRecord flag
-     * @param RefreshToken $refreshToken
+     * @param RefreshTokenModelInterface $refreshToken
      * @param null|array $attributes attributes to save
      * @return boolean
      * @throws \Exception
      */
-    public function save(RefreshToken $refreshToken, $attributes);
+    public function save(RefreshTokenModelInterface $refreshToken, $attributes);
 
     /**
      * @param string $key
-     * @return RefreshToken|null
+     * @return RefreshTokenModelInterface|null
      */
     public function findOne($key);
 
     /**
-     * @param RefreshToken $refreshToken
+     * @param RefreshTokenModelInterface $refreshToken
      * @return boolean
      */
-    public function delete(RefreshToken $refreshToken);
+    public function delete(RefreshTokenModelInterface $refreshToken);
 
 }

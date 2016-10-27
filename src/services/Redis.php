@@ -18,6 +18,9 @@ use sweelix\oauth2\server\interfaces\ServiceBootstrapInterface;
 use sweelix\oauth2\server\services\redis\AccessTokenService;
 use sweelix\oauth2\server\services\redis\AuthCodeService;
 use sweelix\oauth2\server\services\redis\ClientService;
+use sweelix\oauth2\server\services\redis\CypherKeyService;
+use sweelix\oauth2\server\services\redis\JtiService;
+use sweelix\oauth2\server\services\redis\JwtService;
 use sweelix\oauth2\server\services\redis\RefreshTokenService;
 use sweelix\oauth2\server\services\redis\ScopeService;
 use Yii;
@@ -60,25 +63,25 @@ class Redis implements ServiceBootstrapInterface
         }
         if (Yii::$container->hasSingleton('sweelix\oauth2\server\interfaces\CypherKeyInterface') === false) {
             Yii::$container->setSingleton('sweelix\oauth2\server\interfaces\CypherKeyInterface', [
-                'class' => ClientService::className(),
+                'class' => CypherKeyService::className(),
                 'namespace' => 'oauth2:cypherKeys',
             ]);
         }
-        if (Yii::$container->hasSingleton('sweelix\oauth2\server\interfaces\JtiInterface') === false) {
-            Yii::$container->setSingleton('sweelix\oauth2\server\interfaces\JtiInterface', [
-                'class' => ClientService::className(),
+        if (Yii::$container->hasSingleton('sweelix\oauth2\server\interfaces\JtiServiceInterface') === false) {
+            Yii::$container->setSingleton('sweelix\oauth2\server\interfaces\JtiServiceInterface', [
+                'class' => JtiService::className(),
                 'namespace' => 'oauth2:jti',
             ]);
         }
         if (Yii::$container->hasSingleton('sweelix\oauth2\server\interfaces\JwtServiceInterface') === false) {
             Yii::$container->setSingleton('sweelix\oauth2\server\interfaces\JwtServiceInterface', [
-                'class' => RefreshTokenService::className(),
+                'class' => JwtService::className(),
                 'namespace' => 'oauth2:jwt',
             ]);
         }
         if (Yii::$container->hasSingleton('sweelix\oauth2\server\interfaces\RefreshTokenServiceInterface') === false) {
             Yii::$container->setSingleton('sweelix\oauth2\server\interfaces\RefreshTokenServiceInterface', [
-                'class' => AccessTokenService::className(),
+                'class' => RefreshTokenService::className(),
                 'namespace' => 'oauth2:refreshTokens',
             ]);
         }

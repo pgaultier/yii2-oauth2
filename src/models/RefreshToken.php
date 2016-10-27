@@ -15,6 +15,7 @@
 namespace sweelix\oauth2\server\models;
 
 use sweelix\oauth2\server\behaviors\EmptyArrayBehavior;
+use sweelix\oauth2\server\interfaces\RefreshTokenModelInterface;
 use Yii;
 
 /**
@@ -34,7 +35,7 @@ use Yii;
  * @property string $expiry
  * @property array $scopes
  */
-class RefreshToken extends BaseModel
+class RefreshToken extends BaseModel implements RefreshTokenModelInterface
 {
     /**
      * @inheritdoc
@@ -47,6 +48,17 @@ class RefreshToken extends BaseModel
             'attributes' => ['scopes'],
         ];
         return $behaviors;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return [
+            [['id', 'clientId', 'userId'], 'string'],
+            [['scopes'], 'scope'],
+        ];
     }
 
     /**
@@ -81,12 +93,7 @@ class RefreshToken extends BaseModel
     }
 
     /**
-     * Find one refresh token by its key
-     *
-     * @param string $id
-     * @return RefreshToken|null
-     * @since XXX
-     * @throws \yii\base\UnknownClassException
+     * @inheritdoc
      */
     public static function findOne($id)
     {
@@ -94,11 +101,7 @@ class RefreshToken extends BaseModel
     }
 
     /**
-     * @param bool $runValidation
-     * @param null $attributes
-     * @return bool
-     * @since XXX
-     * @throws \yii\base\UnknownClassException
+     * @inheritdoc
      */
     public function save($runValidation = true, $attributes = null)
     {
@@ -112,9 +115,7 @@ class RefreshToken extends BaseModel
     }
 
     /**
-     * @return bool
-     * @since XXX
-     * @throws \yii\base\UnknownClassException
+     * @inheritdoc
      */
     public function delete()
     {
