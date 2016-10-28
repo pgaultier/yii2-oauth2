@@ -60,22 +60,25 @@ class AuthorizeController extends Controller
     public function actionIndex()
     {
         $oauthServer = Yii::createObject('OAuth2\Server');
-        $status = false;
         /* @var \Oauth2\Server $oauthServer */
+        $status = false;
+        $oauthRequest = OAuth2Request::createFromGlobals();
+        $oauthResponse = new OAuth2Response();
         $grantType = Yii::$app->request->getQueryParam('response_type');
         switch ($grantType) {
             case 'code':
                 $oauthGrantType = Yii::createObject('OAuth2\GrantType\AuthorizationCode');
                 /* @var \OAuth2\GrantType\AuthorizationCode $oauthGrantType */
                 $oauthServer->addGrantType($oauthGrantType);
-                $oauthRequest = OAuth2Request::createFromGlobals();
-                $oauthResponse = new OAuth2Response();
                 $status = $oauthServer->validateAuthorizeRequest($oauthRequest, $oauthResponse);
                 $error = $oauthResponse->getParameters();
                 if (empty($error) === false) {
                     Yii::$app->session->setFlash('error', $error, false);
                     return $this->redirect(['error']);
                 }
+                break;
+            case 'token':
+                $status = $oauthServer->validateAuthorizeRequest($oauthRequest, $oauthResponse);
                 break;
         }
 

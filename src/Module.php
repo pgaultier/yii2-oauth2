@@ -77,6 +77,11 @@ class Module extends BaseModule implements BootstrapInterface
     public $accessTokenTTL = 3600;
 
     /**
+     * @var int configure oauth server (refresh_token_lifetime)
+     */
+    public $refreshTokenTTL = 1209600;
+
+    /**
      * @var string configure oauth server (www_realm)
      */
     public $realm = 'Service';
@@ -119,12 +124,12 @@ class Module extends BaseModule implements BootstrapInterface
     /**
      * @var bool configure oauth server (always_issue_new_refresh_token)
      */
-    public $alwaysIssueNewRefreshToken = false;
+    public $alwaysIssueNewRefreshToken = true;
 
     /**
      * @var bool configure oauth server (unset_refresh_token_after_use)
      */
-    public $unsetRefreshTokenAfterUse = true;
+    public $unsetRefreshTokenAfterUse = false;
 
     /**
      * @inheritdoc

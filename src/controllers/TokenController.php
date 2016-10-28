@@ -66,6 +66,12 @@ class TokenController extends Controller
                 /* @var \OAuth2\GrantType\UserCredentials $oauthGrantType */
                 $oauthServer->addGrantType($oauthGrantType);
                 break;
+            case 'refresh_token':
+                $oauthGrantType = Yii::createObject('OAuth2\GrantType\RefreshToken');
+                /* @var \OAuth2\GrantType\RefreshToken $oauthGrantType */
+                $oauthServer->addGrantType($oauthGrantType);
+                break;
+
         }
 
         $response = $oauthServer->handleTokenRequest(OAuth2Request::createFromGlobals());
