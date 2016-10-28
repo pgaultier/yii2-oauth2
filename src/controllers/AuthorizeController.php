@@ -69,7 +69,13 @@ class AuthorizeController extends Controller
                 /* @var \OAuth2\GrantType\AuthorizationCode $oauthGrantType */
                 $oauthServer->addGrantType($oauthGrantType);
                 $oauthRequest = OAuth2Request::createFromGlobals();
-                $status = $oauthServer->validateAuthorizeRequest($oauthRequest);
+                $oauthResponse = new OAuth2Response();
+                $status = $oauthServer->validateAuthorizeRequest($oauthRequest, $oauthResponse);
+                $error = $oauthResponse->getParameters();
+                if (empty($error) === false) {
+                    Yii::$app->session->setFlash('error', $error, false);
+                    return $this->redirect(['error']);
+                }
                 break;
         }
 
@@ -106,17 +112,18 @@ class AuthorizeController extends Controller
                 /* @var \sweelix\oauth2\server\interfaces\UserModelInterface $realUser */
                 if ($realUser !== null) {
                     //login successful
-                    $oauthResponse = new OAuth2Response();
                     $oauthRequest = Yii::$app->session->get('oauthRequest');
+                    $oauthResponse = new OAuth2Response();
                     $oauthResponse = $oauthServer->handleAuthorizeRequest($oauthRequest, $oauthResponse, true, $realUser->getId());
                     /* @var OAuth2Response $oauthResponse */
-                    $error = $oauthResponse->getParameter('error');
                     Yii::$app->session->remove('oauthServer');
                     Yii::$app->session->remove('oauthRequest');
-                    if ($error === null) {
-                        return $this->redirect($oauthResponse->getHttpHeader('Location'));
+                    $error = $oauthResponse->getParameters();
+                    if (empty($error) === false) {
+                        Yii::$app->session->setFlash('error', $error, false);
+                        return $this->redirect(['error']);
                     } else {
-                        return $this->redirect(['error', 'error' => $error]);
+                        return $this->redirect($oauthResponse->getHttpHeader('Location'));
                     }
                 } else {
                     $userForm->addError('username');
@@ -135,7 +142,11 @@ class AuthorizeController extends Controller
      */
     public function actionError()
     {
-        return $this->render('error');
+        $errorData = Yii::$app->session->getFlash('error');
+        return $this->render('error', [
+            'type' => (isset($errorData['error']) ? $errorData['error'] : null),
+            'description' => (isset($errorData['error_description']) ? $errorData['error_description'] : null),
+        ]);
     }
 
 }
