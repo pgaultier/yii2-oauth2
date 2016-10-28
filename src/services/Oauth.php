@@ -16,6 +16,7 @@ namespace sweelix\oauth2\server\services;
 
 use OAuth2\GrantType\AuthorizationCode;
 use OAuth2\GrantType\ClientCredentials;
+use OAuth2\GrantType\RefreshToken;
 use OAuth2\GrantType\UserCredentials;
 use OAuth2\Server;
 use sweelix\oauth2\server\interfaces\ServiceBootstrapInterface;
@@ -58,6 +59,12 @@ class Oauth implements ServiceBootstrapInterface
             return $grantType;
         });
 
+        Yii::$container->set('OAuth2\GrantType\RefreshToken', function($container, $params, $config) {
+            $storage = Yii::createObject('sweelix\oauth2\server\storage\OauthStorage');
+            $grantType = new RefreshToken($storage, self::prepareServerConfig($config));
+            return $grantType;
+        });
+
         Yii::$container->set('OAuth2\GrantType\UserCredentials', function($container, $params, $config) {
             $storage = Yii::createObject('sweelix\oauth2\server\storage\OauthStorage');
             $grantType = new UserCredentials($storage);
@@ -80,6 +87,7 @@ class Oauth implements ServiceBootstrapInterface
             'use_openid_connect' => $module->allowOpenIdConnect,
             'id_lifetime' => $module->idTTL,
             'access_lifetime' => $module->accessTokenTTL,
+            'refresh_token_lifetime' => $module->refreshTokenTTL,
             'www_realm' => $module->realm,
             'token_param_name' => $module->tokenQueryName,
             'token_bearer_header_name' => $module->tokenBearerName,
