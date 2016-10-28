@@ -14,7 +14,7 @@
 
 return [
     'class' => 'yii\redis\Connection',
-    'hostname' => '192.168.8.199',
+    'hostname' => 'localhost',
     'port' => 6379,
-    'database' => 3,
+    'database' => 1,
 ];
