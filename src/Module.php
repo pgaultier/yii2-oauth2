@@ -195,12 +195,10 @@ class Module extends BaseModule implements BootstrapInterface
         if ($app instanceof ConsoleApplication) {
             $this->mapConsoleControllers($app);
         } else {
-            /*
             $app->getUrlManager()->addRules([
-                ['verb' => 'POST', 'pattern' => $this->baseEndPoint.'token', 'route' => $this->id.'/default/access-token'],
-                ['verb' => 'GET', 'pattern' => $this->baseEndPoint.'authorize', 'route' => $this->id.'/default/authorize'],
+                ['verb' => 'POST', 'pattern' => $this->baseEndPoint.'token', 'route' => $this->id.'/token/index'],
+                ['verb' => 'GET', 'pattern' => $this->baseEndPoint.'authorize', 'route' => $this->id.'/authorize/index'],
             ]);
-            */
         }
     }
 

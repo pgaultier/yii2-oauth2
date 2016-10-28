@@ -17,8 +17,8 @@ namespace sweelix\oauth2\server\controllers;
 use OAuth2\Request as OAuth2Request;
 use OAuth2\Response as OAuth2Response;
 use yii\rest\Controller;
-use Yii;
 use yii\web\Response;
+use Yii;
 
 /**
  * Oauth2 main controller
@@ -31,7 +31,7 @@ use yii\web\Response;
  * @package sweelix\oauth2\server\controllers
  * @since XXX
  */
-class DefaultController extends Controller
+class TokenController extends Controller
 {
 
     /**
@@ -45,24 +45,27 @@ class DefaultController extends Controller
         return $behaviors;
     }
 
-    public function actionToken()
+    /**
+     * Send back an oauth token
+     * @return Response
+     * @since XXX
+     */
+    public function actionIndex()
     {
         $oauthServer = Yii::createObject('OAuth2\Server');
         /* @var \Oauth2\Server $oauthServer */
-        if (Yii::$app->request->isPost) {
-            $grantType = Yii::$app->request->getBodyParam('grant_type');
-            switch ($grantType) {
-                case 'client_credentials':
-                    $oauthGrantType = Yii::createObject('OAuth2\GrantType\ClientCredentials');
-                    /* @var \OAuth2\GrantType\ClientCredentials $oauthGrantType */
-                    $oauthServer->addGrantType($oauthGrantType);
-                    break;
-                case 'password':
-                    $oauthGrantType = Yii::createObject('OAuth2\GrantType\UserCredentials');
-                    /* @var \OAuth2\GrantType\UserCredentials $oauthGrantType */
-                    $oauthServer->addGrantType($oauthGrantType);
-                    break;
-            }
+        $grantType = Yii::$app->request->getBodyParam('grant_type');
+        switch ($grantType) {
+            case 'client_credentials':
+                $oauthGrantType = Yii::createObject('OAuth2\GrantType\ClientCredentials');
+                /* @var \OAuth2\GrantType\ClientCredentials $oauthGrantType */
+                $oauthServer->addGrantType($oauthGrantType);
+                break;
+            case 'password':
+                $oauthGrantType = Yii::createObject('OAuth2\GrantType\UserCredentials');
+                /* @var \OAuth2\GrantType\UserCredentials $oauthGrantType */
+                $oauthServer->addGrantType($oauthGrantType);
+                break;
         }
 
         $response = $oauthServer->handleTokenRequest(OAuth2Request::createFromGlobals());
