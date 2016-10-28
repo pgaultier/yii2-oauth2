@@ -28,8 +28,9 @@ namespace sweelix\oauth2\server\interfaces;
 interface ServiceBootstrapInterface
 {
     /**
+     * @param \yii\base\Application $app
      * @since XXX
      */
-    public static function register();
+    public static function register($app);
 
 }
