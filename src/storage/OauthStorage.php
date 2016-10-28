@@ -22,6 +22,7 @@ use OAuth2\Storage\JwtBearerInterface;
 use OAuth2\Storage\PublicKeyInterface;
 use OAuth2\Storage\RefreshTokenInterface;
 use OAuth2\Storage\ScopeInterface;
+use OAuth2\Storage\UserCredentialsInterface;
 use Yii;
 
 /**
@@ -45,7 +46,8 @@ class OauthStorage implements
     JwtBearerInterface,
     PublicKeyInterface,
     RefreshTokenInterface,
-    ScopeInterface
+    ScopeInterface,
+    UserCredentialsInterface
 {
     /**
      * @var string
@@ -86,6 +88,11 @@ class OauthStorage implements
      * @var string
      */
     private $scopeClass;
+
+    /**
+     * @var string
+     */
+    private $userClass;
 
     /**
      * @return string classname for selected interface
@@ -189,6 +196,19 @@ class OauthStorage implements
             $this->scopeClass = get_class($scope);
         }
         return $this->scopeClass;
+    }
+
+    /**
+     * @return string classname for selected interface
+     * @since XXX
+     */
+    public function getUserClass()
+    {
+        if ($this->userClass === null) {
+            $scope = Yii::createObject('sweelix\oauth2\server\interfaces\UserModelInterface');
+            $this->userClass = get_class($scope);
+        }
+        return $this->userClass;
     }
 
     /**
@@ -431,7 +451,6 @@ class OauthStorage implements
         return $jwt;
     }
 
-
     /**
      * @inheritdoc
      */
@@ -566,6 +585,34 @@ class OauthStorage implements
             $scope = null;
         }
         return $scope;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function checkUserCredentials($username, $password)
+    {
+        $userClass = $this->getUserClass();
+        $user = $userClass::findByUsernameAndPassword($username, $password);
+        return ($user !== null);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getUserDetails($username)
+    {
+        $userClass = $this->getUserClass();
+        $user = $userClass::findByUsername($username);
+        /* @var \sweelix\oauth2\server\interfaces\UserModelInterface $user) */
+        $details = false;
+        if ($user !== null) {
+            $details = [
+                'user_id' => $user->getId(),
+                'scope' => implode(' ', $user->getScopes()),
+            ];
+        }
+        return $details;
     }
 
 }

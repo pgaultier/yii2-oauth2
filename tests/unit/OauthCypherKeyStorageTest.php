@@ -76,12 +76,22 @@ class OauthCypherKeyStorageTest extends TestCase
         $cypherKey->publicKey = 'pub';
         $this->assertTrue($cypherKey->save());
 
+        $cypherKey = Yii::createObject('sweelix\oauth2\server\interfaces\CypherKeyModelInterface');
+        /* @var CypherKeyModelInterface $cypherKey */
+        $this->assertInstanceOf(CypherKeyModelInterface::class, $cypherKey);
+        $cypherKey->id = 'client1';
+        $cypherKey->generateKeys();
+        $this->assertTrue($cypherKey->save());
+
         $cypherKey = CypherKey::findOne('client2');
         $this->assertEquals('client2', $cypherKey->id);
         $this->assertEquals('private', $cypherKey->privateKey);
         $this->assertEquals('pub', $cypherKey->publicKey);
         $this->assertEquals(CypherKey::HASH_ALGO, $cypherKey->encryptionAlgorithm);
 
+        $cypherKey->id = 'client1';
+        $this->expectException(DuplicateKeyException::class);
+        $cypherKey->save();
     }
 
     public function testDelete()

@@ -33,6 +33,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
                 'oauth2' => [
                     'class' => 'sweelix\oauth2\server\Module',
                     'backend' => 'redis',
+                    'identityClass' => 'tests\unit\MockUser',
                 ],
             ],
             'components' => [
@@ -40,6 +41,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
             ]
         ], $config));
     }
+
     protected function getVendorPath()
     {
         $vendor = dirname(dirname(__DIR__)) . '/vendor';

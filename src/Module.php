@@ -31,6 +31,9 @@ use Yii;
  */
 class Module extends BaseModule implements BootstrapInterface
 {
+    /**
+     * @var string backend to use, available backends are 'redis'
+     */
     public $backend;
     /**
      * This user class will be used to link oauth2 authorization system with the application.
@@ -106,8 +109,8 @@ class Module extends BaseModule implements BootstrapInterface
         if (Yii::$container->has('sweelix\oauth2\server\interfaces\ScopeModelInterface') === false) {
             Yii::$container->set('sweelix\oauth2\server\interfaces\ScopeModelInterface', 'sweelix\oauth2\server\models\Scope');
         }
-        if ((Yii::$container->has('sweelix\oauth2\server\interfaces\UserInterface') === false) && ($this->identityClass !== null)) {
-            Yii::$container->set('sweelix\oauth2\server\interfaces\UserInterface', $this->identityClass);
+        if ((Yii::$container->has('sweelix\oauth2\server\interfaces\UserModelInterface') === false) && ($this->identityClass !== null)) {
+            Yii::$container->set('sweelix\oauth2\server\interfaces\UserModelInterface', $this->identityClass);
         }
 
         if ($this->backend === 'redis') {

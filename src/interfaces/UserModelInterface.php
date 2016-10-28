@@ -1,6 +1,6 @@
 <?php
 /**
- * UserInterface.php
+ * UserModelInterface.php
  *
  * PHP version 5.6+
  *
@@ -27,18 +27,18 @@ use yii\web\IdentityInterface;
  * @package sweelix\oauth2\server\interfaces
  * @since XXX
  */
-interface UserInterface extends IdentityInterface
+interface UserModelInterface extends IdentityInterface
 {
     /**
      * @param string $username
      * @param string $password
-     * @return UserInterface
+     * @return UserModelInterface
      */
     public static function findByUsernameAndPassword($username, $password);
 
     /**
      * @param string $username
-     * @return UserInterface
+     * @return UserModelInterface
      */
     public static function findByUsername($username);
 

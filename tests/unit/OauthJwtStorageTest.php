@@ -1,6 +1,7 @@
 <?php
 
 namespace tests\unit;
+use OAuth2\Storage\JwtBearerInterface;
 use sweelix\oauth2\server\exceptions\DuplicateKeyException;
 use sweelix\oauth2\server\interfaces\JwtModelInterface;
 use sweelix\oauth2\server\models\Jwt;
@@ -24,6 +25,15 @@ class OauthJwtStorageTest extends TestCase
 
     public function testInsert()
     {
+        $jwt = Yii::createObject('sweelix\oauth2\server\interfaces\JwtModelInterface');
+        /* @var JwtModelInterface $jwt */
+        $jwt->clientId = 'client1';
+        $jwt->subject = 'subject';
+
+        $this->assertInstanceOf(JwtModelInterface::class, $jwt);
+        $this->assertFalse($jwt->save());
+
+
         $jwt = Yii::createObject('sweelix\oauth2\server\interfaces\JwtModelInterface');
         /* @var JwtModelInterface $jwt */
         $jwt->clientId = 'client1';
@@ -86,11 +96,66 @@ class OauthJwtStorageTest extends TestCase
 
     public function testDelete()
     {
+        $jwt = Yii::createObject('sweelix\oauth2\server\interfaces\JwtModelInterface');
+        /* @var JwtModelInterface $jwt */
+        $jwt->clientId = 'client1';
+        $jwt->subject = 'subject';
+        $jwt->publicKey = 'pubKey';
+
+        $this->assertInstanceOf(JwtModelInterface::class, $jwt);
+        $this->assertTrue($jwt->save());
+        $jwtId = $jwt->id;
+
+        $jwt = Jwt::findOne(['clientId' => 'client1', 'subject' => 'subject']);
+        $this->assertInstanceOf(JwtModelInterface::class, $jwt);
+
+        $this->assertTrue($jwt->delete());
+        $jwt = Jwt::findOne(['clientId' => 'client1', 'subject' => 'subject']);
+        $this->assertNull($jwt);
+
+        $jwt = Yii::createObject('sweelix\oauth2\server\interfaces\JwtModelInterface');
+        /* @var JwtModelInterface $jwt */
+        $jwt->clientId = 'client1';
+        $jwt->subject = 'subject';
+        $jwt->publicKey = 'pubKey';
+
+        $this->assertInstanceOf(JwtModelInterface::class, $jwt);
+        $this->assertTrue($jwt->save());
+        $jwtId = $jwt->id;
+
+        $jwt = Jwt::findOne($jwtId);
+        $this->assertInstanceOf(JwtModelInterface::class, $jwt);
+
+        $this->assertTrue($jwt->delete());
+        $jwt = Jwt::findOne($jwtId);
+        $this->assertNull($jwt);
 
     }
 
     public function testStorage()
     {
+        $storage = Yii::createObject('sweelix\oauth2\server\storage\OauthStorage');
+        /* @var JwtBearerInterface $storage */
+        $this->assertInstanceOf(JwtBearerInterface::class, $storage);
+
+        $jwtData = $storage->getClientKey('client1', 'subject');
+
+        $this->assertNull($jwtData);
+
+        $jwt = Yii::createObject('sweelix\oauth2\server\interfaces\JwtModelInterface');
+        /* @var JwtModelInterface $jwt */
+        $jwt->clientId = 'client1';
+        $jwt->subject = 'subject';
+        $jwt->publicKey = 'pubKey';
+
+        $this->assertInstanceOf(JwtModelInterface::class, $jwt);
+        $this->assertTrue($jwt->save());
+
+        $jwtData = $storage->getClientKey('client1', 'subject');
+        $this->assertEquals('pubKey', $jwtData);
+        $jwtData = $storage->getClientKey('client1', 'subject2');
+        $this->assertNull($jwtData);
+
 
     }
 }
