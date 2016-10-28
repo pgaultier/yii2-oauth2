@@ -14,8 +14,6 @@
 
 namespace sweelix\oauth2\server\interfaces;
 
-use sweelix\oauth2\server\models\Jti;
-
 /**
  * This is the jti service interface
  *
@@ -31,23 +29,23 @@ interface JtiServiceInterface
 {
     /**
      * Save or update jti depending on isNewRecord flag
-     * @param Jti $jti
+     * @param JtiModelInterface $jti
      * @param null|array $attributes attributes to save
      * @return boolean
      * @throws \Exception
      */
-    public function save(Jti $jti, $attributes);
+    public function save(JtiModelInterface $jti, $attributes);
 
     /**
      * @param string $key
-     * @return Jti|null
+     * @return JtiModelInterface|null
      */
     public function findOne($key);
 
     /**
-     * @param Jti $jti
+     * @param JtiModelInterface $jti
      * @return boolean
      */
-    public function delete(Jti $jti);
+    public function delete(JtiModelInterface $jti);
 
 }

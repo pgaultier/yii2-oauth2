@@ -14,6 +14,7 @@
 
 namespace sweelix\oauth2\server\models;
 
+use sweelix\oauth2\server\interfaces\JtiModelInterface;
 use Yii;
 
 /**
@@ -34,9 +35,19 @@ use Yii;
  * @property string $expires
  * @property string $jti
  */
-class Jti extends BaseModel
+class Jti extends BaseModel implements JtiModelInterface
 {
-    const HASH_ALGO = 'sha256';
+
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return [
+            [['clientId', 'subject', 'audience', 'jti'], 'string'],
+            [['clientId', 'subject', 'audience', 'jti'], 'required'],
+        ];
+    }
 
     /**
      * @return \sweelix\oauth2\server\interfaces\JtiServiceInterface
@@ -71,12 +82,7 @@ class Jti extends BaseModel
     }
 
     /**
-     * Find one jti by its key
-     *
-     * @param array|string $condition
-     * @return Jti|null
-     * @since XXX
-     * @throws \yii\base\UnknownClassException
+     * @inheritdoc
      */
     public static function findOne($condition)
     {
@@ -92,11 +98,7 @@ class Jti extends BaseModel
     }
 
     /**
-     * @param bool $runValidation
-     * @param null $attributes
-     * @return bool
-     * @since XXX
-     * @throws \yii\base\UnknownClassException
+     * @inheritdoc
      */
     public function save($runValidation = true, $attributes = null)
     {
@@ -110,9 +112,7 @@ class Jti extends BaseModel
     }
 
     /**
-     * @return bool
-     * @since XXX
-     * @throws \yii\base\UnknownClassException
+     * @inheritdoc
      */
     public function delete()
     {
@@ -130,13 +130,7 @@ class Jti extends BaseModel
     }
 
     /**
-     * @param string $clientId
-     * @param string $subject
-     * @param string $audience
-     * @param string $expires
-     * @param $jti
-     * @return string jti fingerprint
-     * @since XXX
+     * @inheritdoc
      */
     public static function getFingerprint($clientId, $subject, $audience, $expires, $jti)
     {

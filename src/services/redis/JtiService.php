@@ -16,7 +16,7 @@ namespace sweelix\oauth2\server\services\redis;
 
 use sweelix\oauth2\server\exceptions\DuplicateIndexException;
 use sweelix\oauth2\server\exceptions\DuplicateKeyException;
-use sweelix\oauth2\server\models\Jti;
+use sweelix\oauth2\server\interfaces\JtiModelInterface;
 use sweelix\oauth2\server\interfaces\JtiServiceInterface;
 use yii\db\Exception as DatabaseException;
 use Yii;
@@ -61,7 +61,7 @@ class JtiService extends BaseService implements JtiServiceInterface
     /**
      * @inheritdoc
      */
-    public function save(Jti $jti, $attributes)
+    public function save(JtiModelInterface $jti, $attributes)
     {
         if ($jti->getIsNewRecord()) {
             $result = $this->insert($jti, $attributes);
@@ -73,7 +73,7 @@ class JtiService extends BaseService implements JtiServiceInterface
 
     /**
      * Save Jti
-     * @param Jti $jti
+     * @param JtiModelInterface $jti
      * @param null|array $attributes attributes to save
      * @return bool
      * @throws DatabaseException
@@ -81,7 +81,7 @@ class JtiService extends BaseService implements JtiServiceInterface
      * @throws DuplicateKeyException
      * @since XXX
      */
-    protected function insert(Jti $jti, $attributes)
+    protected function insert(JtiModelInterface $jti, $attributes)
     {
         $result = false;
         if (!$jti->beforeSave(true)) {
@@ -131,14 +131,14 @@ class JtiService extends BaseService implements JtiServiceInterface
 
     /**
      * Update Jti
-     * @param Jti $jti
+     * @param JtiModelInterface $jti
      * @param null|array $attributes attributes to save
      * @return bool
      * @throws DatabaseException
      * @throws DuplicateIndexException
      * @throws DuplicateKeyException
      */
-    protected function update(Jti $jti, $attributes)
+    protected function update(JtiModelInterface $jti, $attributes)
     {
         if (!$jti->beforeSave(false)) {
             return false;
@@ -219,8 +219,8 @@ class JtiService extends BaseService implements JtiServiceInterface
         $accessTokenExists = (bool)$this->db->executeCommand('EXISTS', [$accessTokenKey]);
         if ($accessTokenExists === true) {
             $accessTokenData = $this->db->executeCommand('HGETALL', [$accessTokenKey]);
-            $record = Yii::createObject(Jti::className());
-            /** @var Jti $record */
+            $record = Yii::createObject('sweelix\oauth2\server\interfaces\JtiModelInterface');
+            /** @var JtiModelInterface $record */
             $properties = $record->attributesDefinition();
             $this->setAttributesDefinitions($properties);
             $attributes = [];
@@ -247,7 +247,7 @@ class JtiService extends BaseService implements JtiServiceInterface
     /**
      * @inheritdoc
      */
-    public function delete(Jti $jti)
+    public function delete(JtiModelInterface $jti)
     {
         $result = false;
         if ($jti->beforeDelete()) {

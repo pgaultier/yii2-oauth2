@@ -14,8 +14,6 @@
 
 namespace sweelix\oauth2\server\interfaces;
 
-use sweelix\oauth2\server\models\Jwt;
-
 /**
  * This is the jwt service interface
  *
@@ -31,23 +29,23 @@ interface JwtServiceInterface
 {
     /**
      * Save or update jwt depending on isNewRecord flag
-     * @param Jwt $jwt
+     * @param JwtModelInterface $jwt
      * @param null|array $attributes attributes to save
      * @return boolean
      * @throws \Exception
      */
-    public function save(Jwt $jwt, $attributes);
+    public function save(JwtModelInterface $jwt, $attributes);
 
     /**
      * @param string $key
-     * @return Jwt|null
+     * @return JwtModelInterface|null
      */
     public function findOne($key);
 
     /**
-     * @param Jwt $jwt
+     * @param JwtModelInterface $jwt
      * @return boolean
      */
-    public function delete(Jwt $jwt);
+    public function delete(JwtModelInterface $jwt);
 
 }

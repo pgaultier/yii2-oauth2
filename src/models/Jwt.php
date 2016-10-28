@@ -14,6 +14,7 @@
 
 namespace sweelix\oauth2\server\models;
 
+use sweelix\oauth2\server\interfaces\JwtModelInterface;
 use Yii;
 
 /**
@@ -32,9 +33,19 @@ use Yii;
  * @property string $subject
  * @property string $publicKey
  */
-class Jwt extends BaseModel
+class Jwt extends BaseModel implements JwtModelInterface
 {
-    const HASH_ALGO = 'sha256';
+
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return [
+            [['clientId', 'subject', 'publicKey'], 'string'],
+            [['clientId', 'subject', 'publicKey'], 'required'],
+        ];
+    }
 
     /**
      * @return \sweelix\oauth2\server\interfaces\JwtServiceInterface
@@ -67,12 +78,7 @@ class Jwt extends BaseModel
     }
 
     /**
-     * Find one jwt by its key
-     *
-     * @param array|string $condition
-     * @return Jwt|null
-     * @since XXX
-     * @throws \yii\base\UnknownClassException
+     * @inheritdoc
      */
     public static function findOne($condition)
     {
@@ -85,11 +91,7 @@ class Jwt extends BaseModel
     }
 
     /**
-     * @param bool $runValidation
-     * @param null $attributes
-     * @return bool
-     * @since XXX
-     * @throws \yii\base\UnknownClassException
+     * @inheritdoc
      */
     public function save($runValidation = true, $attributes = null)
     {

@@ -42,7 +42,7 @@ class OauthStorage implements
     AuthorizationCodeInterface,
     ClientCredentialsInterface,
     JwtAccessTokenInterface, // identical to AccessTokenInterface
-    //JwtBearerInterface,
+    JwtBearerInterface,
     PublicKeyInterface,
     RefreshTokenInterface,
     ScopeInterface
@@ -371,6 +371,66 @@ class OauthStorage implements
         $client = $clientClass::findOne($client_id);
         return ($client !== null) ? $client->isPublic : false;
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function getJti($client_id, $subject, $audience, $expiration, $jti)
+    {
+        $jtiClass = $this->getJtiClass();
+        $jtiModel = $jtiClass::findOne([
+            'clientId' => $client_id,
+            'subject' => $subject,
+            'audience' => $audience,
+            'expires' => $expiration,
+            'jti' => $jti,
+        ]);
+        if ($jtiModel !== null) {
+            $finalJti = [
+                'issuer' => $jtiModel->clientId,
+                'subject' => $jtiModel->subject,
+                'audience' => $jtiModel->audience,
+                'expires' => $jtiModel->expires,
+                'jti' => $jtiModel->jti,
+            ];
+            $jtiModel = $finalJti;
+        }
+        return $jtiModel;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setJti($client_id, $subject, $audience, $expiration, $jti)
+    {
+        $jtiModel = Yii::createObject('sweelix\oauth2\server\interfaces\JtiModelInterface');
+        /* @var \sweelix\oauth2\server\interfaces\JtiModelInterface $jtiModel */
+        $jtiModel->clientId = $client_id;
+        $jtiModel->subject = $subject;
+        $jtiModel->audience = $audience;
+        $jtiModel->expires = $expiration;
+        $jtiModel->jti = $jti;
+        $jtiModel->save();
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getClientKey($client_id, $subject)
+    {
+        $jwtClass = $this->getJwtClass();
+        $jwt = $jwtClass::findOne([
+            'clientId' => $client_id,
+            'subject' => $subject,
+        ]);
+        if ($jwt !== null) {
+            $finalJwt = $jwt->publicKey;
+            $jwt = $finalJwt;
+        }
+        return $jwt;
+    }
+
 
     /**
      * @inheritdoc

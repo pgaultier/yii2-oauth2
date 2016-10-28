@@ -16,7 +16,7 @@ namespace sweelix\oauth2\server\services\redis;
 
 use sweelix\oauth2\server\exceptions\DuplicateIndexException;
 use sweelix\oauth2\server\exceptions\DuplicateKeyException;
-use sweelix\oauth2\server\models\Jwt;
+use sweelix\oauth2\server\interfaces\JwtModelInterface;
 use sweelix\oauth2\server\interfaces\JwtServiceInterface;
 use yii\db\Exception as DatabaseException;
 use Yii;
@@ -61,7 +61,7 @@ class JwtService extends BaseService implements JwtServiceInterface
     /**
      * @inheritdoc
      */
-    public function save(Jwt $jwt, $attributes)
+    public function save(JwtModelInterface $jwt, $attributes)
     {
         if ($jwt->getIsNewRecord()) {
             $result = $this->insert($jwt, $attributes);
@@ -73,7 +73,7 @@ class JwtService extends BaseService implements JwtServiceInterface
 
     /**
      * Save Jwt
-     * @param Jwt $jwt
+     * @param JwtModelInterface $jwt
      * @param null|array $attributes attributes to save
      * @return bool
      * @throws DatabaseException
@@ -81,7 +81,7 @@ class JwtService extends BaseService implements JwtServiceInterface
      * @throws DuplicateKeyException
      * @since XXX
      */
-    protected function insert(Jwt $jwt, $attributes)
+    protected function insert(JwtModelInterface $jwt, $attributes)
     {
         $result = false;
         if (!$jwt->beforeSave(true)) {
@@ -131,14 +131,14 @@ class JwtService extends BaseService implements JwtServiceInterface
 
     /**
      * Update Jwt
-     * @param Jwt $jwt
+     * @param JwtModelInterface $jwt
      * @param null|array $attributes attributes to save
      * @return bool
      * @throws DatabaseException
      * @throws DuplicateIndexException
      * @throws DuplicateKeyException
      */
-    protected function update(Jwt $jwt, $attributes)
+    protected function update(JwtModelInterface $jwt, $attributes)
     {
         if (!$jwt->beforeSave(false)) {
             return false;
@@ -219,8 +219,8 @@ class JwtService extends BaseService implements JwtServiceInterface
         $accessTokenExists = (bool)$this->db->executeCommand('EXISTS', [$accessTokenKey]);
         if ($accessTokenExists === true) {
             $accessTokenData = $this->db->executeCommand('HGETALL', [$accessTokenKey]);
-            $record = Yii::createObject(Jwt::className());
-            /** @var Jwt $record */
+            $record = Yii::createObject('sweelix\oauth2\server\interfaces\JwtModelInterface');
+            /** @var JwtModelInterface $record */
             $properties = $record->attributesDefinition();
             $this->setAttributesDefinitions($properties);
             $attributes = [];
@@ -247,7 +247,7 @@ class JwtService extends BaseService implements JwtServiceInterface
     /**
      * @inheritdoc
      */
-    public function delete(Jwt $jwt)
+    public function delete(JwtModelInterface $jwt)
     {
         $result = false;
         if ($jwt->beforeDelete()) {

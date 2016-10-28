@@ -94,6 +94,12 @@ class Module extends BaseModule implements BootstrapInterface
         if (Yii::$container->has('sweelix\oauth2\server\interfaces\CypherKeyModelInterface') === false) {
             Yii::$container->set('sweelix\oauth2\server\interfaces\CypherKeyModelInterface', 'sweelix\oauth2\server\models\CypherKey');
         }
+        if (Yii::$container->has('sweelix\oauth2\server\interfaces\JtiModelInterface') === false) {
+            Yii::$container->set('sweelix\oauth2\server\interfaces\JtiModelInterface', 'sweelix\oauth2\server\models\Jti');
+        }
+        if (Yii::$container->has('sweelix\oauth2\server\interfaces\JwtModelInterface') === false) {
+            Yii::$container->set('sweelix\oauth2\server\interfaces\JwtModelInterface', 'sweelix\oauth2\server\models\Jwt');
+        }
         if (Yii::$container->has('sweelix\oauth2\server\interfaces\RefreshTokenModelInterface') === false) {
             Yii::$container->set('sweelix\oauth2\server\interfaces\RefreshTokenModelInterface', 'sweelix\oauth2\server\models\RefreshToken');
         }
