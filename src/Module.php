@@ -230,5 +230,9 @@ class Module extends BaseModule implements BootstrapInterface
         $app->controllerMap['oauth2:scope'] = [
             'class' => 'sweelix\oauth2\server\commands\ScopeController',
         ];
+        $app->controllerMap['oauth2:key'] = [
+            'class' => 'sweelix\oauth2\server\commands\KeyController',
+        ];
+
     }
 }
