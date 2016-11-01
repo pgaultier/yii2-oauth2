@@ -31,9 +31,17 @@ use Yii;
 class KeyController extends Controller
 {
 
-    public $id;
+    /**
+     * @var string alias to public key file
+     */
     public $publicKey;
+    /**
+     * @var string alias to private key file
+     */
     public $privateKey;
+    /**
+     * @var string encryptiion algorithm
+     */
     public $encryptionAlgorithm;
 
     /**
@@ -49,7 +57,7 @@ class KeyController extends Controller
     }
     /**
      * Create new Oauth CypherKey
-     * @param string $id
+     * @param string $id Should be client-id or default for common key
      * @return int
      * @since XXX
      */
