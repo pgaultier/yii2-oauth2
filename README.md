@@ -139,11 +139,9 @@ Permission system will be slightly modified to allow fine grained checks :
     1. if scope `read` is allowed for current client
     2. if rbac permission `read` is allowed for current user 
  
- * `Yii::$app->user->can('rbac:read')` will check
-    1. **only** if rbac permission `read` is allowed for current user 
+ * `Yii::$app->user->can('rbac:read')` will check **only** if rbac permission `read` is allowed for current user 
 
- * `Yii::$app->user->can('oauth2:read')` will check
-    1. **only** if scope `read` is allowed for current client
+ * `Yii::$app->user->can('oauth2:read')` will check **only** if scope `read` is allowed for current client
 
 CLI System
 ----------
