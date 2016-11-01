@@ -46,8 +46,8 @@ return [
 ];
 ```
 
-Module Parameters
------------------
+Configure Module
+----------------
 
 ### Basic module parameters
 
@@ -93,8 +93,8 @@ Module Parameters
  * `alwaysIssueNewRefreshToken` : always issue refresh token (default to **true**)
  * `unsetRefreshTokenAfterUse` : unset refresh token after use (default to **true**) 
 
-User identity link
-------------------
+User identity and Web user
+--------------------------
 
 Configure the user component to link oauth2 system and user / identity management
 
@@ -105,7 +105,7 @@ return [
         //....
         'user' => [
             'class' => 'sweelix\oauth2\server\web\User',
-            'identityClass' => 'app\models\User', // Identity clas must implement UserModelInterface
+            'identityClass' => 'app\models\User', // Identity class must implement UserModelInterface
             //
             // Parameters
             //
