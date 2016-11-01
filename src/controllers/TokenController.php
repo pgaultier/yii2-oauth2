@@ -56,22 +56,29 @@ class TokenController extends Controller
         /* @var \Oauth2\Server $oauthServer */
         $grantType = Yii::$app->request->getBodyParam('grant_type');
         switch ($grantType) {
+            // Client Credentials
             case 'client_credentials':
                 $oauthGrantType = Yii::createObject('OAuth2\GrantType\ClientCredentials');
                 /* @var \OAuth2\GrantType\ClientCredentials $oauthGrantType */
                 $oauthServer->addGrantType($oauthGrantType);
                 break;
+            // Resource Owner Password Credentials
             case 'password':
                 $oauthGrantType = Yii::createObject('OAuth2\GrantType\UserCredentials');
                 /* @var \OAuth2\GrantType\UserCredentials $oauthGrantType */
                 $oauthServer->addGrantType($oauthGrantType);
                 break;
+            // Refresh Token
             case 'refresh_token':
                 $oauthGrantType = Yii::createObject('OAuth2\GrantType\RefreshToken');
                 /* @var \OAuth2\GrantType\RefreshToken $oauthGrantType */
                 $oauthServer->addGrantType($oauthGrantType);
                 break;
-
+            case 'urn:ietf:params:oauth:grant-type:jwt-bearer':
+                $oauthGrantType = Yii::createObject('OAuth2\GrantType\RefreshToken');
+                /* @var \OAuth2\GrantType\JwtBearer $oauthGrantType */
+                $oauthServer->addGrantType($oauthGrantType);
+                break;
         }
 
         $response = $oauthServer->handleTokenRequest(OAuth2Request::createFromGlobals());

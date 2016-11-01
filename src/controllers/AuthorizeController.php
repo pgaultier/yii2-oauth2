@@ -66,6 +66,7 @@ class AuthorizeController extends Controller
         $oauthResponse = new OAuth2Response();
         $grantType = Yii::$app->request->getQueryParam('response_type');
         switch ($grantType) {
+            // Authorization Code
             case 'code':
                 $oauthGrantType = Yii::createObject('OAuth2\GrantType\AuthorizationCode');
                 /* @var \OAuth2\GrantType\AuthorizationCode $oauthGrantType */
@@ -77,6 +78,7 @@ class AuthorizeController extends Controller
                     return $this->redirect(['error']);
                 }
                 break;
+            // Implicit
             case 'token':
                 $status = $oauthServer->validateAuthorizeRequest($oauthRequest, $oauthResponse);
                 break;

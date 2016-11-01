@@ -57,6 +57,16 @@ class Module extends BaseModule implements BootstrapInterface
     public $allowJwtAccesToken = false;
 
     /**
+     * @var array configure oauth server (allowed_algorithms)
+     */
+    public $allowAlgorithm = ['RS256', 'RS384', 'RS512'];
+
+    /**
+     * @var string|array jwt audience. Default to token endpoint
+     */
+    public $jwtAudience = ['token/index'];
+
+    /**
      * @var bool configure oauth server (store_encrypted_token_string)
      */
     public $storeEncryptedTokenString = true;
