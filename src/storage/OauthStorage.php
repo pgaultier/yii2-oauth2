@@ -609,8 +609,11 @@ class OauthStorage implements
         if ($user !== null) {
             $details = [
                 'user_id' => $user->getId(),
-                'scope' => implode(' ', $user->getScopes()),
             ];
+            $restrictedScopes = $user->getRestrictedScopes();
+            if (($restrictedScopes !== null) && (is_array($restrictedScopes) === true)) {
+                $details['scope'] = implode(' ', $restrictedScopes);
+            }
         }
         return $details;
     }
