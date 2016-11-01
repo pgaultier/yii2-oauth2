@@ -135,17 +135,15 @@ Using `sweelix\oauth2\server\web\User` class will automagically link `rbac` syst
 
 Permission system will be slightly modified to allow fine grained checks :
 
- * `Yii::$app->user->can('read')` will check if
-    1. will check if scope `read` is allowed for current client
-    2. will check if rbac permission `read` is allowed for current user 
+ * `Yii::$app->user->can('read')` will check
+    1. if scope `read` is allowed for current client
+    2. if rbac permission `read` is allowed for current user 
  
- * `Yii::$app->user->can('rbac:read')` will check if
-    1. will **not** check if scope `read` is allowed for current client
-    2. will check if rbac permission `read` is allowed for current user 
+ * `Yii::$app->user->can('rbac:read')` will check
+    1. **only** if rbac permission `read` is allowed for current user 
 
- * `Yii::$app->user->can('oauth2:read')` will check if
-    1. will check if scope `read` is allowed for current client
-    2. will **not** check if rbac permission `read` is allowed for current user 
+ * `Yii::$app->user->can('oauth2:read')` will check
+    1. **only** if scope `read` is allowed for current client
 
 CLI System
 ----------
