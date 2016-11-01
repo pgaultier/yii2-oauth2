@@ -13,7 +13,6 @@
  */
 namespace sweelix\oauth2\server;
 
-use OAuth2\Server;
 use sweelix\oauth2\server\services\Oauth;
 use sweelix\oauth2\server\services\Redis;
 use yii\base\BootstrapInterface;
