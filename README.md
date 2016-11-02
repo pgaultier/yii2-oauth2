@@ -3,6 +3,16 @@ Oauth2 Yii2 integration
 
 This extension allow the developper to use [Oauth2](https://bshaffer.github.io/oauth2-server-php-docs/) server.
 
+[![Latest Stable Version](https://poser.pugx.org/sweelix/yii2-oauth2/v/stable)](https://packagist.org/packages/sweelix/yii2-oauth2)
+[![Build Status](https://api.travis-ci.org/pgaultier/yii2-oauth2.svg?branch=master)](https://travis-ci.org/pgaultier/yii2-oauth2)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/pgaultier/yii2-oauth2/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/pgaultier/yii2-oauth2/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/pgaultier/yii2-oauth2/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/pgaultier/yii2-oauth2/?branch=master)
+[![License](https://poser.pugx.org/sweelix/yii2-oauth2/license)](https://packagist.org/packages/sweelix/yii2-oauth2)
+
+[![Latest Development Version](https://img.shields.io/badge/unstable-devel-yellowgreen.svg)](https://packagist.org/packages/sweelix/yii2-oauth2)
+[![Build Status](https://travis-ci.org/pgaultier/yii2-oauth2.svg?branch=devel)](https://travis-ci.org/pgaultier/yii2-oauth2)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/pgaultier/yii2-oauth2/badges/quality-score.png?b=devel)](https://scrutinizer-ci.com/g/pgaultier/yii2-oauth2/?branch=devel)
+[![Code Coverage](https://scrutinizer-ci.com/g/pgaultier/yii2-oauth2/badges/coverage.png?b=devel)](https://scrutinizer-ci.com/g/pgaultier/yii2-oauth2/?branch=devel)
 
 Installation
 ------------
