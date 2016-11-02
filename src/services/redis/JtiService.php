@@ -26,7 +26,6 @@ use Exception;
  * This is the jti service for redis
  *  database structure
  *    * oauth2:jti:<jid> : hash (Jti)
- *    * oauth2:jti:etags : hash <jid> -> <etag>
  *
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
@@ -47,15 +46,6 @@ class JtiService extends BaseService implements JtiServiceInterface
     protected function getJtiKey($jid)
     {
         return $this->namespace . ':' . $jid;
-    }
-
-    /**
-     * @return string etag index Key
-     * @since XXX
-     */
-    protected function getEtagIndexKey()
-    {
-        return $this->namespace . ':etags';
     }
 
     /**
@@ -88,7 +78,6 @@ class JtiService extends BaseService implements JtiServiceInterface
             return $result;
         }
         $jtiKey = $this->getJtiKey($jti->id);
-        $etagKey = $this->getEtagIndexKey();
         //check if record exists
         $entityStatus = (int)$this->db->executeCommand('EXISTS', [$jtiKey]);
         if ($entityStatus === 1) {
@@ -110,8 +99,6 @@ class JtiService extends BaseService implements JtiServiceInterface
         if ($transaction === true) {
             try {
                 $this->db->executeCommand('HMSET', $redisParameters);
-                $etag = $this->computeEtag($jti);
-                $this->db->executeCommand('HSET', [$etagKey, $jti->id, $etag]);
                 $this->db->executeCommand('EXEC');
             } catch (DatabaseException $e) {
                 // @codeCoverageIgnoreStart
@@ -144,7 +131,6 @@ class JtiService extends BaseService implements JtiServiceInterface
             return false;
         }
 
-        $etagKey = $this->getEtagIndexKey();
         $values = $jti->getDirtyAttributes($attributes);
         $jtiId = isset($values['id']) ? $values['id'] : $jti->id;
         $jtiKey = $this->getJtiKey($jtiId);
@@ -165,7 +151,6 @@ class JtiService extends BaseService implements JtiServiceInterface
                 $oldJtiKey = $this->getJtiKey($oldId);
 
                 $this->db->executeCommand('RENAMENX', [$oldJtiKey, $jtiKey]);
-                $this->db->executeCommand('HDEL', [$etagKey, $oldJtiKey]);
             }
 
             $redisUpdateParameters = [$jtiKey];
@@ -186,9 +171,6 @@ class JtiService extends BaseService implements JtiServiceInterface
             if (count($redisUpdateParameters) > 1) {
                 $this->db->executeCommand('HMSET', $redisUpdateParameters);
             }
-
-            $etag = $this->computeEtag($jti);
-            $this->db->executeCommand('HSET', [$etagKey, $jtiId, $etag]);
 
             $this->db->executeCommand('EXEC');
         } catch (DatabaseException $e) {
@@ -251,12 +233,10 @@ class JtiService extends BaseService implements JtiServiceInterface
     {
         $result = false;
         if ($jti->beforeDelete()) {
-            $etagKey = $this->getEtagIndexKey();
             $this->db->executeCommand('MULTI');
             $id = $jti->getOldKey();
             $jtiKey = $this->getJtiKey($id);
 
-            $this->db->executeCommand('HDEL', [$etagKey, $id]);
             $this->db->executeCommand('DEL', [$jtiKey]);
             //TODO: check results to return correct information
             $queryResult = $this->db->executeCommand('EXEC');
@@ -265,14 +245,6 @@ class JtiService extends BaseService implements JtiServiceInterface
             $result = true;
         }
         return $result;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getEtag($key)
-    {
-        return $this->db->executeCommand('HGET', [$this->getEtagIndexKey(), $key]);
     }
 
 }

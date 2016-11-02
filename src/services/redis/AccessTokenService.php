@@ -25,7 +25,6 @@ use Yii;
  * This is the access token service for redis
  *  database structure
  *    * oauth2:accessTokens:<aid> : hash (AccessToken)
- *    * oauth2:accessTokens:etags : hash <aid> -> <etag>
  *
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
@@ -46,15 +45,6 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
     protected function getAccessTokenKey($aid)
     {
         return $this->namespace . ':' . $aid;
-    }
-
-    /**
-     * @return string etag index Key
-     * @since XXX
-     */
-    protected function getEtagIndexKey()
-    {
-        return $this->namespace . ':etags';
     }
 
     /**
@@ -87,7 +77,6 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
             return $result;
         }
         $accessTokenKey = $this->getAccessTokenKey($accessToken->id);
-        $etagKey = $this->getEtagIndexKey();
         //check if record exists
         $entityStatus = (int)$this->db->executeCommand('EXISTS', [$accessTokenKey]);
         if ($entityStatus === 1) {
@@ -109,8 +98,6 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
         if ($transaction === true) {
             try {
                 $this->db->executeCommand('HMSET', $redisParameters);
-                $etag = $this->computeEtag($accessToken);
-                $this->db->executeCommand('HSET', [$etagKey, $accessToken->id, $etag]);
                 $this->db->executeCommand('EXEC');
             } catch (DatabaseException $e) {
                 // @codeCoverageIgnoreStart
@@ -143,7 +130,6 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
             return false;
         }
 
-        $etagKey = $this->getEtagIndexKey();
         $values = $accessToken->getDirtyAttributes($attributes);
         $accessTokenId = isset($values['id']) ? $values['id'] : $accessToken->id;
         $accessTokenKey = $this->getAccessTokenKey($accessTokenId);
@@ -164,7 +150,6 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
                 $oldAccessTokenKey = $this->getAccessTokenKey($oldId);
 
                 $this->db->executeCommand('RENAMENX', [$oldAccessTokenKey, $accessTokenKey]);
-                $this->db->executeCommand('HDEL', [$etagKey, $oldAccessTokenKey]);
             }
 
             $redisUpdateParameters = [$accessTokenKey];
@@ -185,9 +170,6 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
             if (count($redisUpdateParameters) > 1) {
                 $this->db->executeCommand('HMSET', $redisUpdateParameters);
             }
-
-            $etag = $this->computeEtag($accessToken);
-            $this->db->executeCommand('HSET', [$etagKey, $accessTokenId, $etag]);
 
             $this->db->executeCommand('EXEC');
         } catch (DatabaseException $e) {
@@ -250,12 +232,10 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
     {
         $result = false;
         if ($accessToken->beforeDelete()) {
-            $etagKey = $this->getEtagIndexKey();
             $this->db->executeCommand('MULTI');
             $id = $accessToken->getOldKey();
             $accessTokenKey = $this->getAccessTokenKey($id);
 
-            $this->db->executeCommand('HDEL', [$etagKey, $id]);
             $this->db->executeCommand('DEL', [$accessTokenKey]);
             //TODO: check results to return correct information
             $queryResult = $this->db->executeCommand('EXEC');
@@ -264,14 +244,6 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
             $result = true;
         }
         return $result;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getEtag($key)
-    {
-        return $this->db->executeCommand('HGET', [$this->getEtagIndexKey(), $key]);
     }
 
 }
