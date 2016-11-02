@@ -41,7 +41,7 @@ class Redis implements ServiceBootstrapInterface
     /**
      * @inheritdoc
      */
-    public static function register()
+    public static function register($app)
     {
         if (Yii::$container->hasSingleton('sweelix\oauth2\server\interfaces\AccessTokenServiceInterface') === false) {
             Yii::$container->setSingleton('sweelix\oauth2\server\interfaces\AccessTokenServiceInterface', [

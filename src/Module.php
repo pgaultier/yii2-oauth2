@@ -13,9 +13,11 @@
  */
 namespace sweelix\oauth2\server;
 
+use sweelix\oauth2\server\services\Oauth;
 use sweelix\oauth2\server\services\Redis;
 use yii\base\BootstrapInterface;
 use yii\base\Module as BaseModule;
+use yii\console\Application as ConsoleApplication;
 use Yii;
 
 /**
@@ -49,24 +51,114 @@ class Module extends BaseModule implements BootstrapInterface
     public $baseEndPoint = '';
 
     /**
-     * @var string DateInterval TTL
+     * @var bool configure oauth server (use_jwt_access_tokens)
      */
-    public $authCodeTTL = 'PT10M';
+    public $allowJwtAccesToken = false;
 
     /**
-     * @var string DateInterval TTL
+     * @var array configure oauth server (allowed_algorithms)
      */
-    public $accessTokenTTL = 'P1M';
+    public $allowAlgorithm = ['RS256', 'RS384', 'RS512'];
 
     /**
-     * @var string DateInterval TTL
+     * @var string|array jwt audience. Default to token endpoint
      */
-    public $refreshTokenTTL = 'P3M';
+    public $jwtAudience = ['token/index'];
 
     /**
-     * @var string DateInterval TTL
+     * @var bool configure oauth server (store_encrypted_token_string)
      */
-    public $implicitTTL = 'PT1H';
+    public $storeEncryptedTokenString = true;
+
+    /**
+     * @var bool configure oauth server (use_openid_connect)
+     */
+    public $allowOpenIdConnect = false;
+
+    /**
+     * @var int configure oauth server (id_lifetime)
+     */
+    public $idTTL = 3600;
+
+    /**
+     * @var int configure oauth server (access_lifetime)
+     */
+    public $accessTokenTTL = 3600;
+
+    /**
+     * @var int configure oauth server (refresh_token_lifetime)
+     */
+    public $refreshTokenTTL = 1209600;
+
+    /**
+     * @var string configure oauth server (www_realm)
+     */
+    public $realm = 'Service';
+
+    /**
+     * @var string configure oauth server (token_param_name)
+     */
+    public $tokenQueryName = 'access_token';
+
+    /**
+     * @var string configure oauth server (token_bearer_header_name)
+     */
+    public $tokenBearerName = 'Bearer';
+
+    /**
+     * @var bool configure oauth server (enforce_state)
+     */
+    public $enforceState = true;
+
+    /**
+     * @var bool configure oauth server (require_exact_redirect_uri)
+     */
+    public $allowOnlyRedirectUri = true;
+
+    /**
+     * @var bool configure oauth server (allow_implicit)
+     */
+    public $allowImplicit = false;
+
+    /**
+     * @var bool allow authorization code grant
+     */
+    public $allowAuthorizationCode = true;
+
+    /**
+     * @var bool allow client credentials grant
+     */
+    public $allowClientCredentials = true;
+
+    /**
+     * @var bool allow password grant
+     */
+    public $allowPassword = true;
+
+    /**
+     * @var bool allow refresh token grant
+     */
+    public $allowRefreshToken = true;
+
+    /**
+     * @var bool configure oauth server (allow_credentials_in_request_body)
+     */
+    public $allowCredentialsInRequestBody = true;
+
+    /**
+     * @var bool configure oauth server (allow_public_clients)
+     */
+    public $allowPublicClients = true;
+
+    /**
+     * @var bool configure oauth server (always_issue_new_refresh_token)
+     */
+    public $alwaysIssueNewRefreshToken = true;
+
+    /**
+     * @var bool configure oauth server (unset_refresh_token_after_use)
+     */
+    public $unsetRefreshTokenAfterUse = false;
 
     /**
      * @inheritdoc
@@ -78,9 +170,10 @@ class Module extends BaseModule implements BootstrapInterface
 
     /**
      * Load dataservices in container
+     * @param \yii\base\Application $app
      * @since XXX
      */
-    protected function setUpDi()
+    protected function setUpDi($app)
     {
         if (Yii::$container->has('scope') === false) {
             Yii::$container->set('scope', 'sweelix\oauth2\server\validators\ScopeValidator');
@@ -112,10 +205,11 @@ class Module extends BaseModule implements BootstrapInterface
         if ((Yii::$container->has('sweelix\oauth2\server\interfaces\UserModelInterface') === false) && ($this->identityClass !== null)) {
             Yii::$container->set('sweelix\oauth2\server\interfaces\UserModelInterface', $this->identityClass);
         }
-
         if ($this->backend === 'redis') {
-            Redis::register();
+            Redis::register($app);
         }
+        Oauth::register($app);
+
     }
 
     /**
@@ -127,14 +221,37 @@ class Module extends BaseModule implements BootstrapInterface
         if (($this->identityClass === null) && (isset($app->user) === true)) {
             $this->identityClass = $app->user->identityClass;
         }
-        $this->setUpDi();
+        $this->setUpDi($app);
         if (empty($this->baseEndPoint) === false) {
             $this->baseEndPoint = trim($this->baseEndPoint, '/').'/';
         }
 
-        $app->getUrlManager()->addRules([
-            ['verb' => 'POST', 'pattern' => $this->baseEndPoint.'access_token', 'route' => $this->id.'/default/access-token'],
-            ['verb' => 'GET', 'pattern' => $this->baseEndPoint.'authorize', 'route' => $this->id.'/default/authorize'],
-        ]);
+        if ($app instanceof ConsoleApplication) {
+            $this->mapConsoleControllers($app);
+        } else {
+            $app->getUrlManager()->addRules([
+                ['verb' => 'POST', 'pattern' => $this->baseEndPoint.'token', 'route' => $this->id.'/token/index'],
+                ['verb' => 'GET', 'pattern' => $this->baseEndPoint.'authorize', 'route' => $this->id.'/authorize/index'],
+            ]);
+        }
+    }
+
+    /**
+     * Update controllers map to add console commands
+     * @param ConsoleApplication $app
+     * @since XXX
+     */
+    protected function mapConsoleControllers(ConsoleApplication $app)
+    {
+        $app->controllerMap['oauth2:client'] = [
+            'class' => 'sweelix\oauth2\server\commands\ClientController',
+        ];
+        $app->controllerMap['oauth2:scope'] = [
+            'class' => 'sweelix\oauth2\server\commands\ScopeController',
+        ];
+        $app->controllerMap['oauth2:key'] = [
+            'class' => 'sweelix\oauth2\server\commands\KeyController',
+        ];
+
     }
 }

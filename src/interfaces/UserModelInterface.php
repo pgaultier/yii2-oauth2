@@ -14,6 +14,7 @@
 
 namespace sweelix\oauth2\server\interfaces;
 
+use OAuth2\Controller\ResourceController;
 use yii\web\IdentityInterface;
 
 /**
@@ -43,8 +44,12 @@ interface UserModelInterface extends IdentityInterface
     public static function findByUsername($username);
 
     /**
-     * @return array list of scopes for current user
-     * @since XXX
+     * @return array list of restricted scopes for current user or null
      */
-    public function getScopes();
+    public function getRestrictedScopes();
+
+    /**
+     * @param array $scopes define restricted scopes for current user
+     */
+    public function setRestrictedScopes($scopes);
 }

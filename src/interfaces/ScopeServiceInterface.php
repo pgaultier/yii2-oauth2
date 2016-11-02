@@ -14,8 +14,6 @@
 
 namespace sweelix\oauth2\server\interfaces;
 
-use sweelix\oauth2\server\models\Scope;
-
 /**
  * This is the scope service interface
  *
