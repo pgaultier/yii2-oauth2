@@ -14,10 +14,14 @@
 namespace tests\unit;
 
 use sweelix\oauth2\server\interfaces\UserModelInterface;
+use sweelix\oauth2\server\traits\IdentityTrait;
 use yii\base\NotSupportedException;
 
 class MockUser implements UserModelInterface
 {
+
+    use IdentityTrait;
+
     public static $users = [
         'user1' => [
             'id' => 'user1',
@@ -33,7 +37,6 @@ class MockUser implements UserModelInterface
     public $id;
     public $username;
     public $password;
-    public $scopes = [];
 
     public function getId()
     {
@@ -48,7 +51,6 @@ class MockUser implements UserModelInterface
             $user->id = self::$users[$username]['id'];
             $user->username = $username;
             $user->password = self::$users[$username]['password'];
-            $user->scopes = self::$users[$username]['scopes'];
         }
         return $user;
     }
@@ -61,22 +63,11 @@ class MockUser implements UserModelInterface
             $user->id = self::$users[$username]['id'];
             $user->username = $username;
             $user->password = self::$users[$username]['password'];
-            $user->scopes = self::$users[$username]['scopes'];
         }
         return $user;
     }
 
-    public function getScopes()
-    {
-        return $this->scopes;
-    }
-
     public static function findIdentity($id)
-    {
-        throw new NotSupportedException();
-    }
-
-    public static function findIdentityByAccessToken($token, $type = null)
     {
         throw new NotSupportedException();
     }
