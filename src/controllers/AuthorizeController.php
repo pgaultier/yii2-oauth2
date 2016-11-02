@@ -16,6 +16,7 @@ namespace sweelix\oauth2\server\controllers;
 
 use OAuth2\Request as OAuth2Request;
 use OAuth2\Response as OAuth2Response;
+use sweelix\oauth2\server\Module;
 use yii\web\Controller;
 use yii\web\Response;
 use Yii;
@@ -68,14 +69,19 @@ class AuthorizeController extends Controller
         switch ($grantType) {
             // Authorization Code
             case 'code':
-                $oauthGrantType = Yii::createObject('OAuth2\GrantType\AuthorizationCode');
-                /* @var \OAuth2\GrantType\AuthorizationCode $oauthGrantType */
-                $oauthServer->addGrantType($oauthGrantType);
-                $status = $oauthServer->validateAuthorizeRequest($oauthRequest, $oauthResponse);
-                $error = $oauthResponse->getParameters();
-                if (empty($error) === false) {
-                    Yii::$app->session->setFlash('error', $error, false);
-                    return $this->redirect(['error']);
+                if (Module::getInstance()->allowAuthorizationCode === true) {
+                    $oauthGrantType = Yii::createObject('OAuth2\GrantType\AuthorizationCode');
+                    /* @var \OAuth2\GrantType\AuthorizationCode $oauthGrantType */
+                    $oauthServer->addGrantType($oauthGrantType);
+                    $status = $oauthServer->validateAuthorizeRequest($oauthRequest, $oauthResponse);
+                    $error = $oauthResponse->getParameters();
+                    if (empty($error) === false) {
+                        Yii::$app->session->setFlash('error', $error, false);
+                        return $this->redirect(['error']);
+                    }
+                } else {
+                    $status = false;
+                    Yii::$app->session->setFlash('error', ['error' => 'invalid_grant', 'error_description' => 'authorization code grant is not supported'], false);
                 }
                 break;
             // Implicit

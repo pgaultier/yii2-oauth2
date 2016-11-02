@@ -121,6 +121,26 @@ class Module extends BaseModule implements BootstrapInterface
     public $allowImplicit = false;
 
     /**
+     * @var bool allow authorization code grant
+     */
+    public $allowAuthorizationCode = true;
+
+    /**
+     * @var bool allow client credentials grant
+     */
+    public $allowClientCredentials = true;
+
+    /**
+     * @var bool allow password grant
+     */
+    public $allowPassword = true;
+
+    /**
+     * @var bool allow refresh token grant
+     */
+    public $allowRefreshToken = true;
+
+    /**
      * @var bool configure oauth server (allow_credentials_in_request_body)
      */
     public $allowCredentialsInRequestBody = true;

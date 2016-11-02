@@ -57,16 +57,24 @@ Configure Module
     * Token endpoint https://host.xxx/token
     * Authorize endpoint https://host.xxx/authorize
 
+### Grants management 
+ 
+ * `allowImplicit` : allow implicit grant (default to **false**)
+ * `allowAuthorizationCode` : allow authorization code grant (default to **true**)
+ * `allowClientCredentials` : allow client credentials grant (default to **true**)
+ * `allowPassword` : allow user credentials / password grant (default to **true**)
+ * `allowRefreshToken` : allow refresh token grant (default to **true**)
+ * `allowCredentialsInRequestBody` : allow credentials in request body (default to **true**)
+ * `allowPublicClients` : allow public clients (default to **true**)
+ * `alwaysIssueNewRefreshToken` : always issue refresh token (default to **true**)
+ * `unsetRefreshTokenAfterUse` : unset refresh token after use (default to **true**) 
+
 ### JWT parameters
 
  * `allowJwtAccesToken` : enable JWT (default : **false**)
  * `allowAlgorithm` : available algorithm for JWT (default : **['RS256', 'RS384', 'RS512']**)
  * `jwtAudience` : default to token endpoint
  * `storeEncryptedTokenString` : store encrypted token (default : **true**)
-
-### OpenID
-
- * `allowOpenIdConnect` : enable openId connect (default : **false**) // not implemented yet
 
 ### Time To Live
 
@@ -85,13 +93,9 @@ Configure Module
  * `enforceState` : enforce state parameter (default to **true**)
  * `allowOnlyRedirectUri` : need exact redirect URI (default to **true**)
 
-### Grants management 
- 
- * `allowImplicit` : allow implicit grant (default to **false**)
- * `allowCredentialsInRequestBody` : allow credentials in request body (default to **true**)
- * `allowPublicClients` : allow public clients (default to **true**)
- * `alwaysIssueNewRefreshToken` : always issue refresh token (default to **true**)
- * `unsetRefreshTokenAfterUse` : unset refresh token after use (default to **true**) 
+### OpenID
+
+ * `allowOpenIdConnect` : enable openId connect (default : **false**) // not implemented yet
 
 User identity and Web user
 --------------------------

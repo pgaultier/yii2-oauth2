@@ -16,6 +16,7 @@ namespace sweelix\oauth2\server\controllers;
 
 use OAuth2\Request as OAuth2Request;
 use OAuth2\Response as OAuth2Response;
+use sweelix\oauth2\server\Module;
 use yii\rest\Controller;
 use yii\web\Response;
 use Yii;
@@ -58,21 +59,27 @@ class TokenController extends Controller
         switch ($grantType) {
             // Client Credentials
             case 'client_credentials':
-                $oauthGrantType = Yii::createObject('OAuth2\GrantType\ClientCredentials');
-                /* @var \OAuth2\GrantType\ClientCredentials $oauthGrantType */
-                $oauthServer->addGrantType($oauthGrantType);
+                if (Module::getInstance()->allowClientCredentials === true) {
+                    $oauthGrantType = Yii::createObject('OAuth2\GrantType\ClientCredentials');
+                    /* @var \OAuth2\GrantType\ClientCredentials $oauthGrantType */
+                    $oauthServer->addGrantType($oauthGrantType);
+                }
                 break;
             // Resource Owner Password Credentials
             case 'password':
-                $oauthGrantType = Yii::createObject('OAuth2\GrantType\UserCredentials');
-                /* @var \OAuth2\GrantType\UserCredentials $oauthGrantType */
-                $oauthServer->addGrantType($oauthGrantType);
+                if (Module::getInstance()->allowPassword === true) {
+                    $oauthGrantType = Yii::createObject('OAuth2\GrantType\UserCredentials');
+                    /* @var \OAuth2\GrantType\UserCredentials $oauthGrantType */
+                    $oauthServer->addGrantType($oauthGrantType);
+                }
                 break;
             // Refresh Token
             case 'refresh_token':
-                $oauthGrantType = Yii::createObject('OAuth2\GrantType\RefreshToken');
-                /* @var \OAuth2\GrantType\RefreshToken $oauthGrantType */
-                $oauthServer->addGrantType($oauthGrantType);
+                if (Module::getInstance()->allowRefreshToken === true) {
+                    $oauthGrantType = Yii::createObject('OAuth2\GrantType\RefreshToken');
+                    /* @var \OAuth2\GrantType\RefreshToken $oauthGrantType */
+                    $oauthServer->addGrantType($oauthGrantType);
+                }
                 break;
             case 'urn:ietf:params:oauth:grant-type:jwt-bearer':
                 $oauthGrantType = Yii::createObject('OAuth2\GrantType\RefreshToken');
