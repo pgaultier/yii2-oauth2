@@ -25,7 +25,6 @@ use Yii;
  * This is the client service for redis
  *  database structure
  *    * oauth2:clients:<cid> : hash (Client)
- *    * oauth2:clients:etags : hash <cid> -> <etag>
  *
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
@@ -46,15 +45,6 @@ class ClientService extends BaseService implements ClientServiceInterface
     protected function getClientKey($cid)
     {
         return $this->namespace . ':' . $cid;
-    }
-
-    /**
-     * @return string etag index Key
-     * @since XXX
-     */
-    protected function getEtagIndexKey()
-    {
-        return $this->namespace . ':etags';
     }
 
     /**
@@ -87,7 +77,6 @@ class ClientService extends BaseService implements ClientServiceInterface
             return $result;
         }
         $clientKey = $this->getClientKey($client->id);
-        $etagKey = $this->getEtagIndexKey();
         //check if record exists
         $entityStatus = (int)$this->db->executeCommand('EXISTS', [$clientKey]);
         if ($entityStatus === 1) {
@@ -109,8 +98,6 @@ class ClientService extends BaseService implements ClientServiceInterface
         if ($transaction === true) {
             try {
                 $this->db->executeCommand('HMSET', $redisParameters);
-                $etag = $this->computeEtag($client);
-                $this->db->executeCommand('HSET', [$etagKey, $client->id, $etag]);
                 $this->db->executeCommand('EXEC');
             } catch (DatabaseException $e) {
                 // @codeCoverageIgnoreStart
@@ -143,7 +130,6 @@ class ClientService extends BaseService implements ClientServiceInterface
             return false;
         }
 
-        $etagKey = $this->getEtagIndexKey();
         $values = $client->getDirtyAttributes($attributes);
         $clientId = isset($values['id']) ? $values['id'] : $client->id;
         $clientKey = $this->getClientKey($clientId);
@@ -164,7 +150,6 @@ class ClientService extends BaseService implements ClientServiceInterface
                 $oldClientKey = $this->getClientKey($oldId);
 
                 $this->db->executeCommand('RENAMENX', [$oldClientKey, $clientKey]);
-                $this->db->executeCommand('HDEL', [$etagKey, $oldClientKey]);
             }
 
             $redisUpdateParameters = [$clientKey];
@@ -185,9 +170,6 @@ class ClientService extends BaseService implements ClientServiceInterface
             if (count($redisUpdateParameters) > 1) {
                 $this->db->executeCommand('HMSET', $redisUpdateParameters);
             }
-
-            $etag = $this->computeEtag($client);
-            $this->db->executeCommand('HSET', [$etagKey, $clientId, $etag]);
 
             $this->db->executeCommand('EXEC');
         } catch (DatabaseException $e) {
@@ -250,12 +232,10 @@ class ClientService extends BaseService implements ClientServiceInterface
     {
         $result = false;
         if ($client->beforeDelete()) {
-            $etagKey = $this->getEtagIndexKey();
             $this->db->executeCommand('MULTI');
             $id = $client->getOldKey();
             $clientKey = $this->getClientKey($id);
 
-            $this->db->executeCommand('HDEL', [$etagKey, $id]);
             $this->db->executeCommand('DEL', [$clientKey]);
             //TODO: check results to return correct information
             $queryResult = $this->db->executeCommand('EXEC');
@@ -264,14 +244,6 @@ class ClientService extends BaseService implements ClientServiceInterface
             $result = true;
         }
         return $result;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getEtag($key)
-    {
-        return $this->db->executeCommand('HGET', [$this->getEtagIndexKey(), $key]);
     }
 
 }

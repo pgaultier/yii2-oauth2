@@ -69,7 +69,17 @@ class MockUser implements UserModelInterface
 
     public static function findIdentity($id)
     {
-        throw new NotSupportedException();
+        $user = null;
+        foreach(self::$users as $username => $userData) {
+            if ($userData['id'] === $id) {
+                $user = new self();
+                $user->id = $userData['id'];
+                $user->username = $username;
+                $user->password = $userData['password'];
+                break;
+            }
+        }
+        return $user;
     }
 
     public function validateAuthKey($authKey)

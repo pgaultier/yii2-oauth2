@@ -25,7 +25,6 @@ use Yii;
  * This is the refresh token service for redis
  *  database structure
  *    * oauth2:refreshTokens:<rid> : hash (RefreshToken)
- *    * oauth2:refreshTokens:etags : hash <rid> -> <etag>
  *
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
@@ -46,15 +45,6 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
     protected function getRefreshTokenKey($rid)
     {
         return $this->namespace . ':' . $rid;
-    }
-
-    /**
-     * @return string etag index Key
-     * @since XXX
-     */
-    protected function getEtagIndexKey()
-    {
-        return $this->namespace . ':etags';
     }
 
     /**
@@ -87,7 +77,6 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
             return $result;
         }
         $refreshTokenKey = $this->getRefreshTokenKey($refreshToken->id);
-        $etagKey = $this->getEtagIndexKey();
         //check if record exists
         $entityStatus = (int)$this->db->executeCommand('EXISTS', [$refreshTokenKey]);
         if ($entityStatus === 1) {
@@ -109,8 +98,6 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
         if ($transaction === true) {
             try {
                 $this->db->executeCommand('HMSET', $redisParameters);
-                $etag = $this->computeEtag($refreshToken);
-                $this->db->executeCommand('HSET', [$etagKey, $refreshToken->id, $etag]);
                 $this->db->executeCommand('EXEC');
             } catch (DatabaseException $e) {
                 // @codeCoverageIgnoreStart
@@ -143,7 +130,6 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
             return false;
         }
 
-        $etagKey = $this->getEtagIndexKey();
         $values = $refreshToken->getDirtyAttributes($attributes);
         $refreshTokenId = isset($values['id']) ? $values['id'] : $refreshToken->id;
         $refreshTokenKey = $this->getRefreshTokenKey($refreshTokenId);
@@ -164,7 +150,6 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
                 $oldRefreshTokenKey = $this->getRefreshTokenKey($oldId);
 
                 $this->db->executeCommand('RENAMENX', [$oldRefreshTokenKey, $refreshTokenKey]);
-                $this->db->executeCommand('HDEL', [$etagKey, $oldRefreshTokenKey]);
             }
 
             $redisUpdateParameters = [$refreshTokenKey];
@@ -185,9 +170,6 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
             if (count($redisUpdateParameters) > 1) {
                 $this->db->executeCommand('HMSET', $redisUpdateParameters);
             }
-
-            $etag = $this->computeEtag($refreshToken);
-            $this->db->executeCommand('HSET', [$etagKey, $refreshTokenId, $etag]);
 
             $this->db->executeCommand('EXEC');
         } catch (DatabaseException $e) {
@@ -250,12 +232,10 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
     {
         $result = false;
         if ($refreshToken->beforeDelete()) {
-            $etagKey = $this->getEtagIndexKey();
             $this->db->executeCommand('MULTI');
             $id = $refreshToken->getOldKey();
             $refreshTokenKey = $this->getRefreshTokenKey($id);
 
-            $this->db->executeCommand('HDEL', [$etagKey, $id]);
             $this->db->executeCommand('DEL', [$refreshTokenKey]);
             //TODO: check results to return correct information
             $queryResult = $this->db->executeCommand('EXEC');
@@ -264,14 +244,6 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
             $result = true;
         }
         return $result;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getEtag($key)
-    {
-        return $this->db->executeCommand('HGET', [$this->getEtagIndexKey(), $key]);
     }
 
 }

@@ -28,7 +28,6 @@ use Yii;
  *    * oauth2:scopes:<sid> : hash (Scope)
  *    * oauth2:scopes:keys : set scopeIds
  *    * oauth2:scopes:defaultkeys : set default scopeIds
- *    * oauth2:scopes:etags : hash <sid> -> <etag>
  *
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
@@ -70,15 +69,6 @@ class ScopeService extends BaseService implements ScopeServiceInterface
     }
 
     /**
-     * @return string etag index Key
-     * @since XXX
-     */
-    protected function getEtagIndexKey()
-    {
-        return $this->namespace . ':etags';
-    }
-
-    /**
      * @inheritdoc
      */
     public function save(ScopeModelInterface $scope, $attributes)
@@ -110,7 +100,6 @@ class ScopeService extends BaseService implements ScopeServiceInterface
         $scopeKey = $this->getScopeKey($scope->id);
         $scopeListKey = $this->getScopeListKey();
         $scopeDefaultListKey = $this->getScopeDefaultListKey();
-        $etagKey = $this->getEtagIndexKey();
         //check if record exists
         $entityStatus = (int)$this->db->executeCommand('EXISTS', [$scopeKey]);
         if ($entityStatus === 1) {
@@ -132,8 +121,6 @@ class ScopeService extends BaseService implements ScopeServiceInterface
         if ($transaction === true) {
             try {
                 $this->db->executeCommand('HMSET', $redisParameters);
-                $etag = $this->computeEtag($scope);
-                $this->db->executeCommand('HSET', [$etagKey, $scope->id, $etag]);
                 $this->db->executeCommand('SADD', [$scopeListKey, $scope->id]);
                 if ($scope->isDefault === true) {
                     $this->db->executeCommand('SADD', [$scopeDefaultListKey, $scope->id]);
@@ -170,7 +157,6 @@ class ScopeService extends BaseService implements ScopeServiceInterface
             return false;
         }
 
-        $etagKey = $this->getEtagIndexKey();
         $values = $scope->getDirtyAttributes($attributes);
         $scopeId = isset($values['id']) ? $values['id'] : $scope->id;
         $scopeKey = $this->getScopeKey($scopeId);
@@ -194,7 +180,6 @@ class ScopeService extends BaseService implements ScopeServiceInterface
                 $oldScopeKey = $this->getScopeKey($oldId);
 
                 $this->db->executeCommand('RENAMENX', [$oldScopeKey, $scopeKey]);
-                $this->db->executeCommand('HDEL', [$etagKey, $oldScopeKey]);
                 $this->db->executeCommand('SREM', [$scopeListKey, $oldScopeKey]);
                 $this->db->executeCommand('SREM', [$scopeDefaultListKey, $oldScopeKey]);
                 $reAddKeyInList = true;
@@ -219,8 +204,6 @@ class ScopeService extends BaseService implements ScopeServiceInterface
                 $this->db->executeCommand('HMSET', $redisUpdateParameters);
             }
 
-            $etag = $this->computeEtag($scope);
-            $this->db->executeCommand('HSET', [$etagKey, $scopeId, $etag]);
             if ($reAddKeyInList === true) {
                 $this->db->executeCommand('SADD', [$scopeListKey, $scopeId]);
             }
@@ -310,7 +293,6 @@ class ScopeService extends BaseService implements ScopeServiceInterface
     {
         $result = false;
         if ($scope->beforeDelete()) {
-            $etagKey = $this->getEtagIndexKey();
             $this->db->executeCommand('MULTI');
             $id = $scope->getOldKey();
             $scopeKey = $this->getScopeKey($id);
@@ -318,7 +300,6 @@ class ScopeService extends BaseService implements ScopeServiceInterface
             $scopeDefaultListKey = $this->getScopeDefaultListKey();
 
 
-            $this->db->executeCommand('HDEL', [$etagKey, $id]);
             $this->db->executeCommand('DEL', [$scopeKey]);
             $this->db->executeCommand('SREM', [$scopeListKey, $id]);
             $this->db->executeCommand('SREM', [$scopeDefaultListKey, $id]);
@@ -329,14 +310,6 @@ class ScopeService extends BaseService implements ScopeServiceInterface
             $result = true;
         }
         return $result;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getEtag($key)
-    {
-        return $this->db->executeCommand('HGET', [$this->getEtagIndexKey(), $key]);
     }
 
 }

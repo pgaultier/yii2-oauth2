@@ -249,8 +249,7 @@ class OauthStorage implements
             $scopes = explode(' ', $scope);
         }
         $accessToken->scopes = $scopes;
-        $accessToken->save();
-        return true;
+        return $accessToken->save();
     }
 
     /**
@@ -262,9 +261,9 @@ class OauthStorage implements
         $accessToken = $accessTokenClass::findOne($access_token);
         /* @var \sweelix\oauth2\server\interfaces\AccessTokenModelInterface $accessToken */
         if ($accessToken !== null) {
-            $accessToken->delete();
+            return $accessToken->delete();
         }
-        return true; //TODO: check why we should return true/false
+        return true;
     }
 
     /**
@@ -306,8 +305,7 @@ class OauthStorage implements
             $scopes = explode(' ', $scope);
         }
         $authCode->scopes = $scopes;
-        $authCode->save();
-        return true;
+        return $authCode->save();
     }
 
     /**
@@ -318,7 +316,7 @@ class OauthStorage implements
         $authCodeClass = $this->getAuthCodeClass();
         $authCode = $authCodeClass::findOne($code);
         if ($authCode !== null) {
-            $authCode->delete();
+            return $authCode->delete();
         }
         return true;
     }
@@ -430,8 +428,7 @@ class OauthStorage implements
         $jtiModel->audience = $audience;
         $jtiModel->expires = $expiration;
         $jtiModel->jti = $jti;
-        $jtiModel->save();
-        return true;
+        return $jtiModel->save();
     }
 
     /**
@@ -544,8 +541,7 @@ class OauthStorage implements
             $scopes = explode(' ', $scope);
         }
         $refreshToken->scopes = $scopes;
-        $refreshToken->save();
-        return true;
+        return $refreshToken->save();
     }
 
     /**
@@ -556,7 +552,7 @@ class OauthStorage implements
         $refreshTokenClass = $this->getRefreshTokenClass();
         $refreshToken = $refreshTokenClass::findOne($refresh_token);
         if ($refreshToken !== null) {
-            $refreshToken->delete();
+            return $refreshToken->delete();
         }
         return true;
     }

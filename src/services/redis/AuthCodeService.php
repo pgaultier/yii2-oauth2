@@ -25,7 +25,6 @@ use Yii;
  * This is the auth code service for redis
  *  database structure
  *    * oauth2:authCodes:<aid> : hash (AuthCode)
- *    * oauth2:authCodes:etags : hash <aid> -> <etag>
  *
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
@@ -46,15 +45,6 @@ class AuthCodeService extends BaseService implements AuthCodeServiceInterface
     protected function getAuthCodeKey($aid)
     {
         return $this->namespace . ':' . $aid;
-    }
-
-    /**
-     * @return string etag index Key
-     * @since XXX
-     */
-    protected function getEtagIndexKey()
-    {
-        return $this->namespace . ':etags';
     }
 
     /**
@@ -87,7 +77,6 @@ class AuthCodeService extends BaseService implements AuthCodeServiceInterface
             return $result;
         }
         $authCodeKey = $this->getAuthCodeKey($authCode->id);
-        $etagKey = $this->getEtagIndexKey();
         //check if record exists
         $entityStatus = (int)$this->db->executeCommand('EXISTS', [$authCodeKey]);
         if ($entityStatus === 1) {
@@ -109,8 +98,6 @@ class AuthCodeService extends BaseService implements AuthCodeServiceInterface
         if ($transaction === true) {
             try {
                 $this->db->executeCommand('HMSET', $redisParameters);
-                $etag = $this->computeEtag($authCode);
-                $this->db->executeCommand('HSET', [$etagKey, $authCode->id, $etag]);
                 $this->db->executeCommand('EXEC');
             } catch (DatabaseException $e) {
                 // @codeCoverageIgnoreStart
@@ -143,7 +130,6 @@ class AuthCodeService extends BaseService implements AuthCodeServiceInterface
             return false;
         }
 
-        $etagKey = $this->getEtagIndexKey();
         $values = $authCode->getDirtyAttributes($attributes);
         $authCodeId = isset($values['id']) ? $values['id'] : $authCode->id;
         $authCodeKey = $this->getAuthCodeKey($authCodeId);
@@ -164,7 +150,6 @@ class AuthCodeService extends BaseService implements AuthCodeServiceInterface
                 $oldAuthCodeKey = $this->getAuthCodeKey($oldId);
 
                 $this->db->executeCommand('RENAMENX', [$oldAuthCodeKey, $authCodeKey]);
-                $this->db->executeCommand('HDEL', [$etagKey, $oldAuthCodeKey]);
             }
 
             $redisUpdateParameters = [$authCodeKey];
@@ -185,9 +170,6 @@ class AuthCodeService extends BaseService implements AuthCodeServiceInterface
             if (count($redisUpdateParameters) > 1) {
                 $this->db->executeCommand('HMSET', $redisUpdateParameters);
             }
-
-            $etag = $this->computeEtag($authCode);
-            $this->db->executeCommand('HSET', [$etagKey, $authCodeId, $etag]);
 
             $this->db->executeCommand('EXEC');
         } catch (DatabaseException $e) {
@@ -250,12 +232,10 @@ class AuthCodeService extends BaseService implements AuthCodeServiceInterface
     {
         $result = false;
         if ($authCode->beforeDelete()) {
-            $etagKey = $this->getEtagIndexKey();
             $this->db->executeCommand('MULTI');
             $id = $authCode->getOldKey();
             $authCodeKey = $this->getAuthCodeKey($id);
 
-            $this->db->executeCommand('HDEL', [$etagKey, $id]);
             $this->db->executeCommand('DEL', [$authCodeKey]);
             //TODO: check results to return correct information
             $queryResult = $this->db->executeCommand('EXEC');
@@ -264,14 +244,6 @@ class AuthCodeService extends BaseService implements AuthCodeServiceInterface
             $result = true;
         }
         return $result;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getEtag($key)
-    {
-        return $this->db->executeCommand('HGET', [$this->getEtagIndexKey(), $key]);
     }
 
 }

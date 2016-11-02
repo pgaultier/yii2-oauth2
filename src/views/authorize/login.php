@@ -20,6 +20,14 @@ use yii\helpers\Html;
 
     <fieldset>
         <legend>Autoriser l'application XXX</legend>
+        <div>
+            Liste des scopes demandés :
+            <ul>
+                <?php foreach($requestedScopes as $scope): ?>
+                    <li><?php echo $scope['id']. ' ' . (empty($scope['description']) ? '' : $scope['description']); ?> </li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
         <label>Login</label>
         <?php echo Html::activeTextInput($user, 'username'); ?><br/>
         <label>Password</label>

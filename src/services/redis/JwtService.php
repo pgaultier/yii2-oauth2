@@ -26,7 +26,6 @@ use Exception;
  * This is the jwt service for redis
  *  database structure
  *    * oauth2:jwt:<jid> : hash (Jwt)
- *    * oauth2:jwt:etags : hash <jid> -> <etag>
  *
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
@@ -47,15 +46,6 @@ class JwtService extends BaseService implements JwtServiceInterface
     protected function getJwtKey($jid)
     {
         return $this->namespace . ':' . $jid;
-    }
-
-    /**
-     * @return string etag index Key
-     * @since XXX
-     */
-    protected function getEtagIndexKey()
-    {
-        return $this->namespace . ':etags';
     }
 
     /**
@@ -88,7 +78,6 @@ class JwtService extends BaseService implements JwtServiceInterface
             return $result;
         }
         $jwtKey = $this->getJwtKey($jwt->id);
-        $etagKey = $this->getEtagIndexKey();
         //check if record exists
         $entityStatus = (int)$this->db->executeCommand('EXISTS', [$jwtKey]);
         if ($entityStatus === 1) {
@@ -110,8 +99,6 @@ class JwtService extends BaseService implements JwtServiceInterface
         if ($transaction === true) {
             try {
                 $this->db->executeCommand('HMSET', $redisParameters);
-                $etag = $this->computeEtag($jwt);
-                $this->db->executeCommand('HSET', [$etagKey, $jwt->id, $etag]);
                 $this->db->executeCommand('EXEC');
             } catch (DatabaseException $e) {
                 // @codeCoverageIgnoreStart
@@ -144,7 +131,6 @@ class JwtService extends BaseService implements JwtServiceInterface
             return false;
         }
 
-        $etagKey = $this->getEtagIndexKey();
         $values = $jwt->getDirtyAttributes($attributes);
         $jwtId = isset($values['id']) ? $values['id'] : $jwt->id;
         $jwtKey = $this->getJwtKey($jwtId);
@@ -165,7 +151,6 @@ class JwtService extends BaseService implements JwtServiceInterface
                 $oldJwtKey = $this->getJwtKey($oldId);
 
                 $this->db->executeCommand('RENAMENX', [$oldJwtKey, $jwtKey]);
-                $this->db->executeCommand('HDEL', [$etagKey, $oldJwtKey]);
             }
 
             $redisUpdateParameters = [$jwtKey];
@@ -186,9 +171,6 @@ class JwtService extends BaseService implements JwtServiceInterface
             if (count($redisUpdateParameters) > 1) {
                 $this->db->executeCommand('HMSET', $redisUpdateParameters);
             }
-
-            $etag = $this->computeEtag($jwt);
-            $this->db->executeCommand('HSET', [$etagKey, $jwtId, $etag]);
 
             $this->db->executeCommand('EXEC');
         } catch (DatabaseException $e) {
@@ -251,12 +233,10 @@ class JwtService extends BaseService implements JwtServiceInterface
     {
         $result = false;
         if ($jwt->beforeDelete()) {
-            $etagKey = $this->getEtagIndexKey();
             $this->db->executeCommand('MULTI');
             $id = $jwt->getOldKey();
             $jwtKey = $this->getJwtKey($id);
 
-            $this->db->executeCommand('HDEL', [$etagKey, $id]);
             $this->db->executeCommand('DEL', [$jwtKey]);
             //TODO: check results to return correct information
             $queryResult = $this->db->executeCommand('EXEC');
@@ -265,14 +245,6 @@ class JwtService extends BaseService implements JwtServiceInterface
             $result = true;
         }
         return $result;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getEtag($key)
-    {
-        return $this->db->executeCommand('HGET', [$this->getEtagIndexKey(), $key]);
     }
 
 }

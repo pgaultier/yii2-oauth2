@@ -25,7 +25,6 @@ use Yii;
  * This is the cypher key service for redis
  *  database structure
  *    * oauth2:cypherKeys:<aid> : hash (CypherKey)
- *    * oauth2:cypherKeys:etags : hash <aid> -> <etag>
  *
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
@@ -46,15 +45,6 @@ class CypherKeyService extends BaseService implements CypherKeyServiceInterface
     protected function getCypherKeyKey($aid)
     {
         return $this->namespace . ':' . $aid;
-    }
-
-    /**
-     * @return string etag index Key
-     * @since XXX
-     */
-    protected function getEtagIndexKey()
-    {
-        return $this->namespace . ':etags';
     }
 
     /**
@@ -87,7 +77,6 @@ class CypherKeyService extends BaseService implements CypherKeyServiceInterface
             return $result;
         }
         $cypherKeyKey = $this->getCypherKeyKey($cypherKey->id);
-        $etagKey = $this->getEtagIndexKey();
         //check if record exists
         $entityStatus = (int)$this->db->executeCommand('EXISTS', [$cypherKeyKey]);
         if ($entityStatus === 1) {
@@ -109,8 +98,6 @@ class CypherKeyService extends BaseService implements CypherKeyServiceInterface
         if ($transaction === true) {
             try {
                 $this->db->executeCommand('HMSET', $redisParameters);
-                $etag = $this->computeEtag($cypherKey);
-                $this->db->executeCommand('HSET', [$etagKey, $cypherKey->id, $etag]);
                 $this->db->executeCommand('EXEC');
             } catch (DatabaseException $e) {
                 // @codeCoverageIgnoreStart
@@ -143,7 +130,6 @@ class CypherKeyService extends BaseService implements CypherKeyServiceInterface
             return false;
         }
 
-        $etagKey = $this->getEtagIndexKey();
         $values = $cypherKey->getDirtyAttributes($attributes);
         $cypherKeyId = isset($values['id']) ? $values['id'] : $cypherKey->id;
         $cypherKeyKey = $this->getCypherKeyKey($cypherKeyId);
@@ -164,7 +150,6 @@ class CypherKeyService extends BaseService implements CypherKeyServiceInterface
                 $oldCypherKeyKey = $this->getCypherKeyKey($oldId);
 
                 $this->db->executeCommand('RENAMENX', [$oldCypherKeyKey, $cypherKeyKey]);
-                $this->db->executeCommand('HDEL', [$etagKey, $oldCypherKeyKey]);
             }
 
             $redisUpdateParameters = [$cypherKeyKey];
@@ -185,9 +170,6 @@ class CypherKeyService extends BaseService implements CypherKeyServiceInterface
             if (count($redisUpdateParameters) > 1) {
                 $this->db->executeCommand('HMSET', $redisUpdateParameters);
             }
-
-            $etag = $this->computeEtag($cypherKey);
-            $this->db->executeCommand('HSET', [$etagKey, $cypherKeyId, $etag]);
 
             $this->db->executeCommand('EXEC');
         } catch (DatabaseException $e) {
@@ -250,12 +232,10 @@ class CypherKeyService extends BaseService implements CypherKeyServiceInterface
     {
         $result = false;
         if ($cypherKey->beforeDelete()) {
-            $etagKey = $this->getEtagIndexKey();
             $this->db->executeCommand('MULTI');
             $id = $cypherKey->getOldKey();
             $cypherKeyKey = $this->getCypherKeyKey($id);
 
-            $this->db->executeCommand('HDEL', [$etagKey, $id]);
             $this->db->executeCommand('DEL', [$cypherKeyKey]);
             //TODO: check results to return correct information
             $queryResult = $this->db->executeCommand('EXEC');
@@ -264,14 +244,6 @@ class CypherKeyService extends BaseService implements CypherKeyServiceInterface
             $result = true;
         }
         return $result;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getEtag($key)
-    {
-        return $this->db->executeCommand('HGET', [$this->getEtagIndexKey(), $key]);
     }
 
 }

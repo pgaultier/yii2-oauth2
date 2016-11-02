@@ -61,7 +61,11 @@ class Client extends BaseModel implements ClientModelInterface
     {
         return [
             [['id', 'secret', 'userId', 'name'], 'string'],
-            [['redirectUri'], 'url'],
+            [['redirectUri'], 'url', 'when' => function($model) {
+                $isLocalhost = strncmp('http://localhost', $model->redirectUri, 16);
+                $isSecureLocalhost = strncmp('https://localhost', $model->redirectUri, 17);
+                return (($isLocalhost !== 0) && ($isSecureLocalhost !== 0));
+            }],
             [['scopes'], 'scope'],
             [['isPublic'], 'boolean', 'trueValue' => true, 'falseValue' => false, 'strict' => true],
             [['id', 'secret', 'isPublic'], 'required'],
