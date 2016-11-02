@@ -60,7 +60,11 @@ class AuthCode extends BaseModel implements AuthCodeModelInterface
     {
         return [
             [['id', 'clientId', 'userId', 'tokenId'], 'string'],
-            [['redirectUri'], 'url'],
+            [['redirectUri'], 'url', 'when' => function($model) {
+                $isLocalhost = strncmp('http://localhost', $model->redirectUri, 16);
+                $isSecureLocalhost = strncmp('https://localhost', $model->redirectUri, 17);
+                return (($isLocalhost !== 0) && ($isSecureLocalhost !== 0));
+            }],
             [['scopes'], 'scope'],
             [['id'], 'required'],
         ];

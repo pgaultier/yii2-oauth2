@@ -81,6 +81,13 @@ class TokenController extends Controller
                     $oauthServer->addGrantType($oauthGrantType);
                 }
                 break;
+            case 'authorization_code':
+                if (Module::getInstance()->allowAuthorizationCode === true) {
+                    $oauthGrantType = Yii::createObject('OAuth2\GrantType\AuthorizationCode');
+                    /* @var \OAuth2\GrantType\AuthorizationCode $oauthGrantType */
+                    $oauthServer->addGrantType($oauthGrantType);
+                }
+                break;
             case 'urn:ietf:params:oauth:grant-type:jwt-bearer':
                 $oauthGrantType = Yii::createObject('OAuth2\GrantType\RefreshToken');
                 /* @var \OAuth2\GrantType\JwtBearer $oauthGrantType */

@@ -16,6 +16,8 @@ namespace sweelix\oauth2\server\controllers;
 
 use OAuth2\Request as OAuth2Request;
 use OAuth2\Response as OAuth2Response;
+use sweelix\oauth2\server\models\Client;
+use sweelix\oauth2\server\models\Scope;
 use sweelix\oauth2\server\Module;
 use yii\web\Controller;
 use yii\web\Response;
@@ -112,6 +114,26 @@ class AuthorizeController extends Controller
         $oauthServer = Yii::$app->session->get('oauthServer');
         /* @var \Oauth2\Server $oauthServer */
         $oauthController = $oauthServer->getAuthorizeController();
+        $additionalScopes = $oauthController->getScope();
+        $requestedScopes = [];
+        if (empty($additionalScopes) === false) {
+            $additionalScopes = explode(' ', $additionalScopes);
+            foreach($additionalScopes as $scope) {
+                $dbScope = Scope::findOne($scope);
+                if ($dbScope !== null) {
+                    $requestedScopes[] = [
+                        'id' => $dbScope->id,
+                        'description' => $dbScope->definition,
+                    ];
+                } else {
+                    $requestedScopes[] = [
+                        'id' => $scope,
+                        'description' => null,
+                    ];
+                }
+            }
+
+        }
         $userForm = Yii::createObject('sweelix\oauth2\server\forms\User');
         /* @var \sweelix\oauth2\server\forms\User $userForm */
         if (Yii::$app->request->isPost === true) {
@@ -142,7 +164,8 @@ class AuthorizeController extends Controller
             }
         }
         return $this->render('login', [
-            'user' => $userForm
+            'user' => $userForm,
+            'requestedScopes' => $requestedScopes,
         ]);
     }
 
