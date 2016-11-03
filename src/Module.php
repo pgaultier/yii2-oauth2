@@ -161,6 +161,10 @@ class Module extends BaseModule implements BootstrapInterface
     public $unsetRefreshTokenAfterUse = false;
 
     /**
+     * @var int duration of login time for multiple authorize calls
+     */
+    public $loginDuration = 60 * 60 * 24 * 30;
+    /**
      * @inheritdoc
      */
     public function init()

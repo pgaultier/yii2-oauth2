@@ -19,19 +19,11 @@ use yii\helpers\Html;
 <?php echo Html::beginForm(); ?>
 
     <fieldset>
-        <legend>Autoriser l'application XXX</legend>
-        <div>
-            Liste des scopes demandés :
-            <ul>
-                <?php foreach($requestedScopes as $scope): ?>
-                    <li><?php echo $scope['id']. ' ' . (empty($scope['description']) ? '' : $scope['description']); ?> </li>
-                <?php endforeach; ?>
-            </ul>
-        </div>
+        <legend>Identification</legend>
         <label>Login</label>
         <?php echo Html::activeTextInput($user, 'username'); ?><br/>
         <label>Password</label>
         <?php echo Html::activePasswordInput($user, 'password'); ?><br/>
-        <button type="submit">Autoriser</button>
+        <button type="submit">Login</button>
     </fieldset>
 <?php echo Html::endForm(); ?>
