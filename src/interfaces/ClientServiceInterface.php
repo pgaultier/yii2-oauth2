@@ -48,4 +48,24 @@ interface ClientServiceInterface
      */
     public function delete(ClientModelInterface $client);
 
+    /**
+     * @param ClientModelInterface $client
+     * @param string $userId
+     * @return bool
+     */
+    public function hasUser(ClientModelInterface $client, $userId);
+
+    /**
+     * @param ClientModelInterface $client
+     * @param string $userId
+     * @return bool
+     */
+    public function addUser(ClientModelInterface $client, $userId);
+
+    /**
+     * @param ClientModelInterface $client
+     * @param string $userId
+     * @return bool
+     */
+    public function removeUser(ClientModelInterface $client, $userId);
 }

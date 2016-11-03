@@ -61,4 +61,25 @@ interface ClientModelInterface extends BaseModelInterface
      * @throws \yii\base\UnknownClassException
      */
     public function delete();
+
+    /**
+     * @param $userId
+     * @return bool
+     * @since XXX
+     */
+    public function hasUser($userId);
+
+    /**
+     * @param $userId
+     * @return bool
+     * @since XXX
+     */
+    public function addUser($userId);
+
+    /**
+     * @param $userId
+     * @return bool
+     * @since XXX
+     */
+    public function removeUser($userId);
 }
