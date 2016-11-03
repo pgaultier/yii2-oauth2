@@ -76,7 +76,7 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
         if (!$refreshToken->beforeSave(true)) {
             return $result;
         }
-        $refreshTokenKey = $this->getRefreshTokenKey($refreshToken->id);
+        $refreshTokenKey = $this->getRefreshTokenKey($refreshToken->getKey());
         //check if record exists
         $entityStatus = (int)$this->db->executeCommand('EXISTS', [$refreshTokenKey]);
         if ($entityStatus === 1) {
@@ -131,12 +131,13 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
         }
 
         $values = $refreshToken->getDirtyAttributes($attributes);
-        $refreshTokenId = isset($values['id']) ? $values['id'] : $refreshToken->id;
+        $modelKey = $refreshToken->key();
+        $refreshTokenId = isset($values[$modelKey]) ? $values[$modelKey] : $refreshToken->getKey();
         $refreshTokenKey = $this->getRefreshTokenKey($refreshTokenId);
 
 
-        if (isset($values['id']) === true) {
-            $newRefreshTokenKey = $this->getRefreshTokenKey($values['id']);
+        if (isset($values[$modelKey]) === true) {
+            $newRefreshTokenKey = $this->getRefreshTokenKey($values[$modelKey]);
             $entityStatus = (int)$this->db->executeCommand('EXISTS', [$newRefreshTokenKey]);
             if ($entityStatus === 1) {
                 throw new DuplicateKeyException('Duplicate key "'.$newRefreshTokenKey.'"');
@@ -145,8 +146,8 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
 
         $this->db->executeCommand('MULTI');
         try {
-            if (array_key_exists('id', $values) === true) {
-                $oldId = $refreshToken->getOldAttribute('id');
+            if (array_key_exists($modelKey, $values) === true) {
+                $oldId = $refreshToken->getOldKey();
                 $oldRefreshTokenKey = $this->getRefreshTokenKey($oldId);
 
                 $this->db->executeCommand('RENAMENX', [$oldRefreshTokenKey, $refreshTokenKey]);

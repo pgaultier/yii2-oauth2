@@ -76,7 +76,7 @@ class AuthCodeService extends BaseService implements AuthCodeServiceInterface
         if (!$authCode->beforeSave(true)) {
             return $result;
         }
-        $authCodeKey = $this->getAuthCodeKey($authCode->id);
+        $authCodeKey = $this->getAuthCodeKey($authCode->getKey());
         //check if record exists
         $entityStatus = (int)$this->db->executeCommand('EXISTS', [$authCodeKey]);
         if ($entityStatus === 1) {
@@ -131,12 +131,13 @@ class AuthCodeService extends BaseService implements AuthCodeServiceInterface
         }
 
         $values = $authCode->getDirtyAttributes($attributes);
-        $authCodeId = isset($values['id']) ? $values['id'] : $authCode->id;
+        $modelKey = $authCode->key();
+        $authCodeId = isset($values[$modelKey]) ? $values[$modelKey] : $authCode->getKey();
         $authCodeKey = $this->getAuthCodeKey($authCodeId);
 
 
-        if (isset($values['id']) === true) {
-            $newAuthCodeKey = $this->getAuthCodeKey($values['id']);
+        if (isset($values[$modelKey]) === true) {
+            $newAuthCodeKey = $this->getAuthCodeKey($values[$modelKey]);
             $entityStatus = (int)$this->db->executeCommand('EXISTS', [$newAuthCodeKey]);
             if ($entityStatus === 1) {
                 throw new DuplicateKeyException('Duplicate key "'.$newAuthCodeKey.'"');
@@ -145,8 +146,8 @@ class AuthCodeService extends BaseService implements AuthCodeServiceInterface
 
         $this->db->executeCommand('MULTI');
         try {
-            if (array_key_exists('id', $values) === true) {
-                $oldId = $authCode->getOldAttribute('id');
+            if (array_key_exists($modelKey, $values) === true) {
+                $oldId = $authCode->getOldKey();
                 $oldAuthCodeKey = $this->getAuthCodeKey($oldId);
 
                 $this->db->executeCommand('RENAMENX', [$oldAuthCodeKey, $authCodeKey]);
