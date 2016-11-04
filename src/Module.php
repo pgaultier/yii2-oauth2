@@ -236,6 +236,9 @@ class Module extends BaseModule implements BootstrapInterface
             $app->getUrlManager()->addRules([
                 ['verb' => 'POST', 'pattern' => $this->baseEndPoint.'token', 'route' => $this->id.'/token/index'],
                 ['verb' => 'GET', 'pattern' => $this->baseEndPoint.'authorize', 'route' => $this->id.'/authorize/index'],
+                ['pattern' => $this->baseEndPoint.'authorize-login', 'route' => $this->id.'/authorize/login'],
+                ['pattern' => $this->baseEndPoint.'authorize-application', 'route' => $this->id.'/authorize/authorize'],
+                ['pattern' => $this->baseEndPoint.'authorize-error', 'route' => $this->id.'/authorize/error'],
             ]);
         }
     }

@@ -103,7 +103,7 @@ class AuthorizeController extends Controller
             if (Yii::$app->user->isGuest === true) {
                 $response = $this->redirect(['login']);
             } else {
-                $response = $this->redirect(['authorise']);
+                $response = $this->redirect(['authorize']);
             }
         } else {
             //TODO: check if we should redirect to specific url with an error
@@ -212,11 +212,12 @@ class AuthorizeController extends Controller
                 Yii::$app->session->remove('oauthServer');
                 Yii::$app->session->remove('oauthRequest');
                 $error = $oauthResponse->getParameters();
-                if (empty($error) === false) {
+                $redirect = $oauthResponse->getHttpHeader('Location');
+                if ((empty($error) === false) && ($redirect === null)) {
                     Yii::$app->session->setFlash('error', $error, false);
                     return $this->redirect(['error']);
                 } else {
-                    return $this->redirect($oauthResponse->getHttpHeader('Location'));
+                    return $this->redirect($redirect);
                 }
             }
         }
@@ -226,6 +227,7 @@ class AuthorizeController extends Controller
             'requestedScopes' => $requestedScopes,
         ]);
     }
+
     /**
      * Display an error page
      * @return Response|string
