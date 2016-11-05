@@ -39,28 +39,12 @@ class AppAsset extends AssetBundle
      * @inheritdoc
      */
     public $css = [
-        'css/main.css'
-    ];
-
-    /**
-     * @inheritdoc
-     */
-    public $js = [
-        'js/modernizr.min.js',
-        'js/ui.js',
+        'css/main.css',
     ];
 
     /**
      * @inheritdoc
      */
     public $jsOptions = ['position' => View::POS_HEAD];
-
-    /**
-     * @inheritdoc
-     */
-    public $depends = [
-        'yii\web\JqueryAsset',
-        'sweelix\oauth2\server\assets\IeAsset',
-    ];
 
 }
