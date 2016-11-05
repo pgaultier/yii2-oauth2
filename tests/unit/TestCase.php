@@ -24,6 +24,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
      */
     protected function mockApplication($config = [], $appClass = '\yii\console\Application')
     {
+        $this->destroyApplication();
         new $appClass(ArrayHelper::merge([
             'id' => 'testapp',
             'basePath' => __DIR__,

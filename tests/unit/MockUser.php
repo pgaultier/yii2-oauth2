@@ -24,12 +24,12 @@ class MockUser implements UserModelInterface
 
     public static $users = [
         'user1' => [
-            'id' => 'user1',
+            'id' => 'userid1',
             'password' => 'password1',
             'scopes' => ['basic']
         ],
         'user2' => [
-            'id' => 'user2',
+            'id' => 'userid2',
             'password' => 'password2',
             'scopes' => []
         ],
