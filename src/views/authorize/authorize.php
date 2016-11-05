@@ -20,17 +20,53 @@ use sweelix\oauth2\server\assets\AppAsset;
 $baseAppUrl = AppAsset::register($this)->baseUrl;
 
 ?>
-<?php /* if(empty($requestedScopes) === false) : ?>
-    <div>
-        Liste des scopes demandés :
-        <ul>
-            <?php foreach($requestedScopes as $scope): ?>
-                <li><?php echo $scope['id']. ' ' . (empty($scope['description']) ? '' : $scope['description']); ?> </li>
-            <?php endforeach; ?>
-        </ul>
-    </div>
-<?php endif;*/ ?>
 
+
+<div class="container">
+    <div class="row ">
+        <div class="col-md-push-3 col-md-6 col-xs-12 login_box" align="center">
+            <div class="outter">
+                <?php echo Html::img($baseAppUrl.'/img/logo.png', ['class' => 'image-circle']); ?>
+            </div>
+            <h1><?php echo $client->name ?></h1>
+            <span>requests access to Sweelix</span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-push-3 col-md-6 col-xs-12 white-panel">
+            <?php echo Html::beginForm(); ?>
+            <?php if(empty($requestedScopes) === false) : ?>
+            <ul class="list-group">
+                <?php foreach($requestedScopes as $scope): ?>
+                <li class="list-group-item">
+                    <h4 class="list-group-item-heading"><?php echo $scope['id']; ?></h4>
+                    <p class="list-group-item-text">
+                        <?php echo (empty($scope['description']) ? '' : $scope['description']); ?>
+                    </p>
+                </li>
+                <?php endforeach; ?>
+            </ul>
+            <?php endif; ?>
+            <div class="row">
+                <div class="col-md-6 col-xs-6">
+                    <button class="btn btn-danger btn-block btn-lg" type="submit" name="decline">DECLINE</button>
+                </div>
+                <div class="col-md-6 col-xs-6">
+                    <button class="btn btn-success btn-block btn-lg" type="submit" name="accept">AUTHORIZE</button>
+                </div>
+            </div>
+
+            <?php echo Html::endForm(); ?>
+        </div>
+
+
+
+    </div>
+</div>
+
+
+
+<?php /*
 <div class="login">
     <div class="login-header">
         <div class="grid-container">
@@ -82,3 +118,4 @@ $baseAppUrl = AppAsset::register($this)->baseUrl;
     <!-- login-body -->
 
 </div>
+*/ ?>

@@ -17,17 +17,97 @@ use yii\helpers\Html;
 use sweelix\oauth2\server\assets\AppAsset;
 
 $baseAppUrl = AppAsset::register($this)->baseUrl;
-$passwordClass = ['login-form-textbox'];
-if ($user->hasErrors('userPassword')) {
+$passwordClass = ['form-control'];
+if ($user->hasErrors('password')) {
     $passwordClass[] = 'error';
 }
 
-$emailClass = ['login-form-textbox'];
-if ($user->hasErrors('userEmail')) {
+$emailClass = ['form-control'];
+if ($user->hasErrors('username') || $user->hasErrors('password')) {
     $emailClass[] = 'error';
 }
 
 ?>
+
+
+<div class="container">
+    <div class="row ">
+        <div class="col-md-push-3 col-md-6 col-xs-12 login_box" align="center">
+            <div class="outter">
+                <?php echo Html::img($baseAppUrl.'/img/logo.png', ['class' => 'image-circle']); ?>
+            </div>
+            <h1>Sweelix</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-push-3 col-md-6 col-xs-12 white-panel">
+            <?php echo Html::beginForm('', 'post', ['novalidate' => 'novalidate']); ?>
+
+            <div class="control">
+                <div class="label">Username</div>
+                <?php echo Html::activeTextInput($user, 'username', [
+                    'class' => implode(' ', $emailClass),
+                    'placeholder' => 'Username',
+                    'required' => 'required',
+                ]); ?>
+
+            </div>
+
+            <div class="control">
+                <div class="label">Password</div>
+                <?php echo Html::activePasswordInput($user, 'password', [
+                    'class' => implode(' ', $passwordClass),
+                    'placeholder' => 'Password'
+                ]); ?>
+            </div>
+            <div class="row">
+                <div class="col-md-push-3 col-md-6 col-xs-12">
+                    <button class="btn btn-success btn-block btn-lg" type="submit">LOGIN</button>
+                </div>
+
+            </div>
+
+            <?php echo Html::endForm(); ?>
+        </div>
+
+
+
+    </div>
+</div>
+<?php /*
+
+<div class="main">
+    <h1>Authenticate</h1>
+    <div class="login-form">
+        <?php echo Html::beginForm(); ?>
+            <?php echo Html::activeTextInput($user, 'username', [
+                'class' => implode(' ', $emailClass),
+                'placeholder' => 'Username',
+                'required' => 'required',
+            ]); ?>
+
+            <?php echo Html::activePasswordInput($user, 'password', [
+                'class' => implode(' ', $passwordClass),
+                'placeholder' => 'Password'
+            ]); ?>
+
+            <button type="submit">
+                Connect
+            </button>
+
+        <?php echo Html::endForm(); ?>
+        <!-- div class="login-text">
+            <div class="text-left">
+                <p><a href="#"> Forgot Password? </a></p>
+            </div>
+            <div class="text-right">
+                <p><a href="#"> Create New Account</a></p>
+            </div>
+            <div class="clear"> </div>
+        </div -->
+    </div>
+</div>
+
 
 <div class="login">
     <div class="login-header">
@@ -86,3 +166,4 @@ if ($user->hasErrors('userEmail')) {
     <!-- login-body -->
 
 </div>
+*/ ?>
