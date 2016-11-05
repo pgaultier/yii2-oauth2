@@ -65,6 +65,7 @@ class AuthorizeController extends Controller
      */
     public function actionIndex()
     {
+        Yii::$app->response->headers->add('Content-Security-Policy', 'frame-ancestors \'none\';');
         $oauthServer = Yii::createObject('OAuth2\Server');
         /* @var \Oauth2\Server $oauthServer */
         $status = false;
@@ -119,6 +120,7 @@ class AuthorizeController extends Controller
      */
     public function actionLogin()
     {
+        Yii::$app->response->headers->add('Content-Security-Policy', 'frame-ancestors \'none\';');
         $userForm = Yii::createObject('sweelix\oauth2\server\forms\User');
         $response = null;
         /* @var \sweelix\oauth2\server\forms\User $userForm */
@@ -138,6 +140,8 @@ class AuthorizeController extends Controller
             }
         }
         if ($response === null) {
+            // force empty password
+            $userForm->password = '';
             $response = $this->render('login', [
                 'user' => $userForm,
             ]);
@@ -152,6 +156,7 @@ class AuthorizeController extends Controller
      */
     public function actionAuthorize()
     {
+        Yii::$app->response->headers->add('Content-Security-Policy', 'frame-ancestors \'none\';');
         $oauthServer = Yii::$app->session->get('oauthServer');
         /* @var \Oauth2\Server $oauthServer */
         $oauthController = $oauthServer->getAuthorizeController();
@@ -235,6 +240,7 @@ class AuthorizeController extends Controller
      */
     public function actionError()
     {
+        Yii::$app->response->headers->add('Content-Security-Policy', 'frame-ancestors \'none\';');
         $errorData = Yii::$app->session->getFlash('error');
         return $this->render('error', [
             'type' => (isset($errorData['error']) ? $errorData['error'] : null),
