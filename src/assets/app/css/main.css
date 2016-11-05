@@ -15,6 +15,9 @@ body{
 div span {
     color: #fff;
     font-weight: 200;
+    display: block;
+    text-align: center;
+    margin-bottom: 2em;
 }
 
 

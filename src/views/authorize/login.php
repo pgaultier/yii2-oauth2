@@ -61,7 +61,7 @@ if ($user->hasErrors('username') || $user->hasErrors('password')) {
                 ]); ?>
             </div>
             <div class="row">
-                <div class="col-md-push-3 col-md-6 col-xs-12">
+                <div class="col-md-12">
                     <button class="btn btn-success btn-block btn-lg" type="submit">LOGIN</button>
                 </div>
 
