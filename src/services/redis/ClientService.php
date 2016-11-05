@@ -25,6 +25,7 @@ use Yii;
  * This is the client service for redis
  *  database structure
  *    * oauth2:clients:<cid> : hash (Client)
+ *    * oauth2:clients:<cid>:users : set
  *
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
@@ -45,6 +46,16 @@ class ClientService extends BaseService implements ClientServiceInterface
     protected function getClientKey($cid)
     {
         return $this->namespace . ':' . $cid;
+    }
+
+    /**
+     * @param string $cid client ID
+     * @return string clientUsers Key
+     * @since XXX
+     */
+    protected function getClientUsersListKey($cid)
+    {
+        return $this->namespace . ':' . $cid . ':users';
     }
 
     /**
@@ -76,7 +87,7 @@ class ClientService extends BaseService implements ClientServiceInterface
         if (!$client->beforeSave(true)) {
             return $result;
         }
-        $clientKey = $this->getClientKey($client->id);
+        $clientKey = $this->getClientKey($client->getKey());
         //check if record exists
         $entityStatus = (int)$this->db->executeCommand('EXISTS', [$clientKey]);
         if ($entityStatus === 1) {
@@ -131,12 +142,13 @@ class ClientService extends BaseService implements ClientServiceInterface
         }
 
         $values = $client->getDirtyAttributes($attributes);
-        $clientId = isset($values['id']) ? $values['id'] : $client->id;
+        $modelKey = $client->key();
+        $clientId = isset($values[$modelKey]) ? $values[$modelKey] : $client->getKey();
         $clientKey = $this->getClientKey($clientId);
 
 
-        if (isset($values['id']) === true) {
-            $newClientKey = $this->getClientKey($values['id']);
+        if (isset($values[$modelKey]) === true) {
+            $newClientKey = $this->getClientKey($values[$modelKey]);
             $entityStatus = (int)$this->db->executeCommand('EXISTS', [$newClientKey]);
             if ($entityStatus === 1) {
                 throw new DuplicateKeyException('Duplicate key "'.$newClientKey.'"');
@@ -145,8 +157,8 @@ class ClientService extends BaseService implements ClientServiceInterface
 
         $this->db->executeCommand('MULTI');
         try {
-            if (array_key_exists('id', $values) === true) {
-                $oldId = $client->getOldAttribute('id');
+            if (array_key_exists($modelKey, $values) === true) {
+                $oldId = $client->getOldKey();
                 $oldClientKey = $this->getClientKey($oldId);
 
                 $this->db->executeCommand('RENAMENX', [$oldClientKey, $clientKey]);
@@ -244,6 +256,40 @@ class ClientService extends BaseService implements ClientServiceInterface
             $result = true;
         }
         return $result;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function hasUser(ClientModelInterface $client, $userId)
+    {
+        $key = $client->getKey();
+        $clientUsersListKey = $this->getClientUsersListKey($key);
+        return (bool)$this->db->executeCommand('SISMEMBER', [$clientUsersListKey, $userId]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function addUser(ClientModelInterface $client, $userId)
+    {
+        $key = $client->getKey();
+        $clientUsersListKey = $this->getClientUsersListKey($key);
+        $this->db->executeCommand('SADD', [$clientUsersListKey, $userId]);
+        //TODO: check if we should send back false or not
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function removeUser(ClientModelInterface $client, $userId)
+    {
+        $key = $client->getKey();
+        $clientUsersListKey = $this->getClientUsersListKey($key);
+        $this->db->executeCommand('SREM', [$clientUsersListKey, $userId]);
+        //TODO: check if we should send back false or not
+        return true;
     }
 
 }

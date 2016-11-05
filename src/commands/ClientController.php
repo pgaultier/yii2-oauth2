@@ -14,6 +14,7 @@
 
 namespace sweelix\oauth2\server\commands;
 
+use sweelix\oauth2\server\models\Client;
 use yii\console\Controller;
 use Yii;
 
@@ -66,6 +67,7 @@ class ClientController extends Controller
         /* @var \sweelix\oauth2\server\interfaces\ClientModelInterface $client */
         $client->id = $this->getRandomString();
         $client->secret = $this->getRandomString();
+        $client->name = $this->name;
         $client->redirectUri = $this->redirectUri;
         $client->userId = $this->userId;
         $client->isPublic = (bool)$this->isPublic;
@@ -77,8 +79,37 @@ class ClientController extends Controller
             $this->stdout(' - secret: ' . $client->secret . "\n");
             $this->stdout(' - name: ' . $client->name . "\n");
             $this->stdout(' - redirectUri: ' . $client->redirectUri . "\n");
+            return Controller::EXIT_CODE_NORMAL;
         } else {
             $this->stdout('Client cannot be created.'."\n");
+            return Controller::EXIT_CODE_ERROR;
+        }
+    }
+
+    public function actionUpdate($id)
+    {
+        $client = Client::findOne($id);
+        if ($client !== null) {
+            $client->redirectUri = $this->redirectUri;
+            $client->name = $this->name;
+            $client->userId = $this->userId;
+            $client->isPublic = (bool)$this->isPublic;
+            $client->scopes = empty($this->scope) ? null : explode(',', $this->scopes);
+            $client->grantTypes = empty($this->grantTypes) ? null : explode(',', $this->grantTypes);
+            if ($client->save() === true) {
+                $this->stdout('Client updated :' . "\n");
+                $this->stdout(' - id: ' . $client->id . "\n");
+                $this->stdout(' - secret: ' . $client->secret . "\n");
+                $this->stdout(' - name: ' . $client->name . "\n");
+                $this->stdout(' - redirectUri: ' . $client->redirectUri . "\n");
+                return Controller::EXIT_CODE_NORMAL;
+            } else {
+                $this->stdout('Client cannot be updated.'."\n");
+                return Controller::EXIT_CODE_ERROR;
+            }
+        } else {
+            $this->stdout('Client '.$id.' does not exist'."\n");
+            return Controller::EXIT_CODE_ERROR;
         }
     }
 

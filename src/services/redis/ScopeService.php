@@ -97,7 +97,7 @@ class ScopeService extends BaseService implements ScopeServiceInterface
         if (!$scope->beforeSave(true)) {
             return $result;
         }
-        $scopeKey = $this->getScopeKey($scope->id);
+        $scopeKey = $this->getScopeKey($scope->getKey());
         $scopeListKey = $this->getScopeListKey();
         $scopeDefaultListKey = $this->getScopeDefaultListKey();
         //check if record exists
@@ -121,9 +121,9 @@ class ScopeService extends BaseService implements ScopeServiceInterface
         if ($transaction === true) {
             try {
                 $this->db->executeCommand('HMSET', $redisParameters);
-                $this->db->executeCommand('SADD', [$scopeListKey, $scope->id]);
+                $this->db->executeCommand('SADD', [$scopeListKey, $scope->getKey()]);
                 if ($scope->isDefault === true) {
-                    $this->db->executeCommand('SADD', [$scopeDefaultListKey, $scope->id]);
+                    $this->db->executeCommand('SADD', [$scopeDefaultListKey, $scope->getKey()]);
                 }
                 $this->db->executeCommand('EXEC');
             } catch (DatabaseException $e) {
@@ -158,14 +158,15 @@ class ScopeService extends BaseService implements ScopeServiceInterface
         }
 
         $values = $scope->getDirtyAttributes($attributes);
-        $scopeId = isset($values['id']) ? $values['id'] : $scope->id;
+        $modelKey = $scope->key();
+        $scopeId = isset($values[$modelKey]) ? $values[$modelKey] : $scope->getKey();
         $scopeKey = $this->getScopeKey($scopeId);
         $scopeListKey = $this->getScopeListKey();
         $scopeDefaultListKey = $this->getScopeDefaultListKey();
 
 
-        if (isset($values['id']) === true) {
-            $newScopeKey = $this->getScopeKey($values['id']);
+        if (isset($values[$modelKey]) === true) {
+            $newScopeKey = $this->getScopeKey($values[$modelKey]);
             $entityStatus = (int)$this->db->executeCommand('EXISTS', [$newScopeKey]);
             if ($entityStatus === 1) {
                 throw new DuplicateKeyException('Duplicate key "'.$newScopeKey.'"');
@@ -175,8 +176,8 @@ class ScopeService extends BaseService implements ScopeServiceInterface
         $this->db->executeCommand('MULTI');
         try {
             $reAddKeyInList = false;
-            if (array_key_exists('id', $values) === true) {
-                $oldId = $scope->getOldAttribute('id');
+            if (array_key_exists($modelKey, $values) === true) {
+                $oldId = $scope->getOldKey();
                 $oldScopeKey = $this->getScopeKey($oldId);
 
                 $this->db->executeCommand('RENAMENX', [$oldScopeKey, $scopeKey]);

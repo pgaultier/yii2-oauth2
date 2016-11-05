@@ -76,7 +76,7 @@ class CypherKeyService extends BaseService implements CypherKeyServiceInterface
         if (!$cypherKey->beforeSave(true)) {
             return $result;
         }
-        $cypherKeyKey = $this->getCypherKeyKey($cypherKey->id);
+        $cypherKeyKey = $this->getCypherKeyKey($cypherKey->getKey());
         //check if record exists
         $entityStatus = (int)$this->db->executeCommand('EXISTS', [$cypherKeyKey]);
         if ($entityStatus === 1) {
@@ -131,12 +131,13 @@ class CypherKeyService extends BaseService implements CypherKeyServiceInterface
         }
 
         $values = $cypherKey->getDirtyAttributes($attributes);
-        $cypherKeyId = isset($values['id']) ? $values['id'] : $cypherKey->id;
+        $modelKey = $cypherKey->key();
+        $cypherKeyId = isset($values[$modelKey]) ? $values[$modelKey] : $cypherKey->getKey();
         $cypherKeyKey = $this->getCypherKeyKey($cypherKeyId);
 
 
-        if (isset($values['id']) === true) {
-            $newCypherKeyKey = $this->getCypherKeyKey($values['id']);
+        if (isset($values[$modelKey]) === true) {
+            $newCypherKeyKey = $this->getCypherKeyKey($values[$modelKey]);
             $entityStatus = (int)$this->db->executeCommand('EXISTS', [$newCypherKeyKey]);
             if ($entityStatus === 1) {
                 throw new DuplicateKeyException('Duplicate key "'.$newCypherKeyKey.'"');
@@ -145,8 +146,8 @@ class CypherKeyService extends BaseService implements CypherKeyServiceInterface
 
         $this->db->executeCommand('MULTI');
         try {
-            if (array_key_exists('id', $values) === true) {
-                $oldId = $cypherKey->getOldAttribute('id');
+            if (array_key_exists($modelKey, $values) === true) {
+                $oldId = $cypherKey->getOldKey();
                 $oldCypherKeyKey = $this->getCypherKeyKey($oldId);
 
                 $this->db->executeCommand('RENAMENX', [$oldCypherKeyKey, $cypherKeyKey]);

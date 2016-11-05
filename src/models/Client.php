@@ -136,4 +136,25 @@ class Client extends BaseModel implements ClientModelInterface
         return self::getDataService()->delete($this);
     }
 
+    /**
+     * @inheritdoc
+     */
+    public function hasUser($userId)
+    {
+        return self::getDataService()->hasUser($this, $userId);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function addUser($userId)
+    {
+        return self::getDataService()->addUser($this, $userId);
+    }
+
+    public function removeUser($userId)
+    {
+        return self::getDataService()->removeUser($this, $userId);
+    }
+
 }

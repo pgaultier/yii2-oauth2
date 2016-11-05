@@ -77,7 +77,7 @@ class JtiService extends BaseService implements JtiServiceInterface
         if (!$jti->beforeSave(true)) {
             return $result;
         }
-        $jtiKey = $this->getJtiKey($jti->id);
+        $jtiKey = $this->getJtiKey($jti->getKey());
         //check if record exists
         $entityStatus = (int)$this->db->executeCommand('EXISTS', [$jtiKey]);
         if ($entityStatus === 1) {
@@ -132,12 +132,13 @@ class JtiService extends BaseService implements JtiServiceInterface
         }
 
         $values = $jti->getDirtyAttributes($attributes);
-        $jtiId = isset($values['id']) ? $values['id'] : $jti->id;
+        $modelKey = $jti->key();
+        $jtiId = isset($values[$modelKey]) ? $values[$modelKey] : $jti->getKey();
         $jtiKey = $this->getJtiKey($jtiId);
 
 
-        if (isset($values['id']) === true) {
-            $newJtiKey = $this->getJtiKey($values['id']);
+        if (isset($values[$modelKey]) === true) {
+            $newJtiKey = $this->getJtiKey($values[$modelKey]);
             $entityStatus = (int)$this->db->executeCommand('EXISTS', [$newJtiKey]);
             if ($entityStatus === 1) {
                 throw new DuplicateKeyException('Duplicate key "'.$newJtiKey.'"');
@@ -146,8 +147,8 @@ class JtiService extends BaseService implements JtiServiceInterface
 
         $this->db->executeCommand('MULTI');
         try {
-            if (array_key_exists('id', $values) === true) {
-                $oldId = $jti->getOldAttribute('id');
+            if (array_key_exists($modelKey, $values) === true) {
+                $oldId = $jti->getOldKey();
                 $oldJtiKey = $this->getJtiKey($oldId);
 
                 $this->db->executeCommand('RENAMENX', [$oldJtiKey, $jtiKey]);

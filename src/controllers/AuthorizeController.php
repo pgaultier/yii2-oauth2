@@ -19,6 +19,7 @@ use OAuth2\Response as OAuth2Response;
 use sweelix\oauth2\server\models\Client;
 use sweelix\oauth2\server\models\Scope;
 use sweelix\oauth2\server\Module;
+use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\Response;
 use Yii;
@@ -38,21 +39,23 @@ class AuthorizeController extends Controller
 {
 
     /**
-     * @var string
+     * @inheritdoc
      */
-    private $userClass;
-
-    /**
-     * @return string classname for selected interface
-     * @since XXX
-     */
-    public function getUserClass()
+    public function behaviors()
     {
-        if ($this->userClass === null) {
-            $scope = Yii::createObject('sweelix\oauth2\server\interfaces\UserModelInterface');
-            $this->userClass = get_class($scope);
-        }
-        return $this->userClass;
+        $behaviors = parent::behaviors();
+        $behaviors['access'] = [
+            'class' => AccessControl::className(),
+            'only' => ['authorize'],
+            'rules' => [
+                [
+                    'allow' => true,
+                    'actions' => ['authorize'],
+                    'roles' => ['@'],
+                ],
+            ],
+        ];
+        return $behaviors;
     }
 
     /**
@@ -62,6 +65,7 @@ class AuthorizeController extends Controller
      */
     public function actionIndex()
     {
+        Yii::$app->response->headers->add('Content-Security-Policy', 'frame-ancestors \'none\';');
         $oauthServer = Yii::createObject('OAuth2\Server');
         /* @var \Oauth2\Server $oauthServer */
         $status = false;
@@ -97,11 +101,16 @@ class AuthorizeController extends Controller
             if (isset($oauthRequest) === true) {
                 Yii::$app->session->set('oauthRequest', $oauthRequest);
             }
-            $this->redirect(['authorize/login']);
+            if (Yii::$app->user->isGuest === true) {
+                $response = $this->redirect(['login']);
+            } else {
+                $response = $this->redirect(['authorize']);
+            }
         } else {
             //TODO: check if we should redirect to specific url with an error
-            $this->redirect(['authorize/error']);
+            $response = $this->redirect(['error']);
         }
+        return $response;
     }
 
     /**
@@ -111,30 +120,20 @@ class AuthorizeController extends Controller
      */
     public function actionLogin()
     {
+        Yii::$app->response->headers->add('Content-Security-Policy', 'frame-ancestors \'none\';');
+
         $oauthServer = Yii::$app->session->get('oauthServer');
         /* @var \Oauth2\Server $oauthServer */
-        $oauthController = $oauthServer->getAuthorizeController();
-        $additionalScopes = $oauthController->getScope();
-        $requestedScopes = [];
-        if (empty($additionalScopes) === false) {
-            $additionalScopes = explode(' ', $additionalScopes);
-            foreach($additionalScopes as $scope) {
-                $dbScope = Scope::findOne($scope);
-                if ($dbScope !== null) {
-                    $requestedScopes[] = [
-                        'id' => $dbScope->id,
-                        'description' => $dbScope->definition,
-                    ];
-                } else {
-                    $requestedScopes[] = [
-                        'id' => $scope,
-                        'description' => null,
-                    ];
-                }
-            }
-
+        if ($oauthServer === null) {
+            Yii::$app->session->setFlash('error', [
+                'error' => 'request_invalid',
+                'error_description' => 'The request was not performed as expected.',
+            ], false);
+            return $this->redirect(['error']);
         }
+
         $userForm = Yii::createObject('sweelix\oauth2\server\forms\User');
+        $response = null;
         /* @var \sweelix\oauth2\server\forms\User $userForm */
         if (Yii::$app->request->isPost === true) {
             //TODO: handle case when user decline the grants
@@ -144,27 +143,110 @@ class AuthorizeController extends Controller
                 $realUser = $userClass::findByUsernameAndPassword($userForm->username, $userForm->password);
                 /* @var \sweelix\oauth2\server\interfaces\UserModelInterface $realUser */
                 if ($realUser !== null) {
-                    //login successful
-                    $oauthRequest = Yii::$app->session->get('oauthRequest');
-                    $oauthResponse = new OAuth2Response();
-                    $oauthResponse = $oauthServer->handleAuthorizeRequest($oauthRequest, $oauthResponse, true, $realUser->getId());
-                    /* @var OAuth2Response $oauthResponse */
-                    Yii::$app->session->remove('oauthServer');
-                    Yii::$app->session->remove('oauthRequest');
-                    $error = $oauthResponse->getParameters();
-                    if (empty($error) === false) {
-                        Yii::$app->session->setFlash('error', $error, false);
-                        return $this->redirect(['error']);
-                    } else {
-                        return $this->redirect($oauthResponse->getHttpHeader('Location'));
-                    }
+                    Yii::$app->user->login($realUser, Module::getInstance()->loginDuration);
+                    $response = $this->redirect(['authorize']);
                 } else {
                     $userForm->addError('username');
                 }
             }
         }
-        return $this->render('login', [
-            'user' => $userForm,
+        if ($response === null) {
+            // force empty password
+            $userForm->password = '';
+            $response = $this->render('login', [
+                'user' => $userForm,
+            ]);
+        }
+        return $response;
+    }
+
+    /**
+     * Display authorize page
+     * @return string|Response
+     * @since XXX
+     */
+    public function actionAuthorize()
+    {
+        Yii::$app->response->headers->add('Content-Security-Policy', 'frame-ancestors \'none\';');
+        $oauthServer = Yii::$app->session->get('oauthServer');
+        /* @var \Oauth2\Server $oauthServer */
+        if ($oauthServer === null) {
+            Yii::$app->session->setFlash('error', [
+                'error' => 'request_invalid',
+                'error_description' => 'The request was not performed as expected.',
+            ], false);
+            return $this->redirect(['error']);
+        }
+        $oauthController = $oauthServer->getAuthorizeController();
+        $client = Client::findOne($oauthController->getClientId());
+
+        if ($client->hasUser(Yii::$app->user->id) === true) {
+            // already logged
+            $oauthRequest = Yii::$app->session->get('oauthRequest');
+            $oauthResponse = new OAuth2Response();
+            $oauthResponse = $oauthServer->handleAuthorizeRequest($oauthRequest, $oauthResponse, true, Yii::$app->user->id);
+            /* @var OAuth2Response $oauthResponse */
+            Yii::$app->session->remove('oauthServer');
+            Yii::$app->session->remove('oauthRequest');
+            $error = $oauthResponse->getParameters();
+            if (empty($error) === false) {
+                Yii::$app->session->setFlash('error', $error, false);
+                return $this->redirect(['error']);
+            } else {
+                return $this->redirect($oauthResponse->getHttpHeader('Location'));
+            }
+        } else {
+            // perform regular authorization
+            $additionalScopes = $oauthController->getScope();
+            $requestedScopes = [];
+            if (empty($additionalScopes) === false) {
+                $additionalScopes = explode(' ', $additionalScopes);
+                foreach($additionalScopes as $scope) {
+                    $dbScope = Scope::findOne($scope);
+                    if ($dbScope !== null) {
+                        $requestedScopes[] = [
+                            'id' => $dbScope->id,
+                            'description' => $dbScope->definition,
+                        ];
+                    } else {
+                        $requestedScopes[] = [
+                            'id' => $scope,
+                            'description' => null,
+                        ];
+                    }
+                }
+            }
+            if (Yii::$app->request->isPost === true) {
+                $accept = Yii::$app->request->getBodyParam('accept', null);
+                $oauthRequest = Yii::$app->session->get('oauthRequest');
+                $oauthResponse = new OAuth2Response();
+                /* @var OAuth2Response $oauthResponse */
+
+                if ($accept !== null) {
+                    $oauthResponse = $oauthServer->handleAuthorizeRequest($oauthRequest, $oauthResponse, true, Yii::$app->user->id);
+                    $client->addUser(Yii::$app->user->id);
+                    // authorize
+                } else {
+                    $oauthResponse = $oauthServer->handleAuthorizeRequest($oauthRequest, $oauthResponse, false, Yii::$app->user->id);
+                    $client->removeUser(Yii::$app->user->id);
+                    // decline
+                }
+
+                Yii::$app->session->remove('oauthServer');
+                Yii::$app->session->remove('oauthRequest');
+                $error = $oauthResponse->getParameters();
+                $redirect = $oauthResponse->getHttpHeader('Location');
+                if ((empty($error) === false) && ($redirect === null)) {
+                    Yii::$app->session->setFlash('error', $error, false);
+                    return $this->redirect(['error']);
+                } else {
+                    return $this->redirect($redirect);
+                }
+            }
+        }
+
+        return $this->render('authorize', [
+            'client' => $client,
             'requestedScopes' => $requestedScopes,
         ]);
     }
@@ -176,11 +258,32 @@ class AuthorizeController extends Controller
      */
     public function actionError()
     {
+        Yii::$app->response->headers->add('Content-Security-Policy', 'frame-ancestors \'none\';');
         $errorData = Yii::$app->session->getFlash('error');
         return $this->render('error', [
             'type' => (isset($errorData['error']) ? $errorData['error'] : null),
             'description' => (isset($errorData['error_description']) ? $errorData['error_description'] : null),
         ]);
     }
+
+    /**
+     * @var string
+     */
+    private $userClass;
+
+    /**
+     * @return string classname for selected interface
+     * @since XXX
+     */
+    public function getUserClass()
+    {
+        if ($this->userClass === null) {
+            $scope = Yii::createObject('sweelix\oauth2\server\interfaces\UserModelInterface');
+            $this->userClass = get_class($scope);
+        }
+        return $this->userClass;
+    }
+
+
 
 }

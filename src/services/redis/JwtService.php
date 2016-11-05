@@ -77,7 +77,7 @@ class JwtService extends BaseService implements JwtServiceInterface
         if (!$jwt->beforeSave(true)) {
             return $result;
         }
-        $jwtKey = $this->getJwtKey($jwt->id);
+        $jwtKey = $this->getJwtKey($jwt->getKey());
         //check if record exists
         $entityStatus = (int)$this->db->executeCommand('EXISTS', [$jwtKey]);
         if ($entityStatus === 1) {
@@ -132,12 +132,13 @@ class JwtService extends BaseService implements JwtServiceInterface
         }
 
         $values = $jwt->getDirtyAttributes($attributes);
-        $jwtId = isset($values['id']) ? $values['id'] : $jwt->id;
+        $modelKey = $jwt->key();
+        $jwtId = isset($values[$modelKey]) ? $values[$modelKey] : $jwt->getKey();
         $jwtKey = $this->getJwtKey($jwtId);
 
 
-        if (isset($values['id']) === true) {
-            $newJwtKey = $this->getJwtKey($values['id']);
+        if (isset($values[$modelKey]) === true) {
+            $newJwtKey = $this->getJwtKey($values[$modelKey]);
             $entityStatus = (int)$this->db->executeCommand('EXISTS', [$newJwtKey]);
             if ($entityStatus === 1) {
                 throw new DuplicateKeyException('Duplicate key "'.$newJwtKey.'"');
@@ -147,7 +148,7 @@ class JwtService extends BaseService implements JwtServiceInterface
         $this->db->executeCommand('MULTI');
         try {
             if (array_key_exists('id', $values) === true) {
-                $oldId = $jwt->getOldAttribute('id');
+                $oldId = $jwt->getOldKey();
                 $oldJwtKey = $this->getJwtKey($oldId);
 
                 $this->db->executeCommand('RENAMENX', [$oldJwtKey, $jwtKey]);

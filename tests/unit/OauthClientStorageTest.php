@@ -223,7 +223,41 @@ class OauthClientStorageTest extends TestCase
 
         $this->populateScopes();
 
+    }
 
+    public function testUser()
+    {
+        $client1 = Yii::createObject('sweelix\oauth2\server\interfaces\ClientModelInterface');
+        /* @var ClientModelInterface $client1 */
+        $this->assertInstanceOf(ClientModelInterface::class, $client1);
+        $client1->id = 'client1';
+        $client1->secret = 'secret1';
+        $client1->isPublic = true;
+        $client1->grantTypes = [];
+        $client1->userId = 'uid';
+        $client1->scopes = [];
+        $client1->name = 'Test client';
+        $this->assertTrue($client1->save());
 
+        $client2 = Yii::createObject('sweelix\oauth2\server\interfaces\ClientModelInterface');
+        /* @var ClientModelInterface $client2 */
+        $this->assertInstanceOf(ClientModelInterface::class, $client2);
+        $client2->id = 'client2';
+        $client2->secret = 'secret1';
+        $client2->isPublic = true;
+        $client2->grantTypes = [];
+        $client2->userId = 'uid';
+        $client2->scopes = [];
+        $client2->name = 'Test client';
+        $this->assertTrue($client2->save());
+
+        $this->assertTrue($client2->addUser('user1'));
+        $this->assertTrue($client2->addUser('user2'));
+
+        $this->assertFalse($client1->hasUser('user1'));
+        $this->assertTrue($client2->hasUser('user1'));
+        $this->assertTrue($client2->hasUser('user2'));
+        $this->assertTrue($client2->removeUser('user1'));
+        $this->assertFalse($client2->hasUser('user1'));
     }
 }

@@ -76,7 +76,7 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
         if (!$accessToken->beforeSave(true)) {
             return $result;
         }
-        $accessTokenKey = $this->getAccessTokenKey($accessToken->id);
+        $accessTokenKey = $this->getAccessTokenKey($accessToken->getKey());
         //check if record exists
         $entityStatus = (int)$this->db->executeCommand('EXISTS', [$accessTokenKey]);
         if ($entityStatus === 1) {
@@ -131,12 +131,13 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
         }
 
         $values = $accessToken->getDirtyAttributes($attributes);
-        $accessTokenId = isset($values['id']) ? $values['id'] : $accessToken->id;
+        $modelKey = $accessToken->key();
+        $accessTokenId = isset($values[$modelKey]) ? $values[$modelKey] : $accessToken->getKey();
         $accessTokenKey = $this->getAccessTokenKey($accessTokenId);
 
 
-        if (isset($values['id']) === true) {
-            $newAccessTokenKey = $this->getAccessTokenKey($values['id']);
+        if (isset($values[$modelKey]) === true) {
+            $newAccessTokenKey = $this->getAccessTokenKey($values[$modelKey]);
             $entityStatus = (int)$this->db->executeCommand('EXISTS', [$newAccessTokenKey]);
             if ($entityStatus === 1) {
                 throw new DuplicateKeyException('Duplicate key "'.$newAccessTokenKey.'"');
@@ -145,8 +146,8 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
 
         $this->db->executeCommand('MULTI');
         try {
-            if (array_key_exists('id', $values) === true) {
-                $oldId = $accessToken->getOldAttribute('id');
+            if (array_key_exists($modelKey, $values) === true) {
+                $oldId = $accessToken->getOldKey();
                 $oldAccessTokenKey = $this->getAccessTokenKey($oldId);
 
                 $this->db->executeCommand('RENAMENX', [$oldAccessTokenKey, $accessTokenKey]);

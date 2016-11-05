@@ -161,6 +161,10 @@ class Module extends BaseModule implements BootstrapInterface
     public $unsetRefreshTokenAfterUse = false;
 
     /**
+     * @var int duration of login time for multiple authorize calls
+     */
+    public $loginDuration = 60 * 60 * 24 * 30;
+    /**
      * @inheritdoc
      */
     public function init()
@@ -232,6 +236,9 @@ class Module extends BaseModule implements BootstrapInterface
             $app->getUrlManager()->addRules([
                 ['verb' => 'POST', 'pattern' => $this->baseEndPoint.'token', 'route' => $this->id.'/token/index'],
                 ['verb' => 'GET', 'pattern' => $this->baseEndPoint.'authorize', 'route' => $this->id.'/authorize/index'],
+                ['pattern' => $this->baseEndPoint.'authorize-login', 'route' => $this->id.'/authorize/login'],
+                ['pattern' => $this->baseEndPoint.'authorize-application', 'route' => $this->id.'/authorize/authorize'],
+                ['pattern' => $this->baseEndPoint.'authorize-error', 'route' => $this->id.'/authorize/error'],
             ]);
         }
     }
