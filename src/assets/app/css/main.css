@@ -1,255 +1,123 @@
-/*--reset--*/
-html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,dl,dt,dd,ol,nav ul,nav li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,figcaption,footer,header,hgroup,menu,nav,output,ruby,section,summary,time,mark,audio,video{margin:0;padding:0;border:0;font-size:100%;font:inherit;vertical-align:baseline;}
-article, aside, details, figcaption, figure,footer, header, hgroup, menu, nav, section {display: block;}
-ol,ul{list-style:none;margin:0px;padding:0px;}
-blockquote,q{quotes:none;}
-blockquote:before,blockquote:after,q:before,q:after{content:'';content:none;}
-table{border-collapse:collapse;border-spacing:0;}
-a{text-decoration:none;}
-.txt-rt{text-align:right;}
-.txt-lt{text-align:left;}
-.txt-center{text-align:center;}
-.float-rt{float:right;}
-.float-lt{float:left;}
-.clear{clear:both;}
-.pos-relative{position:relative;}
-.pos-absolute{position:absolute;}
-.vertical-base{	vertical-align:baseline;}
-.vertical-top{	vertical-align:top;}
-nav.vertical ul li{	display:block;}
-nav.horizontal ul li{	display: inline-block;}
-img{max-width:100%;}
-/*--end reset--*/
-
 body{
-    font-family: 'Source Sans Pro', sans-serif;
-    background: url(../img/banner.jpg)no-repeat 0px 0px;
-    background-size:cover;
-    background-attachment: fixed;
+    background-color: #2B2B2B;
 }
 
-.main {
-    margin: 8em auto 0;
-    width: 23%;
+* {
+    font-family: 'Raleway', sans-serif;
+}
+
+.white-panel {
+    background-color:#fff;
+    padding: 1em;
+}
+
+
+div span {
+    color: #fff;
+    font-weight: 200;
+}
+
+
+div h3 span{
+    font-size:14px;
+}
+
+h1{
+    color: #fff;
+    font-weight: 200;
+}
+
+.login_box{
+    background: #f32d27; /* Old browsers */
+    /* IE9 SVG, needs conditional override of 'filter' to 'none' */
+    background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMTAwJSIgeDI9IjEwMCUiIHkyPSIwJSI+CiAgICA8c3RvcCBvZmZzZXQ9IjUlIiBzdG9wLWNvbG9yPSIjZjMyZDI3IiBzdG9wLW9wYWNpdHk9IjEiLz4KICAgIDxzdG9wIG9mZnNldD0iOTklIiBzdG9wLWNvbG9yPSIjZmY2YjQ1IiBzdG9wLW9wYWNpdHk9IjEiLz4KICA8L2xpbmVhckdyYWRpZW50PgogIDxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9InVybCgjZ3JhZC11Y2dnLWdlbmVyYXRlZCkiIC8+Cjwvc3ZnPg==);
+    background: -moz-linear-gradient(45deg,  #f32d27 5%, #ff6b45 99%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left bottom, right top, color-stop(5%,#f32d27), color-stop(99%,#ff6b45)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(45deg,  #f32d27 5%,#ff6b45 99%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(45deg,  #f32d27 5%,#ff6b45 99%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(45deg,  #f32d27 5%,#ff6b45 99%); /* IE10+ */
+    background: linear-gradient(45deg,  #f32d27 5%,#ff6b45 99%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f32d27', endColorstr='#ff6b45',GradientType=1 ); /* IE6-8 fallback on horizontal gradient */
+
+    -webkit-box-shadow: 0px 0px 8px 0px rgba(50, 50, 50, 0.54);
+    -moz-box-shadow:    0px 0px 8px 0px rgba(50, 50, 50, 0.54);
+    box-shadow:         0px 0px 8px 0px rgba(50, 50, 50, 0.54);
+}
+
+.image-circle{
+    border-radius: 50%;
+    width: 175px;
+    height: 175px;
+    border: 4px solid #fff;
     background-color: #fff;
-    padding: 3em;
-}
-h1 {
-    font-size: 2em;
-    text-align: center;
-    font-family: 'Source Sans Pro', sans-serif;
-}
-.login-form {
-    padding-top:3em;
-}
-.login-form input[type="text"], .login-form input[type="password"] {
-    width: 85%;
-    padding: .8em 3em .8em 1em;
-    font-size: 0.8em;
-    margin: 1em 0;
-    outline: none;
-    color: #999;
-    border: 2px solid #e3e3e3;
-    border-radius: 3px;
-}
-.login-form input[type="text"].error, .login-form input[type="password"].error {
-    border: 2px solid #ef7f69;
-}
-
-.login-form input[type="text"] {
-    background: url(../img/1.png)no-repeat 97% center;
-    display: block;
-}
-.login-form input[type="password"] {
-    background: url(../img/2.png)no-repeat 97% center;
-    display: block;
-}
-.login-form input[type="submit"], .login-form button {
-    outline: none;
-    padding: 0.8em 0;
-    width: 100%;
-    text-align: center;
-    font-size: 1em;
-    margin-top: 1em;
-    margin-left: 2px;
-    margin-right: 2px;
-    border: none;
-    color: #fff;
-    cursor: pointer;
-
-    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#cedce7+0,596a72+100;Grey+3D+%231 */
-    background: #cedce7; /* Old browsers */
-    background: -moz-linear-gradient(-45deg,  #cedce7 0%, #596a72 100%); /* FF3.6-15 */
-    background: -webkit-linear-gradient(-45deg,  #cedce7 0%,#596a72 100%); /* Chrome10-25,Safari5.1-6 */
-    background: linear-gradient(135deg,  #cedce7 0%,#596a72 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cedce7', endColorstr='#596a72',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
-
-}
-.login-form input[type="submit"]:hover, .login-form button:hover {
-    color: #000000;
-
-    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#cfe7fa+0,6393c1+100;Grey+Blue+3D */
-    background: #cfe7fa; /* Old browsers */
-    background: -moz-linear-gradient(top,  #cfe7fa 0%, #6393c1 100%); /* FF3.6-15 */
-    background: -webkit-linear-gradient(top,  #cfe7fa 0%,#6393c1 100%); /* Chrome10-25,Safari5.1-6 */
-    background: linear-gradient(to bottom,  #cfe7fa 0%,#6393c1 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cfe7fa', endColorstr='#6393c1',GradientType=0 ); /* IE6-9 */
-
-    transition: .5s all;
-    -webkit-transition: .5s all;
-    -moz-transition: .5s all;
-    -o-transition: .5s all;
-    -ms-transition: .5s all;
+    margin: 10px;
 }
 
 
-.login-form input[type="submit"].accept:hover, .login-form button.accept:hover {
-    color: #ffffff;
-    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#008a00+0,005700+44,006e2e+100 */
-    background: #008a00; /* Old browsers */
-    background: -moz-linear-gradient(-45deg,  #008a00 0%, #005700 44%, #006e2e 100%); /* FF3.6-15 */
-    background: -webkit-linear-gradient(-45deg,  #008a00 0%,#005700 44%,#006e2e 100%); /* Chrome10-25,Safari5.1-6 */
-    background: linear-gradient(135deg,  #008a00 0%,#005700 44%,#006e2e 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#008a00', endColorstr='#006e2e',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
-}
-
-.login-form input[type="submit"].decline:hover, .login-form button.decline:hover {
-    color: #ffffff;
-    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#a90329+0,8f0222+44,6d0019+100;Brown+Red+3D */
-    background: #a90329; /* Old browsers */
-    background: -moz-linear-gradient(-45deg,  #a90329 0%, #8f0222 44%, #6d0019 100%); /* FF3.6-15 */
-    background: -webkit-linear-gradient(-45deg,  #a90329 0%,#8f0222 44%,#6d0019 100%); /* Chrome10-25,Safari5.1-6 */
-    background: linear-gradient(135deg,  #a90329 0%,#8f0222 44%,#6d0019 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a90329', endColorstr='#6d0019',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
-}
-
-
-.text-left {
-    float: left;
-    width: 55%;
-    text-align:center;
-}
-.text-right  {
-    float: right;
-    width: 45%;
-}
-.login-text {
-    margin-top: 1.5em;
-}
-.login-text p {
-    font-size: .9em;
-}
-.login-text p  a{
-    color:#999;
-}
-.login-text p  a:hover{
+.control {
     color:#000;
-    transition: 0.5s all;
-    -webkit-transition: 0.5s all;
-    -moz-transition: 0.5s all;
-    -o-transition: 0.5s all;
-    -ms-transition: 0.5s all;
-}
-h5 {
-    text-align: center;
-    font-size: 1em;
-    margin: 2.5em auto;
-    background-color: #EF781F;
-    color: #fff;
+    margin:10px;
 }
 
-@media(max-width:1440px){
-    body{
-        background-position: center;
-    }
-    .login-form input[type="text"], .login-form input[type="password"] {
-        width: 83%;
-    }
+.label {
+    color: #EB4F26;
+    font-size: 18px;
+    font-weight: 500;
 }
-@media(max-width:1366px){
-    .main {
-        margin: 6em auto 0;
-        padding: 2.5em 2em;
-    }
-    .login-form {
-        padding-top: 2em;
-    }
+
+.form-control{
+    color: #000;
+    font-size: 25px;
+    padding: 25px;
+    padding-left: 10px;
+    border: none;
+    border-radius: 0px;
+    border-bottom: 1px solid #CCC;
+    margin-bottom: 10px;
+    outline: none;
+    -webkit-box-shadow: none !important;
+    -moz-box-shadow: none !important;
+    box-shadow: none !important;
 }
-@media(max-width:1080px){
-    .main {
-        padding: 2.5em 2em 2em;
-        width: 30%;
-    }
+
+.form-control:focus {
+    border-bottom: 1px solid #666;
 }
-@media(max-width:1024px){
-    .main {
-        padding: 2em;
-        margin: 5em auto 0;
-    }
-    h5 {
-        margin: 2em auto;
-    }
+.form-control.error {
+    border-bottom: 1px solid #FC563B;
 }
-@media(max-width:768px){
-    .main {
-        padding: 2em;
-        margin: 4em auto 0;
-        width: 40%;
-    }
-    .login-form {
-        padding-top: 1em;
-    }
-    .login-form input[type="submit"], .login-form button {
-        padding: 0.6em 0;
-        font-size: 0.9em;
-        margin-top: 0.6em;
-    }
-    h5 {
-        margin: 1.5em auto 2em;
-    }
+
+.btn {
+    border-radius: 0px;
+
 }
-@media(max-width:640px){
-    h1 {
-        font-size: 1.8em;
-    }
-    .main {
-        margin: 5em auto 0;
-        width: 47%;
-    }
+
+.btn-orange{
+    background-color: #FC563B;
+    /*
+    margin: 5px;
+    padding: 5px;
+    width: 150px;
+    font-size: 20px;
+    font-weight: inherit;
+    */
 }
-@media(max-width:480px){
-    .main {
-        margin: 4em auto 0;
-        width: 54%;
-    }
-    .login-form input[type="text"], .login-form input[type="password"] {
-        width: 79%;
-    }
+
+.btn-orange:hover {
+    background-color: #F22F26;
+    color:#fff !important;
 }
-@media(max-width:320px){
-    h1 {
-        font-size: 1.5em;
-    }
-    .main {
-        margin: 2.5em auto 0;
-        width: 73%;
-        padding: 2em 1.5em 1.5em;
-    }
-    .login-form input[type="text"], .login-form input[type="password"] {
-        width: 78%;
-        font-size: 0.7em;
-    }
-    .login-form input[type="submit"], .login-form button {
-        font-size: 0.8em;
-        margin-top: 0.5em;
-    }
-    .login-text p {
-        font-size: .85em;
-    }
-    .text-left {
-        width: 45%;
-    }
-    .text-right {
-        width: 47%;
-    }
+
+.line{
+    border-bottom : 2px solid #F32D27;
+}
+
+
+.outter{
+    margin-top: 20px;
+    padding: 0px;
+    border: 1px solid rgba(255, 255, 255, 0.29);
+    border-radius: 50%;
+    width: 200px;
+    height: 200px;
 }
