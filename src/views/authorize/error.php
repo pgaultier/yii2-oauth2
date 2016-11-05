@@ -22,7 +22,7 @@ $baseAppUrl = AppAsset::register($this)->baseUrl;
 
 <div class="container">
     <div class="row ">
-        <div class="col-md-push-3 col-md-6 col-xs-12 login_box" align="center">
+        <div class="col-md-push-3 col-md-6 col-sm-push-2 col-sm-8 col-xs-12 orange-panel">
             <div class="outter">
                 <?php echo Html::img($baseAppUrl.'/img/logo.png', ['class' => 'image-circle']); ?>
             </div>
@@ -30,7 +30,7 @@ $baseAppUrl = AppAsset::register($this)->baseUrl;
         </div>
     </div>
     <div class="row">
-        <div class="col-md-push-3 col-md-6 col-xs-12 white-panel">
+        <div class="col-md-push-3 col-md-6 col-sm-push-2 col-sm-8 col-xs-12 white-panel">
             <div class="alert" role="alert">
                 <h4 class="alert-heading"><?php echo ($type ? : 'Unkown error'); ?></h4>
                 <p><?php echo ($description ? : 'Please check your request'); ?></p>
