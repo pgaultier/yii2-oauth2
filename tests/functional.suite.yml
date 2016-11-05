@@ -1,0 +1,10 @@
+class_name: FunctionalTester
+modules:
+    config:
+        Yii2:
+            configFile: 'tests/config/test.php'
+            cleanup: false
+    enabled:
+        - Filesystem
+        - Asserts
+        - Yii2
