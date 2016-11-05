@@ -121,6 +121,17 @@ class AuthorizeController extends Controller
     public function actionLogin()
     {
         Yii::$app->response->headers->add('Content-Security-Policy', 'frame-ancestors \'none\';');
+
+        $oauthServer = Yii::$app->session->get('oauthServer');
+        /* @var \Oauth2\Server $oauthServer */
+        if ($oauthServer === null) {
+            Yii::$app->session->setFlash('error', [
+                'error' => 'request_invalid',
+                'error_description' => 'The request was not performed as expected.',
+            ], false);
+            return $this->redirect(['error']);
+        }
+
         $userForm = Yii::createObject('sweelix\oauth2\server\forms\User');
         $response = null;
         /* @var \sweelix\oauth2\server\forms\User $userForm */
@@ -159,6 +170,13 @@ class AuthorizeController extends Controller
         Yii::$app->response->headers->add('Content-Security-Policy', 'frame-ancestors \'none\';');
         $oauthServer = Yii::$app->session->get('oauthServer');
         /* @var \Oauth2\Server $oauthServer */
+        if ($oauthServer === null) {
+            Yii::$app->session->setFlash('error', [
+                'error' => 'request_invalid',
+                'error_description' => 'The request was not performed as expected.',
+            ], false);
+            return $this->redirect(['error']);
+        }
         $oauthController = $oauthServer->getAuthorizeController();
         $client = Client::findOne($oauthController->getClientId());
 
