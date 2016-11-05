@@ -40,6 +40,7 @@ class AppAsset extends AssetBundle
      */
     public $css = [
         'css/main.css',
+        '//fonts.googleapis.com/css?family=Raleway:400,200',
     ];
 
     /**
@@ -47,4 +48,10 @@ class AppAsset extends AssetBundle
      */
     public $jsOptions = ['position' => View::POS_HEAD];
 
+    /**
+     * @inheritdoc
+     */
+    public $depends = [
+        'yii\bootstrap\BootstrapAsset'
+    ];
 }
