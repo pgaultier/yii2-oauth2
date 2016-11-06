@@ -108,13 +108,21 @@ class TokenController extends Controller
      */
     protected function convertResponse(OAuth2Response $oauthResponse)
     {
-        $rawContentType = Yii::$app->request->getContentType();
-        if (($pos = strpos($rawContentType, ';')) !== false) {
-            // e.g. application/json; charset=UTF-8
-            $contentType = substr($rawContentType, 0, $pos);
-        } else {
-            $contentType = $rawContentType;
+        //TODO: check if we should use acceptable contentType
+        /*
+        $acceptableContentTypes = Yii::$app->request->getAcceptableContentTypes();
+        foreach ($acceptableContentTypes as $acceptableContentType => $q) {
+            $rawContentType = $acceptableContentType;
+            if (($pos = strpos($rawContentType, ';')) !== false) {
+                // e.g. application/json; charset=UTF-8
+                $contentType = substr($rawContentType, 0, $pos);
+            } else {
+                $contentType = $rawContentType;
+            }
+            break;
         }
+        */
+        $contentType = 'application/json';
         $response = Yii::$app->response;
         $response->statusCode = $oauthResponse->getStatusCode();
         $response->statusText = $oauthResponse->getStatusText();
@@ -123,6 +131,7 @@ class TokenController extends Controller
         } else {
             $response->content = $oauthResponse->getResponseBody('xml');
         }
+
         $headers = $oauthResponse->getHttpHeaders();
         foreach($headers as $name => $value)
         {

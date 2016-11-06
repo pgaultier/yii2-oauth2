@@ -16,8 +16,10 @@ namespace sweelix\oauth2\server\services\redis;
 
 use sweelix\oauth2\server\interfaces\BaseModelInterface;
 use sweelix\oauth2\server\models\BaseModel;
+use sweelix\oauth2\server\Module;
 use sweelix\oauth2\server\traits\redis\TypeConverter;
 use yii\base\Object;
+use yii\di\Instance;
 use yii\helpers\Json;
 use yii\redis\Connection;
 use Yii;
@@ -50,10 +52,10 @@ class BaseService extends Object
     /**
      * @inheritdoc
      */
-    public function __construct($config = [])
+    public function init()
     {
-        $this->db = Yii::$app->redis;
-        parent::__construct($config);
+        parent::init();
+        $this->db = Instance::ensure(Module::getInstance()->db, Connection::className());
     }
 
     /**
