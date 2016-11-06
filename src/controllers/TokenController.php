@@ -56,10 +56,12 @@ class TokenController extends Controller
         $oauthServer = Yii::createObject('OAuth2\Server');
         /* @var \Oauth2\Server $oauthServer */
         $grantType = Yii::$app->request->getBodyParam('grant_type');
+        $grantIsValid = false;
         switch ($grantType) {
             // Client Credentials
             case 'client_credentials':
                 if (Module::getInstance()->allowClientCredentials === true) {
+                    $grantIsValid = true;
                     $oauthGrantType = Yii::createObject('OAuth2\GrantType\ClientCredentials');
                     /* @var \OAuth2\GrantType\ClientCredentials $oauthGrantType */
                     $oauthServer->addGrantType($oauthGrantType);
@@ -68,6 +70,7 @@ class TokenController extends Controller
             // Resource Owner Password Credentials
             case 'password':
                 if (Module::getInstance()->allowPassword === true) {
+                    $grantIsValid = true;
                     $oauthGrantType = Yii::createObject('OAuth2\GrantType\UserCredentials');
                     /* @var \OAuth2\GrantType\UserCredentials $oauthGrantType */
                     $oauthServer->addGrantType($oauthGrantType);
@@ -75,28 +78,36 @@ class TokenController extends Controller
                 break;
             // Refresh Token
             case 'refresh_token':
-                if (Module::getInstance()->allowRefreshToken === true) {
-                    $oauthGrantType = Yii::createObject('OAuth2\GrantType\RefreshToken');
-                    /* @var \OAuth2\GrantType\RefreshToken $oauthGrantType */
-                    $oauthServer->addGrantType($oauthGrantType);
-                }
+                $grantIsValid = true;
+                $oauthGrantType = Yii::createObject('OAuth2\GrantType\RefreshToken');
+                /* @var \OAuth2\GrantType\RefreshToken $oauthGrantType */
+                $oauthServer->addGrantType($oauthGrantType);
                 break;
             case 'authorization_code':
                 if (Module::getInstance()->allowAuthorizationCode === true) {
+                    $grantIsValid = true;
                     $oauthGrantType = Yii::createObject('OAuth2\GrantType\AuthorizationCode');
                     /* @var \OAuth2\GrantType\AuthorizationCode $oauthGrantType */
                     $oauthServer->addGrantType($oauthGrantType);
                 }
                 break;
             case 'urn:ietf:params:oauth:grant-type:jwt-bearer':
+                $grantIsValid = true;
                 $oauthGrantType = Yii::createObject('OAuth2\GrantType\RefreshToken');
                 /* @var \OAuth2\GrantType\JwtBearer $oauthGrantType */
                 $oauthServer->addGrantType($oauthGrantType);
                 break;
         }
 
-        $response = $oauthServer->handleTokenRequest(OAuth2Request::createFromGlobals());
-        $response = $this->convertResponse($response);
+        if ($grantIsValid === true) {
+            $response = $oauthServer->handleTokenRequest(OAuth2Request::createFromGlobals());
+            $response = $this->convertResponse($response);
+        } else {
+            $response = [
+                'error' => 'invalid_grant',
+                'error_description' => $grantType.' doesn\'t exist or is invalid for the client.'
+            ];
+        }
         return $response;
     }
 

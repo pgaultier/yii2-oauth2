@@ -142,11 +142,6 @@ class Module extends BaseModule implements BootstrapInterface
     public $allowPassword = true;
 
     /**
-     * @var bool allow refresh token grant
-     */
-    public $allowRefreshToken = true;
-
-    /**
      * @var bool configure oauth server (allow_credentials_in_request_body)
      */
     public $allowCredentialsInRequestBody = true;

@@ -75,7 +75,6 @@ Configure Module
  * `allowAuthorizationCode` : allow authorization code grant (default to **true**)
  * `allowClientCredentials` : allow client credentials grant (default to **true**)
  * `allowPassword` : allow user credentials / password grant (default to **true**)
- * `allowRefreshToken` : allow refresh token grant (default to **true**)
  * `allowCredentialsInRequestBody` : allow credentials in request body (default to **true**)
  * `allowPublicClients` : allow public clients (default to **true**)
  * `alwaysIssueNewRefreshToken` : always issue refresh token (default to **true**)
