@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "4ef104b6e9a6843a63b65105b584ec89",
-    "content-hash": "0f41b32767e0af3aa42d7cc57641c86f",
+    "hash": "7bb2cd10fa1b6f5b70f9143e5e463b12",
+    "content-hash": "2a3b2876623c3310c62a51aad1f6c42c",
     "packages": [
         {
             "name": "bower-asset/bootstrap",
@@ -541,16 +541,16 @@
         },
         {
             "name": "yiisoft/yii2-redis",
-            "version": "2.0.5",
+            "version": "2.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/yiisoft/yii2-redis.git",
-                "reference": "7fd93ff3847e765964c8c83b7e3eed0281078916"
+                "reference": "af2c2f91cd61c201c537d18f9c2338258c821918"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yiisoft/yii2-redis/zipball/7fd93ff3847e765964c8c83b7e3eed0281078916",
-                "reference": "7fd93ff3847e765964c8c83b7e3eed0281078916",
+                "url": "https://api.github.com/repos/yiisoft/yii2-redis/zipball/af2c2f91cd61c201c537d18f9c2338258c821918",
+                "reference": "af2c2f91cd61c201c537d18f9c2338258c821918",
                 "shasum": ""
             },
             "require": {
@@ -585,7 +585,7 @@
                 "session",
                 "yii2"
             ],
-            "time": "2016-03-17 04:11:03"
+            "time": "2015-05-10 22:10:19"
         }
     ],
     "packages-dev": [
