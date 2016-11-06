@@ -81,9 +81,9 @@ class AuthorizeController extends Controller
                     $oauthServer->addGrantType($oauthGrantType);
                     $status = $oauthServer->validateAuthorizeRequest($oauthRequest, $oauthResponse);
                     $error = $oauthResponse->getParameters();
-                    if (empty($error) === false) {
+                    if (($status === false) && (empty($error) === false)) {
                         Yii::$app->session->setFlash('error', $error, false);
-                        return $this->redirect(['error']);
+                        // return $this->redirect(['error']);
                     }
                 } else {
                     $status = false;
@@ -93,6 +93,11 @@ class AuthorizeController extends Controller
             // Implicit
             case 'token':
                 $status = $oauthServer->validateAuthorizeRequest($oauthRequest, $oauthResponse);
+                $error = $oauthResponse->getParameters();
+                if (($status === false) && (empty($error) === false)) {
+                    Yii::$app->session->setFlash('error', $error, false);
+                    // return $this->redirect(['error']);
+                }
                 break;
         }
 
