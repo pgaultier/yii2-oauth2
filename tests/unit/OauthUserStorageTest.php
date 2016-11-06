@@ -36,10 +36,10 @@ class OauthUserStorageTest extends TestCase
         $this->assertFalse($result);
 
         $result = $storage->getUserDetails('user1');
-        $this->assertEquals('user1', $result['user_id']);
+        $this->assertEquals('userid1', $result['user_id']);
 
         $result = $storage->getUserDetails('user2');
-        $this->assertEquals('user2', $result['user_id']);
+        $this->assertEquals('userid2', $result['user_id']);
 
     }
 }

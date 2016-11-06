@@ -48,10 +48,10 @@ $baseAppUrl = AppAsset::register($this)->baseUrl;
             </ul>
             <?php endif; ?>
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-6 col-xs-6">
                     <button class="btn btn-danger btn-block btn-lg" type="submit" name="decline">DECLINE</button>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-6 col-xs-6">
                     <button class="btn btn-success btn-block btn-lg" type="submit" name="accept">AUTHORIZE</button>
                 </div>
             </div>

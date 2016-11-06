@@ -56,10 +56,12 @@ class TokenController extends Controller
         $oauthServer = Yii::createObject('OAuth2\Server');
         /* @var \Oauth2\Server $oauthServer */
         $grantType = Yii::$app->request->getBodyParam('grant_type');
+        $grantIsValid = false;
         switch ($grantType) {
             // Client Credentials
             case 'client_credentials':
                 if (Module::getInstance()->allowClientCredentials === true) {
+                    $grantIsValid = true;
                     $oauthGrantType = Yii::createObject('OAuth2\GrantType\ClientCredentials');
                     /* @var \OAuth2\GrantType\ClientCredentials $oauthGrantType */
                     $oauthServer->addGrantType($oauthGrantType);
@@ -68,6 +70,7 @@ class TokenController extends Controller
             // Resource Owner Password Credentials
             case 'password':
                 if (Module::getInstance()->allowPassword === true) {
+                    $grantIsValid = true;
                     $oauthGrantType = Yii::createObject('OAuth2\GrantType\UserCredentials');
                     /* @var \OAuth2\GrantType\UserCredentials $oauthGrantType */
                     $oauthServer->addGrantType($oauthGrantType);
@@ -75,28 +78,36 @@ class TokenController extends Controller
                 break;
             // Refresh Token
             case 'refresh_token':
-                if (Module::getInstance()->allowRefreshToken === true) {
-                    $oauthGrantType = Yii::createObject('OAuth2\GrantType\RefreshToken');
-                    /* @var \OAuth2\GrantType\RefreshToken $oauthGrantType */
-                    $oauthServer->addGrantType($oauthGrantType);
-                }
+                $grantIsValid = true;
+                $oauthGrantType = Yii::createObject('OAuth2\GrantType\RefreshToken');
+                /* @var \OAuth2\GrantType\RefreshToken $oauthGrantType */
+                $oauthServer->addGrantType($oauthGrantType);
                 break;
             case 'authorization_code':
                 if (Module::getInstance()->allowAuthorizationCode === true) {
+                    $grantIsValid = true;
                     $oauthGrantType = Yii::createObject('OAuth2\GrantType\AuthorizationCode');
                     /* @var \OAuth2\GrantType\AuthorizationCode $oauthGrantType */
                     $oauthServer->addGrantType($oauthGrantType);
                 }
                 break;
             case 'urn:ietf:params:oauth:grant-type:jwt-bearer':
+                $grantIsValid = true;
                 $oauthGrantType = Yii::createObject('OAuth2\GrantType\RefreshToken');
                 /* @var \OAuth2\GrantType\JwtBearer $oauthGrantType */
                 $oauthServer->addGrantType($oauthGrantType);
                 break;
         }
 
-        $response = $oauthServer->handleTokenRequest(OAuth2Request::createFromGlobals());
-        $response = $this->convertResponse($response);
+        if ($grantIsValid === true) {
+            $response = $oauthServer->handleTokenRequest(OAuth2Request::createFromGlobals());
+            $response = $this->convertResponse($response);
+        } else {
+            $response = [
+                'error' => 'invalid_grant',
+                'error_description' => $grantType.' doesn\'t exist or is invalid for the client.'
+            ];
+        }
         return $response;
     }
 
@@ -108,13 +119,21 @@ class TokenController extends Controller
      */
     protected function convertResponse(OAuth2Response $oauthResponse)
     {
-        $rawContentType = Yii::$app->request->getContentType();
-        if (($pos = strpos($rawContentType, ';')) !== false) {
-            // e.g. application/json; charset=UTF-8
-            $contentType = substr($rawContentType, 0, $pos);
-        } else {
-            $contentType = $rawContentType;
+        //TODO: check if we should use acceptable contentType
+        /*
+        $acceptableContentTypes = Yii::$app->request->getAcceptableContentTypes();
+        foreach ($acceptableContentTypes as $acceptableContentType => $q) {
+            $rawContentType = $acceptableContentType;
+            if (($pos = strpos($rawContentType, ';')) !== false) {
+                // e.g. application/json; charset=UTF-8
+                $contentType = substr($rawContentType, 0, $pos);
+            } else {
+                $contentType = $rawContentType;
+            }
+            break;
         }
+        */
+        $contentType = 'application/json';
         $response = Yii::$app->response;
         $response->statusCode = $oauthResponse->getStatusCode();
         $response->statusText = $oauthResponse->getStatusText();
@@ -123,6 +142,7 @@ class TokenController extends Controller
         } else {
             $response->content = $oauthResponse->getResponseBody('xml');
         }
+
         $headers = $oauthResponse->getHttpHeaders();
         foreach($headers as $name => $value)
         {

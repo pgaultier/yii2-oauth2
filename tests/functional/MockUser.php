@@ -1,25 +1,25 @@
 <?php
 /**
- * MockUser.php
+ * User.php
  *
  * PHP version 5.6+
  *
- * @author pgaultier
- * @copyright 2010-2016 Ibitux
- * @license http://www.ibitux.com/license license
+ * @author Philippe Gaultier <pgaultier@sweelix.net>
+ * @copyright 2010-2016 Philippe Gaultier
+ * @license http://www.sweelix.net/license license
  * @version XXX
- * @link http://www.ibitux.com
+ * @link http://www.sweelix.net
+ * @since XXX
  */
 
-namespace tests\unit;
+namespace tests\functional;
 
 use sweelix\oauth2\server\interfaces\UserModelInterface;
 use sweelix\oauth2\server\traits\IdentityTrait;
-use yii\base\NotSupportedException;
+use Yii;
 
 class MockUser implements UserModelInterface
 {
-
     use IdentityTrait;
 
     public static $users = [
@@ -51,6 +51,7 @@ class MockUser implements UserModelInterface
             $user->id = self::$users[$username]['id'];
             $user->username = $username;
             $user->password = self::$users[$username]['password'];
+            // $user->scopes = self::$users[$username]['scopes'];
         }
         return $user;
     }
@@ -63,6 +64,7 @@ class MockUser implements UserModelInterface
             $user->id = self::$users[$username]['id'];
             $user->username = $username;
             $user->password = self::$users[$username]['password'];
+            // $user->scopes = self::$users[$username]['scopes'];
         }
         return $user;
     }

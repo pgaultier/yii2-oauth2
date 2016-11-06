@@ -19,6 +19,7 @@ use yii\base\BootstrapInterface;
 use yii\base\Module as BaseModule;
 use yii\console\Application as ConsoleApplication;
 use Yii;
+use yii\di\Instance;
 
 /**
  * Oauth2 server Module definition
@@ -37,6 +38,11 @@ class Module extends BaseModule implements BootstrapInterface
      * @var string backend to use, available backends are 'redis'
      */
     public $backend;
+
+    /**
+     * @var Connection|array|string the DB connection object or the application component ID of the DB connection.
+     */
+    public $db;
     /**
      * This user class will be used to link oauth2 authorization system with the application.
      * The class must implement \sweelix\oauth2\server\interfaces\UserInterface
@@ -134,11 +140,6 @@ class Module extends BaseModule implements BootstrapInterface
      * @var bool allow password grant
      */
     public $allowPassword = true;
-
-    /**
-     * @var bool allow refresh token grant
-     */
-    public $allowRefreshToken = true;
 
     /**
      * @var bool configure oauth server (allow_credentials_in_request_body)
