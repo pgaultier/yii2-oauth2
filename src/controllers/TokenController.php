@@ -48,7 +48,7 @@ class TokenController extends Controller
 
     /**
      * Send back an oauth token
-     * @return Response
+     * @return Response|array
      * @since XXX
      */
     public function actionIndex()
