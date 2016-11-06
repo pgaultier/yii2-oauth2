@@ -20,6 +20,7 @@ return [
         'oauth2' => [
             'class' => 'sweelix\oauth2\server\Module',
             'backend' => 'redis',
+            'db' => 'redis',
             // 'identityClass' => 'app\models\User',
             'enforceState' => false,
             'allowImplicit' => true,

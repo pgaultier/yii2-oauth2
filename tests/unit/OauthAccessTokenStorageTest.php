@@ -20,6 +20,7 @@ class OauthAccessTokenStorageTest extends TestCase
     protected function tearDown()
     {
         parent::tearDown();
+        $this->destroyApplication();
     }
 
     public function testInsert()

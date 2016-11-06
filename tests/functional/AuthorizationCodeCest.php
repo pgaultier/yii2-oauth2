@@ -1,6 +1,6 @@
 <?php
 /**
- * AuthorizeCest.php
+ * AuthorizationCodeCest.php
  *
  * PHP version 5.6+
  *
@@ -21,7 +21,7 @@ use sweelix\oauth2\server\models\AuthCode;
 use Yii;
 use yii\helpers\Json;
 
-class AuthorizeCest extends CestCase
+class AuthorizationCodeCest extends CestCase
 {
     public function _before(FunctionalTester $I)
     {
@@ -41,7 +41,7 @@ class AuthorizeCest extends CestCase
         $I->see('request_invalid', 'h4');
     }
 
-    public function checkAuthorizeWithBadClient(FunctionalTester $I)
+    public function checkWithBadClient(FunctionalTester $I)
     {
         $I->amOnRoute('oauth2/authorize/index', [
             'response_type' => 'code',
@@ -52,7 +52,7 @@ class AuthorizeCest extends CestCase
         $I->see('invalid_client', 'h4');
     }
 
-    public function checkAuthorizeWithCorrectClientInvalidGrant(FunctionalTester $I)
+    public function checkWithCorrectClientInvalidGrant(FunctionalTester $I)
     {
         $client = Yii::createObject('sweelix\oauth2\server\interfaces\ClientModelInterface');
         /* @var \sweelix\oauth2\server\interfaces\ClientModelInterface $client */
@@ -73,7 +73,8 @@ class AuthorizeCest extends CestCase
         $I->see('Bad Request', 'h1');
         $I->see('invalid_grant', 'h4');
     }
-    public function checkAuthorizeWithCorrectClientAndDecline(FunctionalTester $I)
+
+    public function checkWithCorrectClientAndDecline(FunctionalTester $I)
     {
         $client = Yii::createObject('sweelix\oauth2\server\interfaces\ClientModelInterface');
         /* @var \sweelix\oauth2\server\interfaces\ClientModelInterface $client */
@@ -113,7 +114,7 @@ class AuthorizeCest extends CestCase
         $I->seeInCurrentUrl('error=access_denied');
     }
 
-    public function checkAuthorizeWithCorrectClientAndAccept(FunctionalTester $I)
+    public function checkWithCorrectClientAndAccept(FunctionalTester $I)
     {
         $client = Yii::createObject('sweelix\oauth2\server\interfaces\ClientModelInterface');
         /* @var \sweelix\oauth2\server\interfaces\ClientModelInterface $client */
@@ -162,8 +163,5 @@ class AuthorizeCest extends CestCase
         $refreshToken = RefreshToken::findOne($response['refresh_token']);
         $I->assertInstanceOf(RefreshToken::className(), $refreshToken);
 
-        // {"access_token":"6707b5bebebd0849e8ce47573a26b66a899f7cd3","expires_in":3600,"token_type":"Bearer","scope":null,"refresh_token":"be7f02247added9f47aad257a8bb24dcc74072d5"}
-
-        // die($code);
     }
 }
