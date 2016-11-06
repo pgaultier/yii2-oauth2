@@ -45,6 +45,7 @@ return [
         'oauth2' => [
             'class' => 'sweelix\oauth2\server\Module',
             'backend' => 'redis',
+            'db' => 'redis',
             'identityClass' => 'app\models\User', // only if you don't want to use the user identityClass
             //
             // Parameters
@@ -62,6 +63,7 @@ Configure Module
 ### Basic module parameters
 
  * `backend` : can only be **redis** for the moment
+ * `db` : id of the redis component or connection or connection configuration
  * `identityClass` : user class used to link oauth2 authorization system default to user component `identityClass`
  * `baseEndPoint` : base path for token and authorize endpoints default to `''`
     * Token endpoint https://host.xxx/token
@@ -163,5 +165,6 @@ CLI System
 Several commands are available to manage oauth2 system
 
  * `php protected/yii.php oauth2:client/create`
+ * `php protected/yii.php oauth2:client/update`
  * `php protected/yii.php oauth2:key/create`
  * `php protected/yii.php oauth2:scope/create`
