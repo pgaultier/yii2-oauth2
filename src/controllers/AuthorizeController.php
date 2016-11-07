@@ -41,6 +41,24 @@ class AuthorizeController extends Controller
     /**
      * @inheritdoc
      */
+    public function init()
+    {
+        $module = Module::getInstance();
+
+        if ($module->overrideLayout !== null) {
+            $this->layout = $module->overrideLayout;
+        }
+
+        if ($module->overrideViewPath !== null) {
+            $this->setViewPath($module->overrideViewPath);
+        }
+
+        parent::init();
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function behaviors()
     {
         $behaviors = parent::behaviors();
@@ -209,15 +227,13 @@ class AuthorizeController extends Controller
                 foreach($additionalScopes as $scope) {
                     $dbScope = Scope::findOne($scope);
                     if ($dbScope !== null) {
-                        $requestedScopes[] = [
-                            'id' => $dbScope->id,
-                            'description' => $dbScope->definition,
-                        ];
+                        $requestedScopes[] = $dbScope;
                     } else {
-                        $requestedScopes[] = [
-                            'id' => $scope,
-                            'description' => null,
-                        ];
+                        Yii::$app->session->setFlash('error', [
+                            'error' => 'invalid_scope',
+                            'error_description' => 'Scope '.$scope.' does not exist.',
+                        ], false);
+                        return $this->redirect(['error']);
                     }
                 }
             }
