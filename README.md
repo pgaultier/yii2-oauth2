@@ -335,6 +335,11 @@ Permission system will be slightly modified to allow fine grained checks :
 
  * `Yii::$app->user->can('oauth2:read')` will check **only** if scope `read` is allowed for current client
 
+Running the tests
+-----------------
+
+Before running the tests, you should edit the file tests/config/redis.php and change the config to match your environment.
+
 CLI System
 ----------
 
