@@ -43,6 +43,17 @@ class Module extends BaseModule implements BootstrapInterface
      * @var Connection|array|string the DB connection object or the application component ID of the DB connection.
      */
     public $db;
+
+    /**
+     * @var string override layout. For example @app/views/layouts/oauth2 to use <app>/views/layouts/oauth2.php layout
+     */
+    public $overrideLayout;
+
+    /**
+     * @var string override view path. For example @app/views/oauth2 to use <app>/views/oauth2/(authorize|login|error) views
+     */
+    public $overrideViewPath;
+
     /**
      * This user class will be used to link oauth2 authorization system with the application.
      * The class must implement \sweelix\oauth2\server\interfaces\UserInterface

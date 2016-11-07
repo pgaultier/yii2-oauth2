@@ -41,6 +41,24 @@ class AuthorizeController extends Controller
     /**
      * @inheritdoc
      */
+    public function init()
+    {
+        $module = Module::getInstance();
+
+        if ($module->overrideLayout !== null) {
+            $this->layout = $module->overrideLayout;
+        }
+
+        if ($module->overrideViewPath !== null) {
+            $this->setViewPath($module->overrideViewPath);
+        }
+
+        parent::init();
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function behaviors()
     {
         $behaviors = parent::behaviors();
