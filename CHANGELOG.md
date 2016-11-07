@@ -1,6 +1,11 @@
 Oauth2 Yii2 Change Log
 ======================
 
+1.0.1 November 7, 2016
+----------------------
+
+ * Fix: add missing view / layout override in module conf
+
 1.0.0 November 7, 2016
 ----------------------
 
