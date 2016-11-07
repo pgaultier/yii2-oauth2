@@ -68,6 +68,8 @@ Configure Module
  * `baseEndPoint` : base path for token and authorize endpoints default to `''`
     * Token endpoint https://host.xxx/token
     * Authorize endpoint https://host.xxx/authorize
+ * `overrideLayout` : override module layout to use another one (ex: @app/views/layouts/oauth2)
+ * `overrideViewPath` : override view path to use specific one (ex: @app/views/oauth2)   
 
 ### Grants management 
  
@@ -142,6 +144,181 @@ you will have to implement the remaining methods :
 
  * `public static function findByUsernameAndPassword($username, $password)`
  * `public static function findByUsername($username)`
+
+Creating specific view for OAuth2
+---------------------------------
+
+In order to use your own views (instead of the builtin ones), you can override 
+ * `layout` : module parameter `overrideLayout`
+ * `viewPath` : module parameter `overrideViewPath`
+ 
+### Overriding layout
+ 
+You should create a classic layout like :
+ 
+```php
+<?php
+/**
+ * @app/views/layouts/newLayout.php
+ * @var string $content
+ */
+use yii\helpers\Html;
+
+$this->beginPage(); ?>
+    <!DOCTYPE html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title><?php echo Html::encode($this->title); ?></title>
+
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <?php $this->head(); ?>
+    </head>
+    <body>
+        <?php $this->beginBody(); ?>
+            <?php echo $content;?>
+        <?php $this->endBody(); ?>
+    </body>
+
+</html>
+<?php $this->endPage();
+
+``` 
+
+and link it to the module
+
+```php
+return [
+    //....
+    'modules' => [
+        //....
+        'oauth2' => [
+            'class' => 'sweelix\oauth2\server\Module',
+            'overrideLayout' => '@app/views/layouts/newLayout',
+            //
+            // Additional Parameters
+            //
+        ],
+        //....
+    ],
+    //....
+];
+```
+
+### Overriding views
+ 
+You should create 3 views to allow oauth2 module to work as expected and link them to the module
+
+```php
+return [
+    //....
+    'modules' => [
+        //....
+        'oauth2' => [
+            'class' => 'sweelix\oauth2\server\Module',
+            // use views in folder oauth2
+            'overrideViewPath' => '@app/views/oauth2',
+            //
+            // Additional Parameters
+            //
+        ],
+        //....
+    ],
+    //....
+];
+```
+ 
+#### Error view
+ 
+This view is used to display a page when an error occurs
+ 
+```php
+<?php
+/**
+ * error.php
+ *
+ * @var string $type error type
+ * @var string $description error description
+ */
+use yii\helpers\Html;
+?>
+
+    <h1 class="alert-heading"><?php echo ($type ? : 'Unkown error'); ?></h1>
+    <p><?php echo ($description ? : 'Please check your request'); ?></p>
+
+``` 
+
+
+#### Login view
+ 
+This view is used to display a login page when needed
+ 
+```php
+<?php
+/**
+ * login.php
+ *
+ * @var \sweelix\oauth2\server\forms\User $user
+ *
+ */
+use yii\helpers\Html;
+?>
+    <?php echo Html::beginForm('', 'post', ['novalidate' => 'novalidate']); ?>
+        <label>Username</label>
+        <?php echo Html::activeTextInput($user, 'username', [
+            'required' => 'required',
+        ]); ?>
+        <br/>
+    
+        <label>Password</label>
+        <?php echo Html::activePasswordInput($user, 'password', [
+            'required' => 'required',
+        ]); ?>
+        <br/>
+        <button type="submit">LOGIN</button>
+    <?php echo Html::endForm(); ?>
+
+``` 
+
+#### Authorize view
+ 
+This view is used to display an authorization page when needed
+ 
+```php
+<?php
+/**
+ * authorize.php
+ *
+ * @var \sweelix\oauth2\server\interfaces\ScopeModelInterface[] $requestedScopes
+ * @var \sweelix\oauth2\server\interfaces\ClientModelInterface $client
+ *
+ */
+use yii\helpers\Html;
+?>
+    <h1><?php echo $client->name ?> <span>requests access</span></h1>
+    
+    <?php echo Html::beginForm(); ?>
+        <?php if(empty($requestedScopes) === false) : ?>
+        <ul>
+            <?php foreach($requestedScopes as $scope): ?>
+            <li>
+                <h4><?php echo $scope->id; ?></h4>
+                <p>
+                    <?php echo $scope->definition; ?>
+                </p>
+            </li>
+            <?php endforeach; ?>
+        </ul>
+        <?php endif; ?>
+            <!-- name of decline button **must be** decline -->
+            <button type="submit" name="decline">DECLINE</button>
+            <!-- name of accept button **must be** accept -->
+            <button type="submit" name="accept">AUTHORIZE</button>
+    <?php echo Html::endForm(); ?>
+
+``` 
+
 
 Linking RBAC and Scope systems
 ------------------------------

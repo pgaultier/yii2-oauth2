@@ -11,7 +11,7 @@
  * @link http://www.ibitux.com
  * @package sweelix\oauth2\server\views\authorize
  *
- * @var array $requestedScopes
+ * @var \sweelix\oauth2\server\interfaces\ScopeModelInterface[] $requestedScopes
  * @var \sweelix\oauth2\server\interfaces\ClientModelInterface $client
  */
 use yii\helpers\Html;
@@ -39,9 +39,9 @@ $baseAppUrl = AppAsset::register($this)->baseUrl;
             <ul class="list-group">
                 <?php foreach($requestedScopes as $scope): ?>
                 <li class="list-group-item">
-                    <h4 class="list-group-item-heading"><?php echo $scope['id']; ?></h4>
+                    <h4 class="list-group-item-heading"><?php echo $scope->id; ?></h4>
                     <p class="list-group-item-text">
-                        <?php echo (empty($scope['description']) ? '' : $scope['description']); ?>
+                        <?php echo $scope->definition; ?>
                     </p>
                 </li>
                 <?php endforeach; ?>
