@@ -1,0 +1,27 @@
+# Select image from https://hub.docker.com/_/php/
+image: php:5.6
+
+# Select what we should cache
+cache:
+  paths:
+  - vendor/
+
+before_script:
+# Install git and redis, the php image doesn't have installed
+- apt-get update -yqq
+- apt-get install git -yqq
+- apt-get install redis-server -yqq
+
+
+# Install composer
+- curl -sS https://getcomposer.org/installer | php
+# Install all project dependencies
+- php composer.phar install
+
+services:
+- redis
+
+test:redis:
+  script:
+  - vendor/bin/codecept run --coverage --coverage-text
+
