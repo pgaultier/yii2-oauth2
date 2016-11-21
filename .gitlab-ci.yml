@@ -15,10 +15,13 @@ before_script:
 
 # Install composer
   - curl -sS https://getcomposer.org/installer | php
-# Install all project dependencies
+# Force cache dir
   - php composer.phar config cache-dir /cache/composer
+# Update composer
   - php composer.phar selfupdate
+# Install global dependencies
   - php composer.phar global require "fxp/composer-asset-plugin:^1.2.0"
+# Install all project dependencies
   - php composer.phar install
 
 services:
