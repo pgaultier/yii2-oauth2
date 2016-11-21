@@ -5,6 +5,7 @@ image: php:5.6
 cache:
   paths:
   - vendor/
+  - $HOME/.composer/cache
 
 before_script:
 # Install git and redis, the php image doesn't have installed
@@ -16,6 +17,7 @@ before_script:
 # Install composer
 - curl -sS https://getcomposer.org/installer | php
 # Install all project dependencies
+- php composer.phar global require "fxp/composer-asset-plugin:^1.2.0"
 - php composer.phar install
 
 services:
