@@ -10,17 +10,18 @@ cache:
 before_script:
 # Install git and redis, the php image doesn't have installed
 - apt-get update -yqq
-- apt-get install git redis-server unzip -yqq
+- apt-get install git unzip -yqq
 
 
 # Install composer
 - curl -sS https://getcomposer.org/installer | php
 # Install all project dependencies
+- php composer.phar selfupdate
 - php composer.phar global require "fxp/composer-asset-plugin:^1.2.0"
 - php composer.phar install
 
 services:
-- redis
+- redis:3.2
 
 test:redis:
   script:
