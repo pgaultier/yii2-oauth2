@@ -16,9 +16,10 @@ before_script:
 # Install composer
   - curl -sS https://getcomposer.org/installer | php
 # Install all project dependencies
-  - php composer.phar --cache-dir="/cache/composer" selfupdate
-  - php composer.phar --cache-dir="/cache/composer" global require "fxp/composer-asset-plugin:^1.2.0"
-  - php composer.phar --cache-dir="/cache/composer" install
+  - php composer.phar config cache-dir /cache/composer
+  - php composer.phar selfupdate
+  - php composer.phar global require "fxp/composer-asset-plugin:^1.2.0"
+  - php composer.phar install
 
 services:
   - redis:3.2
