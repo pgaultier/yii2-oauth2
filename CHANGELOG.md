@@ -1,6 +1,8 @@
 Oauth2 Yii2 Change Log
 ======================
 
+ * Enh: adding gitlab ci
+
 1.0.1 November 7, 2016
 ----------------------
 
