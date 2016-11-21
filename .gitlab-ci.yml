@@ -10,8 +10,7 @@ cache:
 before_script:
 # Install git and redis, the php image doesn't have installed
 - apt-get update -yqq
-- apt-get install git -yqq
-- apt-get install redis-server -yqq
+- apt-get install git redis-server unzip -yqq
 
 
 # Install composer
