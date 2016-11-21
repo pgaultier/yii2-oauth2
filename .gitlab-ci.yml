@@ -23,6 +23,9 @@ before_script:
 # Install all project dependencies
   - php composer.phar install
 
+variables:
+  GITLAB_CI: 1
+
 services:
   - redis:3.2
 
