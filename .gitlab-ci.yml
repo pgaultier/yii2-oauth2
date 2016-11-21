@@ -1,0 +1,40 @@
+# Select image from https://hub.docker.com/_/php/
+
+# Select what we should cache
+cache:
+  paths:
+  - vendor/
+  - /cache/composer
+
+before_script:
+# Install git and redis, the php image doesn't have installed
+  - apt-get update -yqq
+  - apt-get install git unzip -yqq
+
+
+# Install composer
+  - curl -sS https://getcomposer.org/installer | php
+# Force cache dir
+  - php composer.phar config cache-dir /cache/composer
+# Update composer
+  - php composer.phar selfupdate
+# Install global dependencies
+  - php composer.phar global require "fxp/composer-asset-plugin:^1.2.0"
+# Install all project dependencies
+  - php composer.phar install
+
+variables:
+  GITLAB_CI: "1"
+
+services:
+  - redis:3.2
+
+test:5.6:
+  image: php:5.6
+  script:
+  - vendor/bin/codecept run
+
+test:7.0:
+  image: php:7.0
+  script:
+  - vendor/bin/codecept run
