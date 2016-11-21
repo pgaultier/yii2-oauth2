@@ -25,5 +25,5 @@ services:
 
 test:redis:
   script:
-  - vendor/bin/codecept run --coverage --coverage-text
+  - vendor/bin/codecept run
 
