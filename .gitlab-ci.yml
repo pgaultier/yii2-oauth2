@@ -5,23 +5,23 @@ image: php:5.6
 cache:
   paths:
   - vendor/
-  - $HOME/.composer/cache
+  - /cache/composer
 
 before_script:
 # Install git and redis, the php image doesn't have installed
-- apt-get update -yqq
-- apt-get install git unzip -yqq
+  - apt-get update -yqq
+  - apt-get install git unzip -yqq
 
 
 # Install composer
-- curl -sS https://getcomposer.org/installer | php
+  - curl -sS https://getcomposer.org/installer | php
 # Install all project dependencies
-- php composer.phar selfupdate
-- php composer.phar global require "fxp/composer-asset-plugin:^1.2.0"
-- php composer.phar install
+  - php composer.phar --cache-dir="/cache/composer" selfupdate
+  - php composer.phar --cache-dir="/cache/composer" global require "fxp/composer-asset-plugin:^1.2.0"
+  - php composer.phar --cache-dir="/cache/composer" install
 
 services:
-- redis:3.2
+  - redis:3.2
 
 test:redis:
   script:
