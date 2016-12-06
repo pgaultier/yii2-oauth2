@@ -25,6 +25,10 @@
         "psr-4": { "sweelix\\oauth2\\server\\": "src" }
     },
     "extra": {
+        "asset-installer-paths": {
+            "npm-asset-library": "vendor/npm",
+            "bower-asset-library": "vendor/bower"
+        },
         "branch-alias": {
             "dev-devel": "1.0.x-dev"
         }
