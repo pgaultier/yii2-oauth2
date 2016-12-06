@@ -12,7 +12,10 @@ define('YII_DEBUG', true);
 require_once(__DIR__ . '/../vendor/yiisoft/yii2/Yii.php');
 require_once(__DIR__ . '/../vendor/autoload.php');
 
-
+if (is_dir(__DIR__ . '/_output/assets') === false) {
+    mkdir(__DIR__ . '/_output/assets', 0777, true);
+}
+Yii::setAlias('@tests', __DIR__ );
 Yii::setAlias('@tests/unit', __DIR__ . '/unit');
 Yii::setAlias('@tests/functional', __DIR__ . '/functional');
 Yii::setAlias('@sweelix/oauth2/server', __DIR__ .'/../src');
