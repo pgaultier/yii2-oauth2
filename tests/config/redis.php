@@ -12,9 +12,10 @@
  * @since XXX
  */
 
+$isGitlab = getenv('GITLAB_CI');
 return [
     'class' => 'yii\redis\Connection',
-    'hostname' => 'localhost',
+    'hostname' => ($isGitlab === false) ? 'localhost' : 'redis',
     'port' => 6379,
     'database' => 1,
 ];
