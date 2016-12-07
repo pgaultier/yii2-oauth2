@@ -74,6 +74,27 @@ class AuthorizationCodeCest extends CestCase
         $I->see('invalid_grant', 'h4');
     }
 
+    public function checkWithCorrectClientInvalidRedirectUri(FunctionalTester $I)
+    {
+        $client = Yii::createObject('sweelix\oauth2\server\interfaces\ClientModelInterface');
+        /* @var \sweelix\oauth2\server\interfaces\ClientModelInterface $client */
+        $client->id = 'client2';
+        $client->secret = 'secret2';
+        $client->isPublic = false;
+        $client->userId = 'uid';
+        $client->name = 'Test client 2';
+        $client->redirectUri = 'http://www.sweelix.com/callback';
+        $I->assertTrue($client->save());
+
+        $I->amOnRoute('oauth2/authorize/index', [
+            'response_type' => 'code',
+            'client_id' => 'client2',
+            'redirect_uri' => 'http://localhost/cb'
+        ]);
+        $I->see('Bad Request', 'h1');
+        $I->see('redirect_uri_mismatch', 'h4');
+    }
+
     public function checkWithCorrectClientAndDecline(FunctionalTester $I)
     {
         $client = Yii::createObject('sweelix\oauth2\server\interfaces\ClientModelInterface');
@@ -83,6 +104,7 @@ class AuthorizationCodeCest extends CestCase
         $client->isPublic = false;
         $client->userId = 'uid';
         $client->name = 'Test client 2';
+        $client->redirectUri = 'http://www.sweelix.com/callback http://localhost/cb';
         $I->assertTrue($client->save());
 
         $I->amOnRoute('oauth2/authorize/index', [
@@ -123,12 +145,13 @@ class AuthorizationCodeCest extends CestCase
         $client->isPublic = false;
         $client->userId = 'uid';
         $client->name = 'Test client 2';
+        $client->redirectUri = 'http://www.sweelix.com/callback http://localhost/cb';
         $I->assertTrue($client->save());
 
         $I->amOnRoute('oauth2/authorize/index', [
             'response_type' => 'code',
             'client_id' => 'client2',
-            'redirect_uri' => 'http://localhost/cb'
+            'redirect_uri' => 'http://www.sweelix.com/callback'
         ]);
         $I->see('Sweelix', 'h1');
 
@@ -152,7 +175,7 @@ class AuthorizationCodeCest extends CestCase
             'client_id' => 'client2',
             'client_secret' => 'secret2',
             'grant_type' => 'authorization_code',
-            'redirect_uri' => 'http://localhost/cb',
+            'redirect_uri' => 'http://www.sweelix.com/callback',
             'code' => $codeModel->id,
         ]);
         $response = Json::decode($response);
