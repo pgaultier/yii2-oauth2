@@ -27,7 +27,7 @@ namespace sweelix\oauth2\server\interfaces;
  *
  * @property string $id
  * @property string $secret
- * @property string $redirectUri
+ * @property string|array $redirectUri
  * @property array $grantTypes
  * @property string $userId
  * @property array $scopes

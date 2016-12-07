@@ -30,7 +30,7 @@
             "bower-asset-library": "vendor/bower"
         },
         "branch-alias": {
-            "dev-devel": "1.0.x-dev"
+            "dev-devel": "1.1.x-dev"
         }
     }
 }

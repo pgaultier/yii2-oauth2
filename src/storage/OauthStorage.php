@@ -329,7 +329,7 @@ class OauthStorage implements
         $client = $clientClass::findOne($client_id);
         if ($client !== null) {
             $finalClient = [
-                'redirect_uri' => $client->redirectUri,
+                'redirect_uri' => is_array($client->redirectUri) ? implode(' ', $client->redirectUri) : $client->redirectUri,
                 'client_id' => $client->id,
                 'grant_types' => $client->grantTypes,
                 'user_id' => $client->userId,

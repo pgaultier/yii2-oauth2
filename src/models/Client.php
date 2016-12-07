@@ -15,8 +15,10 @@
 namespace sweelix\oauth2\server\models;
 
 use sweelix\oauth2\server\behaviors\EmptyArrayBehavior;
+use sweelix\oauth2\server\behaviors\SplitToArrayBehavior;
 use sweelix\oauth2\server\interfaces\ClientModelInterface;
 use Yii;
+use yii\validators\UrlValidator;
 
 /**
  * This is the client model
@@ -31,7 +33,7 @@ use Yii;
  *
  * @property string $id
  * @property string $secret
- * @property string $redirectUri
+ * @property string|array $redirectUri
  * @property array $grantTypes
  * @property string $userId
  * @property array $scopes
@@ -51,6 +53,10 @@ class Client extends BaseModel implements ClientModelInterface
             'class' => EmptyArrayBehavior::className(),
             'attributes' => ['scopes', 'grantTypes'],
         ];
+        $behaviors['splitToArray'] = [
+            'class' => SplitToArrayBehavior::className(),
+            'attributes' => ['redirectUri'],
+        ];
         return $behaviors;
     }
 
@@ -61,10 +67,23 @@ class Client extends BaseModel implements ClientModelInterface
     {
         return [
             [['id', 'secret', 'userId', 'name'], 'string'],
-            [['redirectUri'], 'url', 'when' => function($model) {
-                $isLocalhost = strncmp('http://localhost', $model->redirectUri, 16);
-                $isSecureLocalhost = strncmp('https://localhost', $model->redirectUri, 17);
-                return (($isLocalhost !== 0) && ($isSecureLocalhost !== 0));
+            [['redirectUri'], function($attribute, $params) {
+                $data = $this->{$attribute};
+
+                if (is_array($data) === false) {
+                    $data = explode(' ', $data);
+                }
+                foreach($data as $redirectUri) {
+                    $isLocalhost = strncmp('http://localhost', $redirectUri, 16);
+                    $isSecureLocalhost = strncmp('https://localhost', $redirectUri, 17);
+                    if (($isLocalhost !== 0) && ($isSecureLocalhost !== 0)) {
+                        $validator = new UrlValidator();
+                        if ($validator->validate($redirectUri, $error) === false) {
+                            $this->addError($attribute, $error);
+                            break;
+                        }
+                    }
+                }
             }],
             [['scopes'], 'scope'],
             [['isPublic'], 'boolean', 'trueValue' => true, 'falseValue' => false, 'strict' => true],
@@ -97,7 +116,7 @@ class Client extends BaseModel implements ClientModelInterface
         return [
             'id' => 'string',
             'secret' => 'string',
-            'redirectUri' => 'string',
+            'redirectUri' => 'array',
             'grantTypes' => 'array',
             'userId' => 'string',
             'scopes' => 'array',
@@ -152,6 +171,9 @@ class Client extends BaseModel implements ClientModelInterface
         return self::getDataService()->addUser($this, $userId);
     }
 
+    /**
+     * @inheritdoc
+     */
     public function removeUser($userId)
     {
         return self::getDataService()->removeUser($this, $userId);
