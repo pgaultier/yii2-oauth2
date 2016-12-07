@@ -104,6 +104,8 @@ class AuthorizationCodeCest extends CestCase
         $client->isPublic = false;
         $client->userId = 'uid';
         $client->name = 'Test client 2';
+        $client->redirectUri = 'hxxp://www.sweelix.com/callback http://localhost/cb';
+        $I->assertFalse($client->save());
         $client->redirectUri = 'http://www.sweelix.com/callback http://localhost/cb';
         $I->assertTrue($client->save());
 
@@ -145,7 +147,7 @@ class AuthorizationCodeCest extends CestCase
         $client->isPublic = false;
         $client->userId = 'uid';
         $client->name = 'Test client 2';
-        $client->redirectUri = 'http://www.sweelix.com/callback http://localhost/cb';
+        $client->redirectUri = ['http://www.sweelix.com/callback', 'http://localhost/cb'];
         $I->assertTrue($client->save());
 
         $I->amOnRoute('oauth2/authorize/index', [
