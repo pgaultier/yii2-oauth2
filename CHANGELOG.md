@@ -1,6 +1,7 @@
 Oauth2 Yii2 Change Log
 ======================
 
+ * Fix: Fix badges in readme
  * Enh: adding multiple redirectUri support.
 
 1.0.2 December 6, 2016
