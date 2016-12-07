@@ -18,8 +18,7 @@ use sweelix\oauth2\server\models\BaseModel;
 use yii\base\Behavior;
 
 /**
- * This exception is raised when a duplicate index is found and
- * entity cannot be inserted.
+ * Change attribute to empty array.
  *
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
