@@ -1,6 +1,7 @@
 Oauth2 Yii2 Change Log
 ======================
 
+ * Enh: update composer.json to check openssl ext
  * Fix: Fix badges in readme
  * Enh: adding multiple redirectUri support.
 
