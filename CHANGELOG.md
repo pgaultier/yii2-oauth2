@@ -1,6 +1,9 @@
 Oauth2 Yii2 Change Log
 ======================
 
+1.0.3 December 16, 2016
+-----------------------
+
  * Enh: Allow multiple redirectUri creation in `oauth2:client/create` use `,` as separator
  * Fix: Correct Array conversion in `oauth2:client/create`
  * Fix: Remove userId type check
