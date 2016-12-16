@@ -13,6 +13,7 @@ This extension allow the developper to use [Oauth2](https://bshaffer.github.io/o
 [![Build Status](https://travis-ci.org/pgaultier/yii2-oauth2.svg?branch=devel)](https://travis-ci.org/pgaultier/yii2-oauth2)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/pgaultier/yii2-oauth2/badges/quality-score.png?b=devel)](https://scrutinizer-ci.com/g/pgaultier/yii2-oauth2/?branch=devel)
 [![Code Coverage](https://scrutinizer-ci.com/g/pgaultier/yii2-oauth2/badges/coverage.png?b=devel)](https://scrutinizer-ci.com/g/pgaultier/yii2-oauth2/?branch=devel)
+[![composer.lock](https://poser.pugx.org/sweelix/yii2-oauth2-server/composerlock)](https://packagist.org/packages/sweelix/yii2-oauth2-server)
 
 Installation
 ------------
@@ -84,7 +85,7 @@ Configure Module
 
 ### JWT parameters
 
- * `allowJwtAccesToken` : enable JWT (default : **false**)
+ * `allowJwtAccessToken` : enable JWT (default : **false**)
  * `allowAlgorithm` : available algorithm for JWT (default : **['RS256', 'RS384', 'RS512']**)
  * `jwtAudience` : default to token endpoint
  * `storeEncryptedTokenString` : store encrypted token (default : **true**)
