@@ -7,7 +7,7 @@
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version XXX
+ * @version 1.0.3
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server
  */
@@ -27,10 +27,10 @@ use yii\di\Instance;
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version XXX
+ * @version 1.0.3
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server
- * @since XXX
+ * @since 1.0.0
  */
 class Module extends BaseModule implements BootstrapInterface
 {
@@ -70,7 +70,7 @@ class Module extends BaseModule implements BootstrapInterface
     /**
      * @var bool configure oauth server (use_jwt_access_tokens)
      */
-    public $allowJwtAccesToken = false;
+    public $allowJwtAccessToken = false;
 
     /**
      * @var array configure oauth server (allowed_algorithms)
@@ -187,7 +187,7 @@ class Module extends BaseModule implements BootstrapInterface
     /**
      * Load dataservices in container
      * @param \yii\base\Application $app
-     * @since XXX
+     * @since 1.0.0
      */
     protected function setUpDi($app)
     {
@@ -258,7 +258,7 @@ class Module extends BaseModule implements BootstrapInterface
     /**
      * Update controllers map to add console commands
      * @param ConsoleApplication $app
-     * @since XXX
+     * @since 1.0.0
      */
     protected function mapConsoleControllers(ConsoleApplication $app)
     {

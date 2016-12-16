@@ -3,16 +3,17 @@ Oauth2 Yii2 integration
 
 This extension allow the developper to use [Oauth2](https://bshaffer.github.io/oauth2-server-php-docs/) server.
 
-[![Latest Stable Version](https://poser.pugx.org/sweelix/yii2-oauth2/v/stable)](https://packagist.org/packages/sweelix/yii2-oauth2-server)
+[![Latest Stable Version](https://poser.pugx.org/sweelix/yii2-oauth2-server/v/stable)](https://packagist.org/packages/sweelix/yii2-oauth2-server)
 [![Build Status](https://api.travis-ci.org/pgaultier/yii2-oauth2.svg?branch=master)](https://travis-ci.org/pgaultier/yii2-oauth2)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/pgaultier/yii2-oauth2/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/pgaultier/yii2-oauth2/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/pgaultier/yii2-oauth2/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/pgaultier/yii2-oauth2/?branch=master)
-[![License](https://poser.pugx.org/sweelix/yii2-oauth2/license)](https://packagist.org/packages/sweelix/yii2-oauth2-server)
+[![License](https://poser.pugx.org/sweelix/yii2-oauth2-server/license)](https://packagist.org/packages/sweelix/yii2-oauth2-server)
 
 [![Latest Development Version](https://img.shields.io/badge/unstable-devel-yellowgreen.svg)](https://packagist.org/packages/sweelix/yii2-oauth2-server)
 [![Build Status](https://travis-ci.org/pgaultier/yii2-oauth2.svg?branch=devel)](https://travis-ci.org/pgaultier/yii2-oauth2)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/pgaultier/yii2-oauth2/badges/quality-score.png?b=devel)](https://scrutinizer-ci.com/g/pgaultier/yii2-oauth2/?branch=devel)
 [![Code Coverage](https://scrutinizer-ci.com/g/pgaultier/yii2-oauth2/badges/coverage.png?b=devel)](https://scrutinizer-ci.com/g/pgaultier/yii2-oauth2/?branch=devel)
+[![composer.lock](https://poser.pugx.org/sweelix/yii2-oauth2-server/composerlock)](https://packagist.org/packages/sweelix/yii2-oauth2-server)
 
 Installation
 ------------
@@ -22,7 +23,7 @@ If you use Packagist for installing packages, then you can update your composer.
 ``` json
 {
     "require": {
-        "sweelix/yii2-oauth2-server": "*"
+        "sweelix/yii2-oauth2-server": "~1.1.0"
     }
 }
 ```
@@ -84,7 +85,7 @@ Configure Module
 
 ### JWT parameters
 
- * `allowJwtAccesToken` : enable JWT (default : **false**)
+ * `allowJwtAccessToken` : enable JWT (default : **false**)
  * `allowAlgorithm` : available algorithm for JWT (default : **['RS256', 'RS384', 'RS512']**)
  * `jwtAudience` : default to token endpoint
  * `storeEncryptedTokenString` : store encrypted token (default : **true**)

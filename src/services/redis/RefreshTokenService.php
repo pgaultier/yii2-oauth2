@@ -7,7 +7,7 @@
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version XXX
+ * @version 1.0.3
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\services\redis
  */
@@ -29,10 +29,10 @@ use Yii;
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version XXX
+ * @version 1.0.3
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\services\redis
- * @since XXX
+ * @since 1.0.0
  */
 class RefreshTokenService extends BaseService implements RefreshTokenServiceInterface
 {
@@ -40,7 +40,7 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
     /**
      * @param string $rid refresh token ID
      * @return string refresh token Key
-     * @since XXX
+     * @since 1.0.0
      */
     protected function getRefreshTokenKey($rid)
     {
@@ -68,7 +68,7 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
      * @throws DatabaseException
      * @throws DuplicateIndexException
      * @throws DuplicateKeyException
-     * @since XXX
+     * @since 1.0.0
      */
     protected function insert(RefreshTokenModelInterface $refreshToken, $attributes)
     {

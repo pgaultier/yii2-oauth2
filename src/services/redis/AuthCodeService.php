@@ -7,7 +7,7 @@
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version XXX
+ * @version 1.0.3
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\services\redis
  */
@@ -29,10 +29,10 @@ use Yii;
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version XXX
+ * @version 1.0.3
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\services\redis
- * @since XXX
+ * @since 1.0.0
  */
 class AuthCodeService extends BaseService implements AuthCodeServiceInterface
 {
@@ -40,7 +40,7 @@ class AuthCodeService extends BaseService implements AuthCodeServiceInterface
     /**
      * @param string $aid auth code ID
      * @return string auth code Key
-     * @since XXX
+     * @since 1.0.0
      */
     protected function getAuthCodeKey($aid)
     {
@@ -68,7 +68,7 @@ class AuthCodeService extends BaseService implements AuthCodeServiceInterface
      * @throws DatabaseException
      * @throws DuplicateIndexException
      * @throws DuplicateKeyException
-     * @since XXX
+     * @since 1.0.0
      */
     protected function insert(AuthCodeModelInterface $authCode, $attributes)
     {

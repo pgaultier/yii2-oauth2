@@ -7,9 +7,9 @@
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version XXX
+ * @version 1.0.3
  * @link http://www.sweelix.net
- * @since XXX
+ * @since 1.0.0
  */
 
 namespace sweelix\oauth2\server\models;
@@ -23,10 +23,10 @@ use Yii;
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version XXX
+ * @version 1.0.3
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\models
- * @since XXX
+ * @since 1.0.0
  *
  * @property string $id
  * @property string $clientId
@@ -65,7 +65,7 @@ class Jwt extends BaseModel implements JwtModelInterface
 
     /**
      * @return array definition of model attributes
-     * @since XXX
+     * @since 1.0.0
      */
     public function attributesDefinition()
     {
@@ -106,7 +106,7 @@ class Jwt extends BaseModel implements JwtModelInterface
 
     /**
      * @return bool
-     * @since XXX
+     * @since 1.0.0
      * @throws \yii\base\UnknownClassException
      */
     public function delete()
@@ -128,7 +128,7 @@ class Jwt extends BaseModel implements JwtModelInterface
      * @param string $clientId
      * @param string $subject
      * @return string jwt fingerprint
-     * @since XXX
+     * @since 1.0.0
      */
     public static function getFingerprint($clientId, $subject)
     {

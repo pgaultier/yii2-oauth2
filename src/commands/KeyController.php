@@ -5,10 +5,10 @@
  * PHP version 5.6+
  *
  * @author pgaultier
- * @copyright 2010-2016 Ibitux
- * @license http://www.ibitux.com/license license
- * @version XXX
- * @link http://www.ibitux.com
+ * @copyright 2010-2016 Philippe Gaultier
+ * @license http://www.sweelix.net/license license
+ * @version 1.0.3
+ * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\commands
  */
 
@@ -21,12 +21,12 @@ use Yii;
  * Manage oauth keys
  *
  * @author pgaultier
- * @copyright 2010-2016 Ibitux
- * @license http://www.ibitux.com/license license
- * @version XXX
- * @link http://www.ibitux.com
+ * @copyright 2010-2016 Philippe Gaultier
+ * @license http://www.sweelix.net/license license
+ * @version 1.0.3
+ * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\commands
- * @since XXX
+ * @since 1.0.0
  */
 class KeyController extends Controller
 {
@@ -59,7 +59,7 @@ class KeyController extends Controller
      * Create new Oauth CypherKey
      * @param string $id Should be client-id or default for common key
      * @return int
-     * @since XXX
+     * @since 1.0.0
      */
     public function actionCreate($id)
     {

@@ -7,7 +7,7 @@
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version XXX
+ * @version 1.0.3
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\services\redis
  */
@@ -29,10 +29,10 @@ use Yii;
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version XXX
+ * @version 1.0.3
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\services\redis
- * @since XXX
+ * @since 1.0.0
  */
 class AccessTokenService extends BaseService implements AccessTokenServiceInterface
 {
@@ -40,7 +40,7 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
     /**
      * @param string $aid access token ID
      * @return string access token Key
-     * @since XXX
+     * @since 1.0.0
      */
     protected function getAccessTokenKey($aid)
     {
@@ -68,7 +68,7 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
      * @throws DatabaseException
      * @throws DuplicateIndexException
      * @throws DuplicateKeyException
-     * @since XXX
+     * @since 1.0.0
      */
     protected function insert(AccessTokenModelInterface $accessToken, $attributes)
     {

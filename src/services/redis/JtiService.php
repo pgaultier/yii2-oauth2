@@ -7,7 +7,7 @@
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version XXX
+ * @version 1.0.3
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\services\redis
  */
@@ -30,10 +30,10 @@ use Exception;
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version XXX
+ * @version 1.0.3
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\services\redis
- * @since XXX
+ * @since 1.0.0
  */
 class JtiService extends BaseService implements JtiServiceInterface
 {
@@ -41,7 +41,7 @@ class JtiService extends BaseService implements JtiServiceInterface
     /**
      * @param string $jid jti ID
      * @return string access token Key
-     * @since XXX
+     * @since 1.0.0
      */
     protected function getJtiKey($jid)
     {
@@ -69,7 +69,7 @@ class JtiService extends BaseService implements JtiServiceInterface
      * @throws DatabaseException
      * @throws DuplicateIndexException
      * @throws DuplicateKeyException
-     * @since XXX
+     * @since 1.0.0
      */
     protected function insert(JtiModelInterface $jti, $attributes)
     {

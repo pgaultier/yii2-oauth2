@@ -7,7 +7,7 @@
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version XXX
+ * @version 1.0.3
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\models
  */
@@ -29,10 +29,10 @@ use yii\helpers\Inflector;
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version XXX
+ * @version 1.0.3
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\models
- * @since XXX
+ * @since 1.0.0
  */
 abstract class BaseModel extends Model implements BaseModelInterface
 {
@@ -57,7 +57,7 @@ abstract class BaseModel extends Model implements BaseModelInterface
 
     /**
      * @return string attribute key of the object
-     * @since XXX
+     * @since 1.0.0
      */
     abstract public function key();
 
@@ -70,7 +70,7 @@ abstract class BaseModel extends Model implements BaseModelInterface
      * As database are not always able to retain datatype, this will be used by the service layer to
      * cast data
      * @return array definition of model attributes
-     * @since XXX
+     * @since 1.0.0
      */
     abstract public function attributesDefinition();
 
@@ -119,7 +119,7 @@ abstract class BaseModel extends Model implements BaseModelInterface
     /**
      * Returns the key value of the object
      * @return mixed|null
-     * @since XXX
+     * @since 1.0.0
      */
     public function getKey()
     {
@@ -130,7 +130,7 @@ abstract class BaseModel extends Model implements BaseModelInterface
     /**
      * Returns the old key value of the object
      * @return mixed|null
-     * @since XXX
+     * @since 1.0.0
      */
     public function getOldKey()
     {

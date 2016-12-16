@@ -7,7 +7,7 @@
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version XXX
+ * @version 1.0.3
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\interfaces
  */
@@ -20,14 +20,14 @@ namespace sweelix\oauth2\server\interfaces;
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version XXX
+ * @version 1.0.3
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\interfaces
- * @since XXX
+ * @since 1.0.0
  *
  * @property string $id
  * @property string $secret
- * @property string $redirectUri
+ * @property string|array $redirectUri
  * @property array $grantTypes
  * @property string $userId
  * @property array $scopes
@@ -41,7 +41,7 @@ interface ClientModelInterface extends BaseModelInterface
      *
      * @param string $id
      * @return ClientModelInterface|null
-     * @since XXX
+     * @since 1.0.0
      * @throws \yii\base\UnknownClassException
      */
     public static function findOne($id);
@@ -50,14 +50,14 @@ interface ClientModelInterface extends BaseModelInterface
      * @param bool $runValidation
      * @param null $attributes
      * @return bool
-     * @since XXX
+     * @since 1.0.0
      * @throws \yii\base\UnknownClassException
      */
     public function save($runValidation = true, $attributes = null);
 
     /**
      * @return bool
-     * @since XXX
+     * @since 1.0.0
      * @throws \yii\base\UnknownClassException
      */
     public function delete();
@@ -65,21 +65,21 @@ interface ClientModelInterface extends BaseModelInterface
     /**
      * @param $userId
      * @return bool
-     * @since XXX
+     * @since 1.0.0
      */
     public function hasUser($userId);
 
     /**
      * @param $userId
      * @return bool
-     * @since XXX
+     * @since 1.0.0
      */
     public function addUser($userId);
 
     /**
      * @param $userId
      * @return bool
-     * @since XXX
+     * @since 1.0.0
      */
     public function removeUser($userId);
 }

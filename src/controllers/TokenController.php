@@ -5,10 +5,10 @@
  * PHP version 5.6+
  *
  * @author pgaultier
- * @copyright 2010-2016 Ibitux
- * @license http://www.ibitux.com/license license
- * @version XXX
- * @link http://www.ibitux.com
+ * @copyright 2010-2016 Philippe Gaultier
+ * @license http://www.sweelix.net/license license
+ * @version 1.0.3
+ * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\controllers
  */
 
@@ -25,12 +25,12 @@ use Yii;
  * Oauth2 main controller
  *
  * @author pgaultier
- * @copyright 2010-2016 Ibitux
- * @license http://www.ibitux.com/license license
- * @version XXX
- * @link http://www.ibitux.com
+ * @copyright 2010-2016 Philippe Gaultier
+ * @license http://www.sweelix.net/license license
+ * @version 1.0.3
+ * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\controllers
- * @since XXX
+ * @since 1.0.0
  */
 class TokenController extends Controller
 {
@@ -49,7 +49,7 @@ class TokenController extends Controller
     /**
      * Send back an oauth token
      * @return Response|array
-     * @since XXX
+     * @since 1.0.0
      */
     public function actionIndex()
     {
@@ -115,7 +115,7 @@ class TokenController extends Controller
      * convert OAuth2 response to Yii2 response
      * @param OAuth2Response $oauthResponse
      * @return \yii\web\Response
-     * @since XXX
+     * @since 1.0.0
      */
     protected function convertResponse(OAuth2Response $oauthResponse)
     {

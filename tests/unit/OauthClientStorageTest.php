@@ -46,7 +46,8 @@ class OauthClientStorageTest extends TestCase
         $this->assertEquals($client->isPublic, $insertedClient->isPublic);
         $this->assertTrue(is_array($client->grantTypes));
         $this->assertTrue(empty($client->grantTypes));
-        $this->assertEquals($client->redirectUri, $insertedClient->redirectUri);
+        $this->assertTrue(is_array($client->redirectUri));
+        $this->assertEquals($client->redirectUri[0], $insertedClient->redirectUri[0]);
         $this->assertEquals($client->userId, $insertedClient->userId);
         $this->assertTrue(is_array($client->scopes));
         $this->assertTrue(empty($client->scopes));
@@ -124,7 +125,8 @@ class OauthClientStorageTest extends TestCase
 
         $client2 = Client::findOne('client2');
         $client2->secret = 'secret2';
-        $this->assertTrue($client2->save());
+        $status = $client2->save();
+        $this->assertTrue($status);
 
         $client2 = Client::findOne('client2');
         $client2->id = 'client3';
@@ -183,7 +185,8 @@ class OauthClientStorageTest extends TestCase
         $this->assertArrayHasKey('user_id', $storageClient);
         $this->assertArrayHasKey('scope', $storageClient);
         $this->assertEquals($client->id, $storageClient['client_id']);
-        $this->assertEquals($client->redirectUri, $storageClient['redirect_uri']);
+        $this->assertTrue(is_array($client->redirectUri));
+        $this->assertEquals(implode(' ', $client->redirectUri), $storageClient['redirect_uri']);
         $this->assertTrue(is_array($storageClient['grant_types']));
         $this->assertTrue(empty($storageClient['grant_types']));
         $this->assertEquals($client->userId, $storageClient['user_id']);

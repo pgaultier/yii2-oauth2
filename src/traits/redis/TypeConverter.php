@@ -7,7 +7,7 @@
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version XXX
+ * @version 1.0.3
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\traits\redis
  */
@@ -23,10 +23,10 @@ use yii\helpers\Json;
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version XXX
+ * @version 1.0.3
  * @link http://www.sweelix.net
  * @package modules\v1\traits\redis
- * @since XXX
+ * @since 1.0.0
  */
 trait TypeConverter
 {
@@ -37,7 +37,7 @@ trait TypeConverter
 
     /**
      * @param array $attributesDefinitions attributes definitions declared in the model
-     * @since XXX
+     * @since 1.0.0
      */
     public function setAttributesDefinitions($attributesDefinitions)
     {
@@ -48,7 +48,7 @@ trait TypeConverter
      * @param string $key attribute name
      * @param mixed $value attribute value
      * @return mixed type compliant with redis
-     * @since XXX
+     * @since 1.0.0
      */
     public function convertToDatabase($key, $value)
     {
@@ -84,7 +84,7 @@ trait TypeConverter
      * @param string $key attribute name
      * @param string $value attribute value
      * @return mixed value in original datatype
-     * @since XXX
+     * @since 1.0.0
      */
     public function convertToModel($key, $value)
     {
