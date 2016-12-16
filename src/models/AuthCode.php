@@ -59,7 +59,7 @@ class AuthCode extends BaseModel implements AuthCodeModelInterface
     public function rules()
     {
         return [
-            [['id', 'clientId', 'userId', 'tokenId'], 'string'],
+            [['id', 'clientId', 'tokenId'], 'string'],
             [['redirectUri'], 'url', 'when' => function($model) {
                 $isLocalhost = strncmp('http://localhost', $model->redirectUri, 16);
                 $isSecureLocalhost = strncmp('https://localhost', $model->redirectUri, 17);

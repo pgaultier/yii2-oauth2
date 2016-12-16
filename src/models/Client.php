@@ -66,7 +66,7 @@ class Client extends BaseModel implements ClientModelInterface
     public function rules()
     {
         return [
-            [['id', 'secret', 'userId', 'name'], 'string'],
+            [['id', 'secret', 'name'], 'string'],
             [['redirectUri'], function($attribute, $params) {
                 $data = $this->{$attribute};
 

@@ -57,7 +57,7 @@ class AccessToken extends BaseModel implements AccessTokenModelInterface
     public function rules()
     {
         return [
-            [['id', 'clientId', 'userId'], 'string'],
+            [['id', 'clientId'], 'string'],
             [['scopes'], 'scope'],
         ];
     }
