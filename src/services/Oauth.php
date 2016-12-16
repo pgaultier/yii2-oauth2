@@ -7,7 +7,7 @@
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version XXX
+ * @version 1.0.3
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\services
  */
@@ -31,10 +31,10 @@ use Yii;
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version XXX
+ * @version 1.0.3
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\services
- * @since XXX
+ * @since 1.0.0
  */
 class Oauth implements ServiceBootstrapInterface
 {
@@ -86,7 +86,7 @@ class Oauth implements ServiceBootstrapInterface
     /**
      * @param mixed $config
      * @return array Oauth server configuration
-     * @since XXX
+     * @since 1.0.0
      */
     protected static function prepareServerConfig($config, $module)
     {

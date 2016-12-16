@@ -7,7 +7,7 @@
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version XXX
+ * @version 1.0.3
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\services\redis
  */
@@ -32,10 +32,10 @@ use Yii;
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version XXX
+ * @version 1.0.3
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\services\redis
- * @since XXX
+ * @since 1.0.0
  */
 class ScopeService extends BaseService implements ScopeServiceInterface
 {
@@ -43,7 +43,7 @@ class ScopeService extends BaseService implements ScopeServiceInterface
     /**
      * @param string $sid scope ID
      * @return string scope Key
-     * @since XXX
+     * @since 1.0.0
      */
     protected function getScopeKey($sid)
     {
@@ -52,7 +52,7 @@ class ScopeService extends BaseService implements ScopeServiceInterface
 
     /**
      * @return string key of all scopes list
-     * @since XXX
+     * @since 1.0.0
      */
     protected function getScopeListKey()
     {
@@ -61,7 +61,7 @@ class ScopeService extends BaseService implements ScopeServiceInterface
 
     /**
      * @return string key of default scopes list
-     * @since XXX
+     * @since 1.0.0
      */
     protected function getScopeDefaultListKey()
     {
@@ -89,7 +89,7 @@ class ScopeService extends BaseService implements ScopeServiceInterface
      * @throws DatabaseException
      * @throws DuplicateIndexException
      * @throws DuplicateKeyException
-     * @since XXX
+     * @since 1.0.0
      */
     protected function insert(ScopeModelInterface $scope, $attributes)
     {

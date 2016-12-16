@@ -5,10 +5,10 @@
  * PHP version 5.6+
  *
  * @author pgaultier
- * @copyright 2010-2016 Ibitux
- * @license http://www.ibitux.com/license license
- * @version XXX
- * @link http://www.ibitux.com
+ * @copyright 2010-2016 Philippe Gaultier
+ * @license http://www.sweelix.net/license license
+ * @version 1.0.3
+ * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\behaviors
  */
 
@@ -23,10 +23,10 @@ use yii\base\Behavior;
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version XXX
+ * @version 1.0.3
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\behaviors
- * @since XXX
+ * @since 1.0.0
  */
 class EmptyArrayBehavior extends Behavior
 {
@@ -46,7 +46,7 @@ class EmptyArrayBehavior extends Behavior
     }
 
     /**
-     * @since XXX
+     * @since 1.0.0
      */
     public function updateAttribute()
     {

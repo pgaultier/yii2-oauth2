@@ -5,10 +5,10 @@
  * PHP version 5.6+
  *
  * @author pgaultier
- * @copyright 2010-2016 Ibitux
- * @license http://www.ibitux.com/license license
- * @version XXX
- * @link http://www.ibitux.com
+ * @copyright 2010-2016 Philippe Gaultier
+ * @license http://www.sweelix.net/license license
+ * @version 1.0.3
+ * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\controllers
  */
 
@@ -28,12 +28,12 @@ use Yii;
  * Oauth2 main controller
  *
  * @author pgaultier
- * @copyright 2010-2016 Ibitux
- * @license http://www.ibitux.com/license license
- * @version XXX
- * @link http://www.ibitux.com
+ * @copyright 2010-2016 Philippe Gaultier
+ * @license http://www.sweelix.net/license license
+ * @version 1.0.3
+ * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\controllers
- * @since XXX
+ * @since 1.0.0
  */
 class AuthorizeController extends Controller
 {
@@ -79,7 +79,7 @@ class AuthorizeController extends Controller
     /**
      * Send back an oauth token
      * @return Response
-     * @since XXX
+     * @since 1.0.0
      */
     public function actionIndex()
     {
@@ -139,7 +139,7 @@ class AuthorizeController extends Controller
     /**
      * Display login page
      * @return Response|string
-     * @since XXX
+     * @since 1.0.0
      */
     public function actionLogin()
     {
@@ -186,7 +186,7 @@ class AuthorizeController extends Controller
     /**
      * Display authorize page
      * @return string|Response
-     * @since XXX
+     * @since 1.0.0
      */
     public function actionAuthorize()
     {
@@ -275,7 +275,7 @@ class AuthorizeController extends Controller
     /**
      * Display an error page
      * @return Response|string
-     * @since XXX
+     * @since 1.0.0
      */
     public function actionError()
     {
@@ -294,7 +294,7 @@ class AuthorizeController extends Controller
 
     /**
      * @return string classname for selected interface
-     * @since XXX
+     * @since 1.0.0
      */
     public function getUserClass()
     {

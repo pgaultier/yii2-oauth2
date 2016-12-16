@@ -7,7 +7,7 @@
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version XXX
+ * @version 1.0.3
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\models
  */
@@ -23,10 +23,10 @@ use Yii;
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version XXX
+ * @version 1.0.3
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\models
- * @since XXX
+ * @since 1.0.0
  *
  * @property string $id
  * @property string $publicKey
@@ -65,7 +65,7 @@ class CypherKey extends BaseModel implements CypherKeyModelInterface
 
     /**
      * @return array definition of model attributes
-     * @since XXX
+     * @since 1.0.0
      */
     public function attributesDefinition()
     {

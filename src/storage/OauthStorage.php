@@ -5,10 +5,10 @@
  * PHP version 5.6+
  *
  * @author pgaultier
- * @copyright 2010-2016 Ibitux
- * @license http://www.ibitux.com/license license
- * @version XXX
- * @link http://www.ibitux.com
+ * @copyright 2010-2016 Philippe Gaultier
+ * @license http://www.sweelix.net/license license
+ * @version 1.0.3
+ * @link http://www.sweelix.net
  * @packages sweelix\oauth2\server\storage
  */
 
@@ -31,12 +31,12 @@ use Yii;
  * PHP version 5.6+
  *
  * @author pgaultier
- * @copyright 2010-2016 Ibitux
- * @license http://www.ibitux.com/license license
- * @version XXX
- * @link http://www.ibitux.com
+ * @copyright 2010-2016 Philippe Gaultier
+ * @license http://www.sweelix.net/license license
+ * @version 1.0.3
+ * @link http://www.sweelix.net
  * @packages sweelix\oauth2\server\storage
- * @since XXX
+ * @since 1.0.0
  */
 class OauthStorage implements
     AccessTokenInterface,
@@ -96,7 +96,7 @@ class OauthStorage implements
 
     /**
      * @return string classname for selected interface
-     * @since XXX
+     * @since 1.0.0
      */
     protected function getAccessTokenClass()
     {
@@ -109,7 +109,7 @@ class OauthStorage implements
 
     /**
      * @return string classname for selected interface
-     * @since XXX
+     * @since 1.0.0
      */
     protected function getAuthCodeClass()
     {
@@ -122,7 +122,7 @@ class OauthStorage implements
 
     /**
      * @return string classname for selected interface
-     * @since XXX
+     * @since 1.0.0
      */
     protected function getClientClass()
     {
@@ -135,7 +135,7 @@ class OauthStorage implements
 
     /**
      * @return string classname for selected interface
-     * @since XXX
+     * @since 1.0.0
      */
     protected function getCypherKeyClass()
     {
@@ -148,7 +148,7 @@ class OauthStorage implements
 
     /**
      * @return string classname for selected interface
-     * @since XXX
+     * @since 1.0.0
      */
     protected function getJtiClass()
     {
@@ -161,7 +161,7 @@ class OauthStorage implements
 
     /**
      * @return string classname for selected interface
-     * @since XXX
+     * @since 1.0.0
      */
     protected function getJwtClass()
     {
@@ -174,7 +174,7 @@ class OauthStorage implements
 
     /**
      * @return string classname for selected interface
-     * @since XXX
+     * @since 1.0.0
      */
     protected function getRefreshTokenClass()
     {
@@ -187,7 +187,7 @@ class OauthStorage implements
 
     /**
      * @return string classname for selected interface
-     * @since XXX
+     * @since 1.0.0
      */
     public function getScopeClass()
     {
@@ -200,7 +200,7 @@ class OauthStorage implements
 
     /**
      * @return string classname for selected interface
-     * @since XXX
+     * @since 1.0.0
      */
     public function getUserClass()
     {
