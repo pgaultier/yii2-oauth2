@@ -91,7 +91,7 @@ class Oauth implements ServiceBootstrapInterface
     protected static function prepareServerConfig($config, $module)
     {
         $baseConfig = [
-            'use_jwt_access_tokens' => $module->allowJwtAccesToken,
+            'use_jwt_access_tokens' => $module->allowJwtAccessToken,
             'store_encrypted_token_string' => $module->storeEncryptedTokenString,
             'use_openid_connect' => $module->allowOpenIdConnect,
             'id_lifetime' => $module->idTTL,
