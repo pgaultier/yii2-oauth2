@@ -7,7 +7,7 @@
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version XXX
+ * @version 1.0.3
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\exceptions
  */
@@ -23,10 +23,10 @@ use Exception;
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version XXX
+ * @version 1.0.3
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\exceptions
- * @since XXX
+ * @since 1.0.0
  */
 class DuplicateIndexException extends Exception
 {

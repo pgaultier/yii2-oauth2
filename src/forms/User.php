@@ -5,10 +5,10 @@
  * PHP version 5.6+
  *
  * @author pgaultier
- * @copyright 2010-2016 Ibitux
- * @license http://www.ibitux.com/license license
- * @version XXX
- * @link http://www.ibitux.com
+ * @copyright 2010-2016 Philippe Gaultier
+ * @license http://www.sweelix.net/license license
+ * @version 1.0.3
+ * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\forms
  */
 
@@ -20,12 +20,12 @@ use yii\base\Model;
  * Basic user form
  *
  * @author pgaultier
- * @copyright 2010-2016 Ibitux
- * @license http://www.ibitux.com/license license
- * @version XXX
- * @link http://www.ibitux.com
+ * @copyright 2010-2016 Philippe Gaultier
+ * @license http://www.sweelix.net/license license
+ * @version 1.0.3
+ * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\forms
- * @since XXX
+ * @since 1.0.0
  */
 class User extends Model
 {

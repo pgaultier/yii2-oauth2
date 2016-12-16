@@ -7,7 +7,7 @@
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version XXX
+ * @version 1.0.3
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\services\redis
  */
@@ -30,10 +30,10 @@ use Yii;
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version XXX
+ * @version 1.0.3
  * @link http://www.sweelix.net
  * @package modules\v1\services\redis
- * @since XXX
+ * @since 1.0.0
  */
 class BaseService extends Object
 {
@@ -62,7 +62,7 @@ class BaseService extends Object
      * Compute etag based on model attributes
      * @param BaseModelInterface $model
      * @return string
-     * @since XXX
+     * @since 1.0.0
      */
     protected function computeEtag(BaseModelInterface $model)
     {
@@ -75,7 +75,7 @@ class BaseService extends Object
      * @param array $attributes
      *
      * @return string
-     * @since  XXX
+     * @since  1.0.0
      */
     protected function encodeAttributes(Array $attributes)
     {

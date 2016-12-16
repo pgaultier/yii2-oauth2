@@ -5,10 +5,10 @@
  * PHP version 5.6+
  *
  * @author pgaultier
- * @copyright 2010-2016 Ibitux
- * @license http://www.ibitux.com/license license
- * @version XXX
- * @link http://www.ibitux.com
+ * @copyright 2010-2016 Philippe Gaultier
+ * @license http://www.sweelix.net/license license
+ * @version 1.0.3
+ * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\commands
  */
 
@@ -22,12 +22,12 @@ use Yii;
  * Manage oauth clients
  *
  * @author pgaultier
- * @copyright 2010-2016 Ibitux
- * @license http://www.ibitux.com/license license
- * @version XXX
- * @link http://www.ibitux.com
+ * @copyright 2010-2016 Philippe Gaultier
+ * @license http://www.sweelix.net/license license
+ * @version 1.0.3
+ * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\commands
- * @since XXX
+ * @since 1.0.0
  */
 class ClientController extends Controller
 {
@@ -58,7 +58,7 @@ class ClientController extends Controller
     /**
      * Create new Oauth client
      * @return int
-     * @since XXX
+     * @since 1.0.0
      */
     public function actionCreate()
     {
@@ -118,7 +118,7 @@ class ClientController extends Controller
      * Generate random string
      * @param int $length
      * @return string
-     * @since XXX
+     * @since 1.0.0
      */
     protected function getRandomString($length = 40)
     {

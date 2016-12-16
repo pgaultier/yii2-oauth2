@@ -7,7 +7,7 @@
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version XXX
+ * @version 1.0.3
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\services\redis
  */
@@ -30,10 +30,10 @@ use Yii;
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version XXX
+ * @version 1.0.3
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\services\redis
- * @since XXX
+ * @since 1.0.0
  */
 class ClientService extends BaseService implements ClientServiceInterface
 {
@@ -41,7 +41,7 @@ class ClientService extends BaseService implements ClientServiceInterface
     /**
      * @param string $cid client ID
      * @return string client Key
-     * @since XXX
+     * @since 1.0.0
      */
     protected function getClientKey($cid)
     {
@@ -51,7 +51,7 @@ class ClientService extends BaseService implements ClientServiceInterface
     /**
      * @param string $cid client ID
      * @return string clientUsers Key
-     * @since XXX
+     * @since 1.0.0
      */
     protected function getClientUsersListKey($cid)
     {
@@ -79,7 +79,7 @@ class ClientService extends BaseService implements ClientServiceInterface
      * @throws DatabaseException
      * @throws DuplicateIndexException
      * @throws DuplicateKeyException
-     * @since XXX
+     * @since 1.0.0
      */
     protected function insert(ClientModelInterface $client, $attributes)
     {

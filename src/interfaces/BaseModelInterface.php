@@ -7,7 +7,7 @@
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version XXX
+ * @version 1.0.3
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\interfaces
  */
@@ -20,10 +20,10 @@ namespace sweelix\oauth2\server\interfaces;
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2016 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version XXX
+ * @version 1.0.3
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\interfaces
- * @since XXX
+ * @since 1.0.0
  */
 interface BaseModelInterface
 {
@@ -65,7 +65,7 @@ interface BaseModelInterface
 
     /**
      * @return string attribute key of the object
-     * @since XXX
+     * @since 1.0.0
      */
     public function key();
 
@@ -78,7 +78,7 @@ interface BaseModelInterface
      * As database are not always able to retain datatype, this will be used by the service layer to
      * cast data
      * @return array definition of model attributes
-     * @since XXX
+     * @since 1.0.0
      */
     public function attributesDefinition();
 
@@ -99,14 +99,14 @@ interface BaseModelInterface
     /**
      * Returns the key value of the object
      * @return mixed|null
-     * @since XXX
+     * @since 1.0.0
      */
     public function getKey();
 
     /**
      * Returns the old key value of the object
      * @return mixed|null
-     * @since XXX
+     * @since 1.0.0
      */
     public function getOldKey();
 
