@@ -1,6 +1,8 @@
 Oauth2 Yii2 Change Log
 ======================
 
+ * Enh: Allow `HttpBearerAuth` and `QueryParamAuth` for method `findIdentityByAccessToken` 
+
 1.0.3 December 16, 2016
 -----------------------
 
