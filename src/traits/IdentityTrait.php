@@ -65,7 +65,7 @@ trait IdentityTrait
     public static function findIdentityByAccessToken($token, $type = null)
     {
         $identity = null;
-        if ($type === 'yii\filters\auth\HttpBearerAuth') {
+        if (($type === 'yii\filters\auth\HttpBearerAuth') || ($type === 'yii\filters\auth\QueryParamAuth')) {
             // handle only bearer tokens
             $oauthServer = Yii::createObject('OAuth2\Server');
             /* @var \OAuth2\Server $oauthServer */
