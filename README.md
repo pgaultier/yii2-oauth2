@@ -111,6 +111,39 @@ Configure Module
 
  * `allowOpenIdConnect` : enable openId connect (default : **false**) // not implemented yet
 
+### CORS
+
+ * `cors` : enable `CORS` on the token endpoint (default : **false**) the CORS part can be defined using an array as described [in Yii documentation](http://www.yiiframework.com/doc-2.0/yii-filters-cors.html)
+ 
+``` php
+ return [
+     //....
+     'bootstrap' => [
+         //....
+         'oauth2',
+         //....
+     ],
+     'modules' => [
+         //....
+         'oauth2' => [
+             'class' => 'sweelix\oauth2\server\Module',
+             'backend' => 'redis',
+             'db' => 'redis',
+             'identityClass' => 'app\models\User', // only if you don't want to use the user identityClass
+             //
+             // Cors parameters example :
+             //
+             'cors' => [
+                'Origin' => ['https://www.myowndomain.com'],
+             ]
+         ],
+         //....
+     ],
+     //....
+ ];
+
+```
+ 
 User identity and Web user
 --------------------------
 
