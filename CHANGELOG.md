@@ -1,6 +1,7 @@
 Oauth2 Yii2 Change Log
 ======================
 
+ * Chg: update dependencies
  * Enh: Adding `CORS` support for `token` endpoint
  * Enh: Allow `HttpBearerAuth` and `QueryParamAuth` for method `findIdentityByAccessToken` 
 
