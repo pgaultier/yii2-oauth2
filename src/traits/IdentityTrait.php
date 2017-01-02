@@ -5,9 +5,9 @@
  * PHP version 5.6+
  *
  * @author Philippe Gaultier <pgaultier@sweelix.net>
- * @copyright 2010-2016 Philippe Gaultier
+ * @copyright 2010-2017 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version 1.0.3
+ * @version 1.1.0
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\traits
  */
@@ -22,9 +22,9 @@ use Yii;
  * Helper to build Identity management
  *
  * @author Philippe Gaultier <pgaultier@sweelix.net>
- * @copyright 2010-2016 Philippe Gaultier
+ * @copyright 2010-2017 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version 1.0.3
+ * @version 1.1.0
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\traits
  * @since 1.0.0
@@ -65,7 +65,7 @@ trait IdentityTrait
     public static function findIdentityByAccessToken($token, $type = null)
     {
         $identity = null;
-        if ($type === 'yii\filters\auth\HttpBearerAuth') {
+        if (($type === 'yii\filters\auth\HttpBearerAuth') || ($type === 'yii\filters\auth\QueryParamAuth')) {
             // handle only bearer tokens
             $oauthServer = Yii::createObject('OAuth2\Server');
             /* @var \OAuth2\Server $oauthServer */

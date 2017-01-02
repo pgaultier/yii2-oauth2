@@ -5,9 +5,9 @@
  * PHP version 5.6+
  *
  * @author Philippe Gaultier <pgaultier@sweelix.net>
- * @copyright 2010-2016 Philippe Gaultier
+ * @copyright 2010-2017 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version 1.0.3
+ * @version 1.1.0
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\models
  */
@@ -22,9 +22,9 @@ use Yii;
  * This is the auth code model
  *
  * @author Philippe Gaultier <pgaultier@sweelix.net>
- * @copyright 2010-2016 Philippe Gaultier
+ * @copyright 2010-2017 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version 1.0.3
+ * @version 1.1.0
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\models
  * @since 1.0.0

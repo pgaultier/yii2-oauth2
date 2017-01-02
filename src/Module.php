@@ -5,9 +5,9 @@
  * PHP version 5.6+
  *
  * @author Philippe Gaultier <pgaultier@sweelix.net>
- * @copyright 2010-2016 Philippe Gaultier
+ * @copyright 2010-2017 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version 1.0.3
+ * @version 1.1.0
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server
  */
@@ -25,9 +25,9 @@ use yii\di\Instance;
  * Oauth2 server Module definition
  *
  * @author Philippe Gaultier <pgaultier@sweelix.net>
- * @copyright 2010-2016 Philippe Gaultier
+ * @copyright 2010-2017 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version 1.0.3
+ * @version 1.1.0
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server
  * @since 1.0.0
@@ -176,6 +176,12 @@ class Module extends BaseModule implements BootstrapInterface
      * @var int duration of login time for multiple authorize calls
      */
     public $loginDuration = 60 * 60 * 24 * 30;
+
+    /**
+     * @var false|array Cors configuration if allowed @see http://www.yiiframework.com/doc-2.0/yii-filters-cors.html
+     */
+    public $cors = false;
+
     /**
      * @inheritdoc
      */
@@ -247,6 +253,7 @@ class Module extends BaseModule implements BootstrapInterface
         } else {
             $app->getUrlManager()->addRules([
                 ['verb' => 'POST', 'pattern' => $this->baseEndPoint.'token', 'route' => $this->id.'/token/index'],
+                ['verb' => 'OPTIONS', 'pattern' => $this->baseEndPoint.'token', 'route' => $this->id.'/token/options'],
                 ['verb' => 'GET', 'pattern' => $this->baseEndPoint.'authorize', 'route' => $this->id.'/authorize/index'],
                 ['pattern' => $this->baseEndPoint.'authorize-login', 'route' => $this->id.'/authorize/login'],
                 ['pattern' => $this->baseEndPoint.'authorize-application', 'route' => $this->id.'/authorize/authorize'],

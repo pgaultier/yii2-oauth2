@@ -5,9 +5,9 @@
  * PHP version 5.6+
  *
  * @author pgaultier
- * @copyright 2010-2016 Philippe Gaultier
+ * @copyright 2010-2017 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version 1.0.3
+ * @version 1.1.0
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\controllers
  */
@@ -17,7 +17,10 @@ namespace sweelix\oauth2\server\controllers;
 use OAuth2\Request as OAuth2Request;
 use OAuth2\Response as OAuth2Response;
 use sweelix\oauth2\server\Module;
+use yii\filters\Cors;
+use yii\helpers\ArrayHelper;
 use yii\rest\Controller;
+use yii\web\MethodNotAllowedHttpException;
 use yii\web\Response;
 use Yii;
 
@@ -25,9 +28,9 @@ use Yii;
  * Oauth2 main controller
  *
  * @author pgaultier
- * @copyright 2010-2016 Philippe Gaultier
+ * @copyright 2010-2017 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version 1.0.3
+ * @version 1.1.0
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\controllers
  * @since 1.0.0
@@ -43,6 +46,19 @@ class TokenController extends Controller
         $behaviors = parent::behaviors();
         unset($behaviors['authenticator']);
         unset($behaviors['rateLimiter']);
+
+        if (Module::getInstance()->cors !== false) {
+            $corsFilter = ArrayHelper::merge([
+                'Access-Control-Request-Method' => ['POST', 'OPTIONS'],
+                'Access-Control-Allow-Credentials' => true,
+                'Access-Control-Max-Age' => 3600,
+            ], Module::getInstance()->cors);
+
+            $behaviors['corsFilter'] = [
+                'class' => Cors::className(),
+                'cors' => $corsFilter,
+            ];
+        }
         return $behaviors;
     }
 
@@ -109,6 +125,20 @@ class TokenController extends Controller
             ];
         }
         return $response;
+    }
+
+    /**
+     * Basic options response for cors
+     * @return null|\yii\web\Response
+     * @since 1.1.0
+     * @throws MethodNotAllowedHttpException
+     */
+    public function actionOptions()
+    {
+        if (Module::getInstance()->cors === false) {
+            throw new MethodNotAllowedHttpException();
+        }
+        return null;
     }
 
     /**
