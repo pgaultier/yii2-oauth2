@@ -176,6 +176,12 @@ class Module extends BaseModule implements BootstrapInterface
      * @var int duration of login time for multiple authorize calls
      */
     public $loginDuration = 60 * 60 * 24 * 30;
+
+    /**
+     * @var false|array Cors configuration if allowed @see http://www.yiiframework.com/doc-2.0/yii-filters-cors.html
+     */
+    public $cors = false;
+
     /**
      * @inheritdoc
      */
