@@ -1,7 +1,7 @@
 Oauth2 Yii2 Change Log
 ======================
 
-1.1.1 January 02, 2017
+1.1.0 January 02, 2017
 ----------------------
 
  * Chg: update dependencies
