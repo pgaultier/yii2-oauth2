@@ -58,4 +58,20 @@ interface RefreshTokenModelInterface extends BaseModelInterface
      * @throws \yii\base\UnknownClassException
      */
     public function delete();
+
+    /**
+     * @param string|integer $userId
+     * @return RefreshTokenModelInterface[]
+     * @since XXX
+     * @throws \yii\base\UnknownClassException
+     */
+    public static function findAllByUserId($userId);
+
+    /**
+     * @param string $clientId
+     * @return RefreshTokenModelInterface[]
+     * @since XXX
+     * @throws \yii\base\UnknownClassException
+     */
+    public static function findAllByClientId($clientId);
 }

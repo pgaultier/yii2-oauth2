@@ -25,6 +25,7 @@ use Yii;
  * This is the access token service for redis
  *  database structure
  *    * oauth2:accessTokens:<aid> : hash (AccessToken)
+ *    * oauth2:users:<uid>:accessTokens : set (AccessToken for user)
  *
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2017 Philippe Gaultier
@@ -38,6 +39,16 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
 {
 
     /**
+     * @var string user namespace (collection for accesstokens)
+     */
+    public $userNamespace = '';
+
+    /**
+     * @var string client namespace (collection for accesstokens)
+     */
+    public $clientNamespace = '';
+
+    /**
      * @param string $aid access token ID
      * @return string access token Key
      * @since 1.0.0
@@ -45,6 +56,26 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
     protected function getAccessTokenKey($aid)
     {
         return $this->namespace . ':' . $aid;
+    }
+
+    /**
+     * @param string $uid user ID
+     * @return string user access tokens collection Key
+     * @since XXX
+     */
+    protected function getUserAccessTokensKey($uid)
+    {
+        return $this->userNamespace . ':' . $uid . ':accessTokens';
+    }
+
+    /**
+     * @param string $cid client ID
+     * @return string client access tokens collection Key
+     * @since XXX
+     */
+    protected function getClientAccessTokensKey($cid)
+    {
+        return $this->clientNamespace . ':' . $cid . ':accessTokens';
     }
 
     /**
@@ -76,7 +107,15 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
         if (!$accessToken->beforeSave(true)) {
             return $result;
         }
-        $accessTokenKey = $this->getAccessTokenKey($accessToken->getKey());
+        $accessTokenId = $accessToken->getKey();
+        $accessTokenKey = $this->getAccessTokenKey($accessTokenId);
+        if (empty($accessToken->userId) === false) {
+            $userAccessTokensKey = $this->getUserAccessTokensKey($accessToken->userId);
+        } else {
+            $userAccessTokensKey = null;
+        }
+        $clientAccessTokensKey = $this->getClientAccessTokensKey($accessToken->clientId);
+
         //check if record exists
         $entityStatus = (int)$this->db->executeCommand('EXISTS', [$accessTokenKey]);
         if ($entityStatus === 1) {
@@ -98,6 +137,10 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
         if ($transaction === true) {
             try {
                 $this->db->executeCommand('HMSET', $redisParameters);
+                if ($userAccessTokensKey !== null) {
+                    $this->db->executeCommand('SADD', [$userAccessTokensKey, $accessTokenId]);
+                }
+                $this->db->executeCommand('SADD', [$clientAccessTokensKey, $accessTokenId]);
                 $this->db->executeCommand('EXEC');
             } catch (DatabaseException $e) {
                 // @codeCoverageIgnoreStart
@@ -135,6 +178,12 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
         $accessTokenId = isset($values[$modelKey]) ? $values[$modelKey] : $accessToken->getKey();
         $accessTokenKey = $this->getAccessTokenKey($accessTokenId);
 
+        if (empty($accessToken->userId) === false) {
+            $userAccessTokensKey = $this->getUserAccessTokensKey($accessToken->userId);
+        } else {
+            $userAccessTokensKey = null;
+        }
+        $clientAccessTokensKey = $this->getClientAccessTokensKey($accessToken->clientId);
 
         if (isset($values[$modelKey]) === true) {
             $newAccessTokenKey = $this->getAccessTokenKey($values[$modelKey]);
@@ -149,8 +198,13 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
             if (array_key_exists($modelKey, $values) === true) {
                 $oldId = $accessToken->getOldKey();
                 $oldAccessTokenKey = $this->getAccessTokenKey($oldId);
-
                 $this->db->executeCommand('RENAMENX', [$oldAccessTokenKey, $accessTokenKey]);
+                if ($userAccessTokensKey !== null) {
+                    $this->db->executeCommand('SREM', [$userAccessTokensKey, $oldAccessTokenKey]);
+                    $this->db->executeCommand('SADD', [$userAccessTokensKey, $accessTokenKey]);
+                }
+                $this->db->executeCommand('SREM', [$clientAccessTokensKey, $oldAccessTokenKey]);
+                $this->db->executeCommand('SADD', [$clientAccessTokensKey, $accessTokenKey]);
             }
 
             $redisUpdateParameters = [$accessTokenKey];
@@ -229,15 +283,58 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
     /**
      * @inheritdoc
      */
+    public function findAllByUserId($userId)
+    {
+        $userAccessTokensKey = $this->getUserAccessTokensKey($userId);
+        $userAccessTokens = $this->db->executeCommand('SMEMBERS', [$userAccessTokensKey]);
+        $accessTokens = [];
+        if ((is_array($userAccessTokens) === true) && (count($userAccessTokens) > 0)) {
+            foreach($userAccessTokens as $userAccessTokenId) {
+                $accessTokens[] = $this->findOne($userAccessTokenId);
+            }
+        }
+        return $accessTokens;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function findAllByClientId($clientId)
+    {
+        $clientAccessTokensKey = $this->getClientAccessTokensKey($clientId);
+        $clientAccessTokens = $this->db->executeCommand('SMEMBERS', [$clientAccessTokensKey]);
+        $accessTokens = [];
+        if ((is_array($clientAccessTokens) === true) && (count($clientAccessTokens) > 0)) {
+            foreach($clientAccessTokens as $clientAccessTokenId) {
+                $accessTokens[] = $this->findOne($clientAccessTokenId);
+            }
+        }
+        return $accessTokens;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function delete(AccessTokenModelInterface $accessToken)
     {
         $result = false;
         if ($accessToken->beforeDelete()) {
+            if (empty($accessToken->userId) === false) {
+                $userAccessTokensKey = $this->getUserAccessTokensKey($accessToken->userId);
+            } else {
+                $userAccessTokensKey = null;
+            }
+            $clientAccessTokensKey = $this->getClientAccessTokensKey($accessToken->userId);
+
             $this->db->executeCommand('MULTI');
             $id = $accessToken->getOldKey();
             $accessTokenKey = $this->getAccessTokenKey($id);
 
             $this->db->executeCommand('DEL', [$accessTokenKey]);
+            if ($userAccessTokensKey !== null) {
+                $this->db->executeCommand('SREM', [$userAccessTokensKey, $id]);
+            }
+            $this->db->executeCommand('SREM', [$clientAccessTokensKey, $id]);
             //TODO: check results to return correct information
             $queryResult = $this->db->executeCommand('EXEC');
             $accessToken->setIsNewRecord(true);

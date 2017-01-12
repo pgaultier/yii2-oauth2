@@ -43,6 +43,18 @@ class OauthAccessTokenStorageTest extends TestCase
         $this->assertTrue(is_array($insertedAccessToken->scopes)) ;
         $this->assertTrue(empty($insertedAccessToken->scopes));
 
+        $accessTokens = AccessToken::findAllByUserId('user1');
+        $this->assertTrue(is_array($accessTokens));
+        $this->assertEquals(1, count($accessTokens));
+
+        $this->assertInstanceOf(AccessToken::className(), $accessTokens[0]);
+        $this->assertEquals($accessToken->id, $accessTokens[0]->id);
+        $this->assertEquals($accessToken->clientId, $accessTokens[0]->clientId);
+        $this->assertEquals($accessToken->userId, $accessTokens[0]->userId);
+        $this->assertEquals($accessToken->expiry, $accessTokens[0]->expiry);
+        $this->assertTrue(is_array($accessTokens[0]->scopes)) ;
+        $this->assertTrue(empty($accessTokens[0]->scopes));
+
         $this->populateScopes();
 
         $accessToken = Yii::createObject('sweelix\oauth2\server\interfaces\AccessTokenModelInterface');
@@ -55,20 +67,40 @@ class OauthAccessTokenStorageTest extends TestCase
         $accessToken->scopes = ['basic'];
         $this->assertTrue($accessToken->save());
 
-        $accessToken = Yii::createObject('sweelix\oauth2\server\interfaces\AccessTokenModelInterface');
-        /* @var AccessToken $accessToken */
-        $this->assertInstanceOf(AccessToken::className(), $accessToken);
-        $accessToken->id = 'accessToken3';
-        $accessToken->clientId = 'client1';
-        $accessToken->userId = 'user1';
-        $accessToken->expiry = 1234;
-        $accessToken->scopes = ['fail'];
-        $this->assertFalse($accessToken->save());
+        $newAccessToken = Yii::createObject('sweelix\oauth2\server\interfaces\AccessTokenModelInterface');
+        /* @var AccessToken $newAccessToken */
+        $this->assertInstanceOf(AccessToken::className(), $newAccessToken);
+        $newAccessToken->id = 'accessToken3';
+        $newAccessToken->clientId = 'client1';
+        $newAccessToken->userId = 'user1';
+        $newAccessToken->expiry = 1234;
+        $newAccessToken->scopes = ['fail'];
+        $this->assertFalse($newAccessToken->save());
 
-        $accessToken->scopes = ['basic'];
-        $accessToken->id = 'accessToken2';
+        $accessTokens = AccessToken::findAllByUserId('user1');
+        $this->assertTrue(is_array($accessTokens));
+        $this->assertEquals(2, count($accessTokens));
+
+        $accessTokens = AccessToken::findAllByClientId('client1');
+        $this->assertTrue(is_array($accessTokens));
+        $this->assertEquals(2, count($accessTokens));
+
+        $newAccessToken->scopes = ['basic'];
+        $newAccessToken->id = 'accessToken2';
         $this->expectException(DuplicateKeyException::class);
-        $accessToken->save();
+        $newAccessToken->save();
+
+    }
+
+    public function testFindAll()
+    {
+        $accessTokens = AccessToken::findAllByClientId('client1');
+        $this->assertTrue(is_array($accessTokens));
+        $this->assertEquals(0, count($accessTokens));
+
+        $accessTokens = AccessToken::findAllByUserId('user1');
+        $this->assertTrue(is_array($accessTokens));
+        $this->assertEquals(0, count($accessTokens));
 
     }
 

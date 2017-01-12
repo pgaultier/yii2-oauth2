@@ -48,4 +48,16 @@ interface AccessTokenServiceInterface
      */
     public function delete(AccessTokenModelInterface $accessToken);
 
+    /**
+     * @param string $userId
+     * @return AccessTokenModelInterface[]
+     */
+    public function findAllByUserId($userId);
+
+    /**
+     * @param string $clientId
+     * @return AccessTokenModelInterface[]
+     */
+    public function findAllByClientId($userId);
+
 }

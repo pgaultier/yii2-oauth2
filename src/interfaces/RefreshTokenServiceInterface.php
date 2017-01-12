@@ -48,4 +48,16 @@ interface RefreshTokenServiceInterface
      */
     public function delete(RefreshTokenModelInterface $refreshToken);
 
+    /**
+     * @param string $userId
+     * @return RefreshTokenModelInterface[]
+     */
+    public function findAllByUserId($userId);
+
+    /**
+     * @param string $clientId
+     * @return RefreshTokenModelInterface[]
+     */
+    public function findAllByClientId($userId);
+
 }
