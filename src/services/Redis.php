@@ -47,6 +47,8 @@ class Redis implements ServiceBootstrapInterface
             Yii::$container->setSingleton('sweelix\oauth2\server\interfaces\AccessTokenServiceInterface', [
                 'class' => AccessTokenService::className(),
                 'namespace' => 'oauth2:accessTokens',
+                'userNamespace' => 'oauth2:users',
+                'clientNamespace' => 'oauth2:clients',
             ]);
         }
         if (Yii::$container->hasSingleton('sweelix\oauth2\server\interfaces\AuthCodeServiceInterface') === false) {
@@ -83,6 +85,8 @@ class Redis implements ServiceBootstrapInterface
             Yii::$container->setSingleton('sweelix\oauth2\server\interfaces\RefreshTokenServiceInterface', [
                 'class' => RefreshTokenService::className(),
                 'namespace' => 'oauth2:refreshTokens',
+                'userNamespace' => 'oauth2:users',
+                'clientNamespace' => 'oauth2:clients',
             ]);
         }
         if (Yii::$container->hasSingleton('sweelix\oauth2\server\interfaces\ScopeServiceInterface') === false) {

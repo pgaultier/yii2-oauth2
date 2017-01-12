@@ -1,6 +1,8 @@
 Oauth2 Yii2 Change Log
 ======================
 
+ * Enh: Adding new methods `findAllByUserId()` and `findAllByClientId()` for models `AccessToken` and `RefreshToken`
+
 1.1.0 January 02, 2017
 ----------------------
 

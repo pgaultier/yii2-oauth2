@@ -42,6 +42,18 @@ class OauthRefreshTokenStorageTest extends TestCase
         $this->assertTrue(is_array($insertedRefreshToken->scopes)) ;
         $this->assertTrue(empty($insertedRefreshToken->scopes));
 
+        $refreshTokens = RefreshToken::findAllByUserId('user1');
+        $this->assertTrue(is_array($refreshTokens));
+        $this->assertEquals(1, count($refreshTokens));
+
+        $this->assertInstanceOf(RefreshToken::className(), $refreshTokens[0]);
+        $this->assertEquals($refreshToken->id, $refreshTokens[0]->id);
+        $this->assertEquals($refreshToken->clientId, $refreshTokens[0]->clientId);
+        $this->assertEquals($refreshToken->userId, $refreshTokens[0]->userId);
+        $this->assertEquals($refreshToken->expiry, $refreshTokens[0]->expiry);
+        $this->assertTrue(is_array($refreshTokens[0]->scopes)) ;
+        $this->assertTrue(empty($refreshTokens[0]->scopes));
+
         $this->populateScopes();
 
         $refreshToken = Yii::createObject('sweelix\oauth2\server\interfaces\RefreshTokenModelInterface');
@@ -64,10 +76,30 @@ class OauthRefreshTokenStorageTest extends TestCase
         $refreshToken->scopes = ['fail'];
         $this->assertFalse($refreshToken->save());
 
+        $refreshTokens = RefreshToken::findAllByUserId('user1');
+        $this->assertTrue(is_array($refreshTokens));
+        $this->assertEquals(2, count($refreshTokens));
+
+        $refreshTokens = RefreshToken::findAllByClientId('client1');
+        $this->assertTrue(is_array($refreshTokens));
+        $this->assertEquals(2, count($refreshTokens));
+
         $refreshToken->scopes = ['basic'];
         $refreshToken->id = 'refreshToken2';
         $this->expectException(DuplicateKeyException::class);
         $refreshToken->save();
+
+    }
+
+    public function testFindAll()
+    {
+        $refreshTokens = RefreshToken::findAllByClientId('client1');
+        $this->assertTrue(is_array($refreshTokens));
+        $this->assertEquals(0, count($refreshTokens));
+
+        $refreshTokens = RefreshToken::findAllByUserId('user1');
+        $this->assertTrue(is_array($refreshTokens));
+        $this->assertEquals(0, count($refreshTokens));
 
     }
 
