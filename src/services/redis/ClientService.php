@@ -26,6 +26,7 @@ use Yii;
  *  database structure
  *    * oauth2:clients:<cid> : hash (Client)
  *    * oauth2:clients:<cid>:users : set
+ *    * oauth2:users:<uid>:clients : set
  *
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2017 Philippe Gaultier
@@ -37,6 +38,11 @@ use Yii;
  */
 class ClientService extends BaseService implements ClientServiceInterface
 {
+
+    /**
+     * @var string user namespace (collection for clients)
+     */
+    public $userNamespace = '';
 
     /**
      * @param string $cid client ID
@@ -56,6 +62,16 @@ class ClientService extends BaseService implements ClientServiceInterface
     protected function getClientUsersListKey($cid)
     {
         return $this->namespace . ':' . $cid . ':users';
+    }
+
+    /**
+     * @param string $uid user ID
+     * @return string user clients collection Key
+     * @since XXX
+     */
+    protected function getUserClientsListKey($uid)
+    {
+        return $this->userNamespace . ':' . $uid . ':clients';
     }
 
     /**
@@ -244,11 +260,19 @@ class ClientService extends BaseService implements ClientServiceInterface
     {
         $result = false;
         if ($client->beforeDelete()) {
-            $this->db->executeCommand('MULTI');
             $id = $client->getOldKey();
             $clientKey = $this->getClientKey($id);
+            $clientUsersListKey = $this->getClientUsersListKey($id);
+            $usersList = $this->db->executeCommand('SMEMBERS', [$clientUsersListKey]);
 
+            $this->db->executeCommand('MULTI');
+            // remove client from all userClient sets
+            foreach($usersList as $user) {
+                $userClientKey = $this->getUserClientsListKey($user);
+                $this->db->executeCommand('SREM', [$userClientKey, $id]);
+            }
             $this->db->executeCommand('DEL', [$clientKey]);
+            $this->db->executeCommand('DEL', [$clientUsersListKey]);
             //TODO: check results to return correct information
             $queryResult = $this->db->executeCommand('EXEC');
             $client->setIsNewRecord(true);
@@ -275,7 +299,11 @@ class ClientService extends BaseService implements ClientServiceInterface
     {
         $key = $client->getKey();
         $clientUsersListKey = $this->getClientUsersListKey($key);
+        $userClientsListKey = $this->getUserClientsListKey($userId);
+        $this->db->executeCommand('MULTI');
         $this->db->executeCommand('SADD', [$clientUsersListKey, $userId]);
+        $this->db->executeCommand('SADD', [$userClientsListKey, $key]);
+        $queryResult = $this->db->executeCommand('EXEC');
         //TODO: check if we should send back false or not
         return true;
     }
@@ -287,9 +315,30 @@ class ClientService extends BaseService implements ClientServiceInterface
     {
         $key = $client->getKey();
         $clientUsersListKey = $this->getClientUsersListKey($key);
+        $userClientsListKey = $this->getUserClientsListKey($userId);
+        $this->db->executeCommand('MULTI');
         $this->db->executeCommand('SREM', [$clientUsersListKey, $userId]);
+        $this->db->executeCommand('SREM', [$userClientsListKey, $key]);
+        $queryResult = $this->db->executeCommand('EXEC');
         //TODO: check if we should send back false or not
         return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function findAllByUserId($userId)
+    {
+        $userClientsListKey = $this->getUserClientsListKey($userId);
+        $clientsList = $this->db->executeCommand('SMEMBERS', [$userClientsListKey]);
+        $clients = [];
+        foreach($clientsList as $clientId) {
+            $result = $this->findOne($clientId);
+            if ($result instanceof ClientModelInterface) {
+                $clients[] = $result;
+            }
+        }
+        return $clients;
     }
 
 }

@@ -3,6 +3,7 @@ Oauth2 Yii2 Change Log
 
  * Chg: update dependencies
  * Enh: Adding new methods `findAllByUserId()` and `findAllByClientId()` for models `AccessToken` and `RefreshToken`
+ * Enh: Adding new methods `hasUser()`, `addUser()`, `removeUser()` and `findAllByUserId()` from model `Client`
 
 1.1.0 January 02, 2017
 ----------------------

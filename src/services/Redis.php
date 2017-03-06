@@ -61,6 +61,7 @@ class Redis implements ServiceBootstrapInterface
             Yii::$container->setSingleton('sweelix\oauth2\server\interfaces\ClientServiceInterface', [
                 'class' => ClientService::className(),
                 'namespace' => 'oauth2:clients',
+                'userNamespace' => 'oauth2:users',
             ]);
         }
         if (Yii::$container->hasSingleton('sweelix\oauth2\server\interfaces\CypherKeyServiceInterface') === false) {
