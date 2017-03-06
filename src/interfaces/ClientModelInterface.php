@@ -82,4 +82,11 @@ interface ClientModelInterface extends BaseModelInterface
      * @since 1.0.0
      */
     public function removeUser($userId);
+
+    /**
+     * @param $userId
+     * @return ClientModelInterface[]
+     * @since XXX
+     */
+    public static function findAllByUserId($userId);
 }

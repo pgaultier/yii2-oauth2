@@ -68,4 +68,10 @@ interface ClientServiceInterface
      * @return bool
      */
     public function removeUser(ClientModelInterface $client, $userId);
+
+    /**
+     * @param string $userId
+     * @return ClientModelInterface[]
+     */
+    public function findAllByUserId($userId);
 }
