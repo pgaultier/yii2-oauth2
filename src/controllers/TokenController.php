@@ -109,7 +109,7 @@ class TokenController extends Controller
                 break;
             case 'urn:ietf:params:oauth:grant-type:jwt-bearer':
                 $grantIsValid = true;
-                $oauthGrantType = Yii::createObject('OAuth2\GrantType\RefreshToken');
+                $oauthGrantType = Yii::createObject('OAuth2\GrantType\JwtBearer');
                 /* @var \OAuth2\GrantType\JwtBearer $oauthGrantType */
                 $oauthServer->addGrantType($oauthGrantType);
                 break;
