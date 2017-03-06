@@ -102,7 +102,7 @@ class ClientController extends Controller
                 $this->stdout(' - id: ' . $client->id . "\n");
                 $this->stdout(' - secret: ' . $client->secret . "\n");
                 $this->stdout(' - name: ' . $client->name . "\n");
-                $this->stdout(' - redirectUri: ' . $client->redirectUri . "\n");
+                $this->stdout(' - redirectUri: ' . implode(',', $client->redirectUri) . "\n");
                 return Controller::EXIT_CODE_NORMAL;
             } else {
                 $this->stdout('Client cannot be updated.'."\n");
