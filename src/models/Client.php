@@ -179,4 +179,12 @@ class Client extends BaseModel implements ClientModelInterface
         return self::getDataService()->removeUser($this, $userId);
     }
 
+    /**
+     * @inheritdoc
+     */
+    public static function findAllByUserId($userId)
+    {
+        return self::getDataService()->findAllByUserId($userId);
+    }
+
 }
