@@ -126,8 +126,12 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
         $values = $refreshToken->getDirtyAttributes($attributes);
         $redisParameters = [$refreshTokenKey];
         $this->setAttributesDefinitions($refreshToken->attributesDefinition());
+        $expire = null;
         foreach ($values as $key => $value)
         {
+            if (($key === 'expiry') && ($value > 0)) {
+                $expire = $value;
+            }
             if ($value !== null) {
                 $redisParameters[] = $key;
                 $redisParameters[] = $this->convertToDatabase($key, $value);
@@ -138,6 +142,9 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
         if ($transaction === true) {
             try {
                 $this->db->executeCommand('HMSET', $redisParameters);
+                if ($expire !== null) {
+                    $this->db->executeCommand('EXPIREAT', [$refreshTokenKey, $expire]);
+                }
                 if ($userRefreshTokensKey !== null) {
                     $this->db->executeCommand('SADD', [$userRefreshTokensKey, $refreshTokenId]);
                 }
@@ -212,11 +219,18 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
             $redisUpdateParameters = [$refreshTokenKey];
             $redisDeleteParameters = [$refreshTokenKey];
             $this->setAttributesDefinitions($refreshToken->attributesDefinition());
+            $expire = null;
             foreach ($values as $key => $value)
             {
                 if ($value === null) {
+                    if ($key === 'expiry') {
+                        $expire = false;
+                    }
                     $redisDeleteParameters[] = $key;
                 } else {
+                    if (($key === 'expiry') && ($value > 0)) {
+                        $expire = $value;
+                    }
                     $redisUpdateParameters[] = $key;
                     $redisUpdateParameters[] = $this->convertToDatabase($key, $value);
                 }
@@ -226,6 +240,11 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
             }
             if (count($redisUpdateParameters) > 1) {
                 $this->db->executeCommand('HMSET', $redisUpdateParameters);
+            }
+            if ($expire === false) {
+                $this->db->executeCommand('PERSIST', [$refreshTokenKey]);
+            } elseif ($expire > 0) {
+                $this->db->executeCommand('EXPIREAT', [$refreshTokenKey, $expire]);
             }
 
             $this->db->executeCommand('EXEC');
