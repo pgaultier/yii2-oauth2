@@ -25,6 +25,8 @@ use Yii;
  * This is the refresh token service for redis
  *  database structure
  *    * oauth2:refreshTokens:<rid> : hash (RefreshToken)
+ *    * oauth2:users:<uid>:refreshTokens : set (RefreshTokens for user)
+ *    * oauth2:clients:<cid>:refreshTokens : set (RefreshTokens for client)
  *
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2017 Philippe Gaultier
@@ -124,8 +126,12 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
         $values = $refreshToken->getDirtyAttributes($attributes);
         $redisParameters = [$refreshTokenKey];
         $this->setAttributesDefinitions($refreshToken->attributesDefinition());
+        $expire = null;
         foreach ($values as $key => $value)
         {
+            if (($key === 'expiry') && ($value > 0)) {
+                $expire = $value;
+            }
             if ($value !== null) {
                 $redisParameters[] = $key;
                 $redisParameters[] = $this->convertToDatabase($key, $value);
@@ -136,6 +142,9 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
         if ($transaction === true) {
             try {
                 $this->db->executeCommand('HMSET', $redisParameters);
+                if ($expire !== null) {
+                    $this->db->executeCommand('EXPIREAT', [$refreshTokenKey, $expire]);
+                }
                 if ($userRefreshTokensKey !== null) {
                     $this->db->executeCommand('SADD', [$userRefreshTokensKey, $refreshTokenId]);
                 }
@@ -210,11 +219,18 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
             $redisUpdateParameters = [$refreshTokenKey];
             $redisDeleteParameters = [$refreshTokenKey];
             $this->setAttributesDefinitions($refreshToken->attributesDefinition());
+            $expire = null;
             foreach ($values as $key => $value)
             {
                 if ($value === null) {
+                    if ($key === 'expiry') {
+                        $expire = false;
+                    }
                     $redisDeleteParameters[] = $key;
                 } else {
+                    if (($key === 'expiry') && ($value > 0)) {
+                        $expire = $value;
+                    }
                     $redisUpdateParameters[] = $key;
                     $redisUpdateParameters[] = $this->convertToDatabase($key, $value);
                 }
@@ -224,6 +240,11 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
             }
             if (count($redisUpdateParameters) > 1) {
                 $this->db->executeCommand('HMSET', $redisUpdateParameters);
+            }
+            if ($expire === false) {
+                $this->db->executeCommand('PERSIST', [$refreshTokenKey]);
+            } elseif ($expire > 0) {
+                $this->db->executeCommand('EXPIREAT', [$refreshTokenKey, $expire]);
             }
 
             $this->db->executeCommand('EXEC');
@@ -299,6 +320,21 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
     /**
      * @inheritdoc
      */
+    public function deleteAllByUserId($userId)
+    {
+        $userRefreshTokensKey = $this->getUserRefreshTokensKey($userId);
+        $userRefreshTokens = $this->db->executeCommand('SMEMBERS', [$userRefreshTokensKey]);
+        $userRefreshTokenKeys = [$userRefreshTokensKey];
+        foreach ($userRefreshTokens as $userRefreshToken) {
+            $userRefreshTokenKeys[] = $this->getRefreshTokenKey($userRefreshToken);
+        }
+        $this->db->executeCommand('DEL', $userRefreshTokenKeys);
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function findAllByClientId($clientId)
     {
         $clientRefreshTokensKey = $this->getClientRefreshTokensKey($clientId);
@@ -311,6 +347,22 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
         }
         return $refreshTokens;
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function deleteAllByClientId($clientId)
+    {
+        $clientRefreshTokensKey = $this->getClientRefreshTokensKey($clientId);
+        $clientRefreshTokens = $this->db->executeCommand('SMEMBERS', [$clientRefreshTokensKey]);
+        $clientRefreshTokenKeys = [$clientRefreshTokensKey];
+        foreach ($clientRefreshTokens as $clientRefreshToken) {
+            $clientRefreshTokenKeys[] = $this->getRefreshTokenKey($clientRefreshToken);
+        }
+        $this->db->executeCommand('DEL', $clientRefreshTokenKeys);
+        return true;
+    }
+
 
     /**
      * @inheritdoc

@@ -194,6 +194,16 @@ class Module extends BaseModule implements BootstrapInterface
     public $loginDuration = 60 * 60 * 24 * 30;
 
     /**
+     * @var bool configure authorization code (enforce_redirect)
+     */
+    public $enforceRedirect = false;
+
+    /**
+     * @var int configure authorization code (auth_code_lifetime)
+     */
+    public $authorizationCodeTTL = 30;
+
+    /**
      * @var false|array Cors configuration if allowed @see http://www.yiiframework.com/doc-2.0/yii-filters-cors.html
      */
     public $cors = false;

@@ -55,9 +55,21 @@ interface RefreshTokenServiceInterface
     public function findAllByUserId($userId);
 
     /**
+     * @param string $userId
+     * @return bool
+     */
+    public function deleteAllByUserId($userId);
+
+    /**
      * @param string $clientId
      * @return RefreshTokenModelInterface[]
      */
-    public function findAllByClientId($userId);
+    public function findAllByClientId($clientId);
+
+    /**
+     * @param string $clientId
+     * @return bool
+     */
+    public function deleteAllByClientId($clientId);
 
 }

@@ -6,6 +6,7 @@ Oauth2 Yii2 Change Log
  * Enh: Adding new methods `hasUser()`, `addUser()`, `removeUser()` and `findAllByUserId()` from model `Client`
  * Enh: Allow oauth2 `user` to be fully decoupled from app `user` 
  * Fix: Fix Jwt token
+ * Enh: Enable redis automatic expire for `AccessToken`, `RefreshToken` and `AuthorizationCode`
 
 1.1.0 January 02, 2017
 ----------------------

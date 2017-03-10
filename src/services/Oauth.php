@@ -107,6 +107,8 @@ class Oauth implements ServiceBootstrapInterface
             'allow_public_clients' => $module->allowPublicClients,
             'always_issue_new_refresh_token' => $module->alwaysIssueNewRefreshToken,
             'unset_refresh_token_after_use' => $module->unsetRefreshTokenAfterUse,
+            'enforce_redirect' => $module->enforceRedirect,
+            'auth_code_lifetime' => $module->authorizationCodeTTL,
         ];
         if (is_array($config) === false) {
             $config = [];

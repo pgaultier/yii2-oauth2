@@ -114,6 +114,11 @@ Configure Module
 
  * `allowOpenIdConnect` : enable openId connect (default : **false**) // not implemented yet
 
+### Authorization Code parameters
+
+ * `enforceRedirect` : enforce redirect parameter (default to **false**)
+ * `authorizationCodeTTL` : TTL of authorization code (default to **30**)
+
 ### CORS
 
  * `cors` : enable `CORS` on the token endpoint (default : **false**) the CORS part can be defined using an array as described [in Yii documentation](http://www.yiiframework.com/doc-2.0/yii-filters-cors.html)
@@ -386,6 +391,8 @@ Yii::$container->set('sweelix\oauth2\server\interfaces\ClientModelInterface', [
  * `AccessToken::findOne($id)` - Find accessToken by ID
  * `AccessToken::findAllByUserId($id)` - Find all accessTokens for user (userId)
  * `AccessToken::findAllByClientId($id)` - Find all accessTokens for client (clientId)
+ * `AccessToken::deleteAllByUserId($id)` - Delete all accessTokens for user (userId)
+ * `AccessToken::deleteAllByClientId($id)` - Delete all accessTokens for client (clientId)
  * `$accessToken->save()` - Save accessToken
  * `$accessToken->delete()` - Delete accessToken
 
@@ -394,6 +401,8 @@ Yii::$container->set('sweelix\oauth2\server\interfaces\ClientModelInterface', [
  * `RefreshToken::findOne($id)` - Find accessToken by ID
  * `RefreshToken::findAllByUserId($id)` - Find all refreshTokens for user (userId)
  * `RefreshToken::findAllByClientId($id)` - Find all refreshTokens for client (clientId)
+ * `RefreshToken::deleteAllByUserId($id)` - Delete all refreshTokens for user (userId)
+ * `RefreshToken::deleteAllByClientId($id)` - Delete all refreshTokens for client (clientId)
  * `$refreshToken->save()` - Save refreshToken
  * `$refreshToken->delete()` - Delete refreshToken
 
