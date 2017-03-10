@@ -37,6 +37,7 @@ class MockUser implements UserModelInterface
     public $id;
     public $username;
     public $password;
+    private $authKey = 'demoauthkey';
 
     public function getId()
     {
@@ -86,11 +87,11 @@ class MockUser implements UserModelInterface
 
     public function validateAuthKey($authKey)
     {
-        throw new NotSupportedException();
+        return $this->getAuthKey() === $authKey;
     }
 
     public function getAuthKey()
     {
-        throw new NotSupportedException();
+        return $this->authKey;
     }
 }
