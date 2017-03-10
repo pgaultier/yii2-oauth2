@@ -66,6 +66,9 @@ Configure Module
  * `backend` : can only be **redis** for the moment
  * `db` : id of the redis component or connection or connection configuration
  * `identityClass` : user class used to link oauth2 authorization system default to user component `identityClass`
+ * `webUserParamId` : allow separation between main app user (session) and module app user, (default to **__oauth2**)
+ * `identityCookieName` : allow separation between main app user (cookie) and module app user, (default to **oauth2**)
+ * `webUser` : allow full management of module web user, (default to **[]**)
  * `baseEndPoint` : base path for token and authorize endpoints default to `''`
     * Token endpoint https://host.xxx/token
     * Authorize endpoint https://host.xxx/authorize
