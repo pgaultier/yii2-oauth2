@@ -3,6 +3,8 @@
 namespace tests\unit;
 use OAuth2\Storage\RefreshTokenInterface;
 use sweelix\oauth2\server\exceptions\DuplicateKeyException;
+use sweelix\oauth2\server\interfaces\ClientModelInterface;
+use sweelix\oauth2\server\models\Client;
 use sweelix\oauth2\server\models\RefreshToken;
 use Yii;
 /**
@@ -96,6 +98,132 @@ class OauthRefreshTokenStorageTest extends TestCase
         $refreshTokens = RefreshToken::findAllByClientId('client1');
         $this->assertTrue(is_array($refreshTokens));
         $this->assertEquals(0, count($refreshTokens));
+
+        $refreshTokens = RefreshToken::findAllByUserId('user1');
+        $this->assertTrue(is_array($refreshTokens));
+        $this->assertEquals(0, count($refreshTokens));
+
+    }
+
+    public function testDeleteAllByClientId()
+    {
+        $client1 = Yii::createObject('sweelix\oauth2\server\interfaces\ClientModelInterface');
+        /* @var ClientModelInterface $client1 */
+        $this->assertInstanceOf(ClientModelInterface::class, $client1);
+        $client1->id = 'client1';
+        $client1->secret = 'secret1';
+        $client1->isPublic = true;
+        $client1->grantTypes = [];
+        $client1->userId = 'uid';
+        $client1->scopes = [];
+        $client1->name = 'Test client';
+        $this->assertTrue($client1->save());
+
+        $this->populateScopes();
+
+        $refreshToken = Yii::createObject('sweelix\oauth2\server\interfaces\RefreshTokenModelInterface');
+        /* @var RefreshToken $refreshToken */
+        $this->assertInstanceOf(RefreshToken::className(), $refreshToken);
+        $refreshToken->id = 'refreshToken1';
+        $refreshToken->clientId = 'client1';
+        $refreshToken->userId = 'user1';
+        $refreshToken->expiry = 1234;
+        $refreshToken->scopes = ['basic'];
+        $this->assertTrue($refreshToken->save());
+
+        $refreshToken = Yii::createObject('sweelix\oauth2\server\interfaces\RefreshTokenModelInterface');
+        /* @var RefreshToken $refreshToken */
+        $this->assertInstanceOf(RefreshToken::className(), $refreshToken);
+        $refreshToken->id = 'refreshToken2';
+        $refreshToken->clientId = 'client1';
+        $refreshToken->userId = 'user1';
+        $refreshToken->expiry = 1234;
+        $refreshToken->scopes = ['basic'];
+        $this->assertTrue($refreshToken->save());
+
+        $refreshTokens = RefreshToken::findAllByClientId('client1');
+        $this->assertTrue(is_array($refreshTokens));
+        $this->assertEquals(2, count($refreshTokens));
+
+        $this->assertTrue(RefreshToken::deleteAllByClientId('client2'));
+
+        $refreshTokens = RefreshToken::findAllByClientId('client1');
+        $this->assertTrue(is_array($refreshTokens));
+        $this->assertEquals(2, count($refreshTokens));
+
+        $this->assertTrue(RefreshToken::deleteAllByClientId('client1'));
+
+        $refreshTokens = RefreshToken::findAllByClientId('client1');
+        $this->assertTrue(is_array($refreshTokens));
+        $this->assertEquals(0, count($refreshTokens));
+
+        $client = Client::findOne('client1');
+        $this->assertInstanceOf(Client::className(), $client);
+
+        $this->assertTrue(RefreshToken::deleteAllByClientId('client1'));
+
+        $refreshTokens = RefreshToken::findAllByClientId('client1');
+        $this->assertTrue(is_array($refreshTokens));
+        $this->assertEquals(0, count($refreshTokens));
+
+    }
+
+    public function testDeleteAllByUserId()
+    {
+        $client1 = Yii::createObject('sweelix\oauth2\server\interfaces\ClientModelInterface');
+        /* @var ClientModelInterface $client1 */
+        $this->assertInstanceOf(ClientModelInterface::class, $client1);
+        $client1->id = 'client1';
+        $client1->secret = 'secret1';
+        $client1->isPublic = true;
+        $client1->grantTypes = [];
+        $client1->userId = 'uid';
+        $client1->scopes = [];
+        $client1->name = 'Test client';
+        $this->assertTrue($client1->save());
+
+        $this->populateScopes();
+
+        $refreshToken = Yii::createObject('sweelix\oauth2\server\interfaces\RefreshTokenModelInterface');
+        /* @var RefreshToken $refreshToken */
+        $this->assertInstanceOf(RefreshToken::className(), $refreshToken);
+        $refreshToken->id = 'refreshToken1';
+        $refreshToken->clientId = 'client1';
+        $refreshToken->userId = 'user1';
+        $refreshToken->expiry = 1234;
+        $refreshToken->scopes = ['basic'];
+        $this->assertTrue($refreshToken->save());
+
+        $refreshToken = Yii::createObject('sweelix\oauth2\server\interfaces\RefreshTokenModelInterface');
+        /* @var RefreshToken $refreshToken */
+        $this->assertInstanceOf(RefreshToken::className(), $refreshToken);
+        $refreshToken->id = 'refreshToken2';
+        $refreshToken->clientId = 'client1';
+        $refreshToken->userId = 'user1';
+        $refreshToken->expiry = 1234;
+        $refreshToken->scopes = ['basic'];
+        $this->assertTrue($refreshToken->save());
+
+        $refreshTokens = RefreshToken::findAllByUserId('user1');
+        $this->assertTrue(is_array($refreshTokens));
+        $this->assertEquals(2, count($refreshTokens));
+
+        $this->assertTrue(RefreshToken::deleteAllByUserId('user2'));
+
+        $refreshTokens = RefreshToken::findAllByUserId('user1');
+        $this->assertTrue(is_array($refreshTokens));
+        $this->assertEquals(2, count($refreshTokens));
+
+        $this->assertTrue(RefreshToken::deleteAllByUserId('user1'));
+
+        $refreshTokens = RefreshToken::findAllByUserId('user1');
+        $this->assertTrue(is_array($refreshTokens));
+        $this->assertEquals(0, count($refreshTokens));
+
+        $client = Client::findOne('client1');
+        $this->assertInstanceOf(Client::className(), $client);
+
+        $this->assertTrue(RefreshToken::deleteAllByUserId('user1'));
 
         $refreshTokens = RefreshToken::findAllByUserId('user1');
         $this->assertTrue(is_array($refreshTokens));
