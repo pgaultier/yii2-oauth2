@@ -133,8 +133,25 @@ class RefreshToken extends BaseModel implements RefreshTokenModelInterface
     /**
      * @inheritdoc
      */
+    public static function deleteAllByUserId($userId)
+    {
+        return self::getDataService()->deleteAllByUserId($userId);
+    }
+
+    /**
+     * @inheritdoc
+     */
     public static function findAllByClientId($clientId)
     {
         return self::getDataService()->findAllByClientId($clientId);
     }
+
+    /**
+     * @inheritdoc
+     */
+    public static function deleteAllByClientId($clientId)
+    {
+        return self::getDataService()->deleteAllByClientId($clientId);
+    }
+
 }
