@@ -263,6 +263,17 @@ class ClientService extends BaseService implements ClientServiceInterface
             $id = $client->getOldKey();
             $clientKey = $this->getClientKey($id);
             $clientUsersListKey = $this->getClientUsersListKey($id);
+
+
+            // before cleaning the client, drop all access tokens and refresh tokens
+            $token = Yii::createObject('sweelix\oauth2\server\interfaces\RefreshTokenModelInterface');
+            $tokenClass = get_class($token);
+            $tokenClass::deleteAllByClientId($id);
+
+            $token = Yii::createObject('sweelix\oauth2\server\interfaces\AccessTokenModelInterface');
+            $tokenClass = get_class($token);
+            $tokenClass::deleteAllByClientId($id);
+
             $usersList = $this->db->executeCommand('SMEMBERS', [$clientUsersListKey]);
 
             $this->db->executeCommand('MULTI');

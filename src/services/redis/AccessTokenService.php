@@ -26,6 +26,7 @@ use Yii;
  *  database structure
  *    * oauth2:accessTokens:<aid> : hash (AccessToken)
  *    * oauth2:users:<uid>:accessTokens : set (AccessToken for user)
+ *    * oauth2:clients:<cid>:accessTokens : set (AccessToken for client)
  *
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2017 Philippe Gaultier
@@ -37,7 +38,6 @@ use Yii;
  */
 class AccessTokenService extends BaseService implements AccessTokenServiceInterface
 {
-
     /**
      * @var string user namespace (collection for accesstokens)
      */
@@ -299,6 +299,21 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
     /**
      * @inheritdoc
      */
+    public function deleteAllByUserId($userId)
+    {
+        $userAccessTokensKey = $this->getUserAccessTokensKey($userId);
+        $userAccessTokens = $this->db->executeCommand('SMEMBERS', [$userAccessTokensKey]);
+        $userAccessTokenKeys = [$userAccessTokensKey];
+        foreach ($userAccessTokens as $userAccessToken) {
+            $userAccessTokenKeys[] = $this->getAccessTokenKey($userAccessToken);
+        }
+        $this->db->executeCommand('DEL', $userAccessTokenKeys);
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function findAllByClientId($clientId)
     {
         $clientAccessTokensKey = $this->getClientAccessTokensKey($clientId);
@@ -310,6 +325,21 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
             }
         }
         return $accessTokens;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function deleteAllByClientId($clientId)
+    {
+        $clientAccessTokensKey = $this->getClientAccessTokensKey($clientId);
+        $clientAccessTokens = $this->db->executeCommand('SMEMBERS', [$clientAccessTokensKey]);
+        $clientAccessTokenKeys = [$clientAccessTokensKey];
+        foreach ($clientAccessTokens as $clientAccessToken) {
+            $clientAccessTokenKeys[] = $this->getAccessTokenKey($clientAccessToken);
+        }
+        $this->db->executeCommand('DEL', $clientAccessTokenKeys);
+        return true;
     }
 
     /**

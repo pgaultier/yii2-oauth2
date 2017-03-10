@@ -25,6 +25,8 @@ use Yii;
  * This is the refresh token service for redis
  *  database structure
  *    * oauth2:refreshTokens:<rid> : hash (RefreshToken)
+ *    * oauth2:users:<uid>:refreshTokens : set (RefreshTokens for user)
+ *    * oauth2:clients:<cid>:refreshTokens : set (RefreshTokens for client)
  *
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2017 Philippe Gaultier
@@ -299,6 +301,21 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
     /**
      * @inheritdoc
      */
+    public function deleteAllByUserId($userId)
+    {
+        $userRefreshTokensKey = $this->getUserRefreshTokensKey($userId);
+        $userRefreshTokens = $this->db->executeCommand('SMEMBERS', [$userRefreshTokensKey]);
+        $userRefreshTokenKeys = [$userRefreshTokensKey];
+        foreach ($userRefreshTokens as $userRefreshToken) {
+            $userRefreshTokenKeys[] = $this->getRefreshTokenKey($userRefreshToken);
+        }
+        $this->db->executeCommand('DEL', $userRefreshTokenKeys);
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function findAllByClientId($clientId)
     {
         $clientRefreshTokensKey = $this->getClientRefreshTokensKey($clientId);
@@ -311,6 +328,22 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
         }
         return $refreshTokens;
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function deleteAllByClientId($clientId)
+    {
+        $clientRefreshTokensKey = $this->getClientRefreshTokensKey($clientId);
+        $clientRefreshTokens = $this->db->executeCommand('SMEMBERS', [$clientRefreshTokensKey]);
+        $clientRefreshTokenKeys = [$clientRefreshTokensKey];
+        foreach ($clientRefreshTokens as $clientRefreshToken) {
+            $clientRefreshTokenKeys[] = $this->getRefreshTokenKey($clientRefreshToken);
+        }
+        $this->db->executeCommand('DEL', $clientRefreshTokenKeys);
+        return true;
+    }
+
 
     /**
      * @inheritdoc
