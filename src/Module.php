@@ -20,6 +20,7 @@ use yii\base\Module as BaseModule;
 use yii\console\Application as ConsoleApplication;
 use Yii;
 use yii\di\Instance;
+use yii\helpers\ArrayHelper;
 
 /**
  * Oauth2 server Module definition
@@ -61,6 +62,21 @@ class Module extends BaseModule implements BootstrapInterface
      * @var string|array user class definition.
      */
     public $identityClass;
+
+    /**
+     * @var string used to separate user session between this module and current application
+     */
+    public $webUserParamId = '__oauth2';
+
+    /**
+     * @var string used to separate identity cookies between this module and current application
+     */
+    public $identityCookieName = 'oauth2';
+
+    /**
+     * @var array webUser configuration specific to this module
+     */
+    public $webUser = [];
 
     /**
      * @var string change base end point
@@ -260,6 +276,29 @@ class Module extends BaseModule implements BootstrapInterface
                 ['pattern' => $this->baseEndPoint.'authorize-error', 'route' => $this->id.'/authorize/error'],
             ]);
         }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function beforeAction($action)
+    {
+        $status = parent::beforeAction($action);
+        // override web user to avoid conflicts only when routing into this module
+        if ($status === true) {
+            $userConfig = [
+                'class' => 'yii\web\User',
+                'identityClass' => $this->identityClass,
+                'enableAutoLogin' => true,
+                'enableSession' => true,
+                'identityCookie' => ['name' => $this->identityCookieName, 'httpOnly' => true],
+                'idParam' => $this->webUserParamId,
+            ];
+            $userConfig = ArrayHelper::merge($userConfig, $this->webUser);
+
+            Yii::$app->set('user', $userConfig);
+        }
+        return $status;
     }
 
     /**
