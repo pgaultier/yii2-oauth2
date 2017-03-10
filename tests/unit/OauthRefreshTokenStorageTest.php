@@ -32,7 +32,7 @@ class OauthRefreshTokenStorageTest extends TestCase
         $refreshToken->id = 'refreshToken1';
         $refreshToken->clientId = 'client1';
         $refreshToken->userId = 'user1';
-        $refreshToken->expiry = 1234;
+        $refreshToken->expiry = time() + 3600;
         $this->assertTrue($refreshToken->save());
 
         $insertedRefreshToken = RefreshToken::findOne('refreshToken1');
@@ -64,7 +64,7 @@ class OauthRefreshTokenStorageTest extends TestCase
         $refreshToken->id = 'refreshToken2';
         $refreshToken->clientId = 'client1';
         $refreshToken->userId = 'user1';
-        $refreshToken->expiry = 1234;
+        $refreshToken->expiry = time() + 3600;
         $refreshToken->scopes = ['basic'];
         $this->assertTrue($refreshToken->save());
 
@@ -74,7 +74,7 @@ class OauthRefreshTokenStorageTest extends TestCase
         $refreshToken->id = 'refreshToken3';
         $refreshToken->clientId = 'client1';
         $refreshToken->userId = 'user1';
-        $refreshToken->expiry = 1234;
+        $refreshToken->expiry = time() + 3600;
         $refreshToken->scopes = ['fail'];
         $this->assertFalse($refreshToken->save());
 
@@ -127,7 +127,7 @@ class OauthRefreshTokenStorageTest extends TestCase
         $refreshToken->id = 'refreshToken1';
         $refreshToken->clientId = 'client1';
         $refreshToken->userId = 'user1';
-        $refreshToken->expiry = 1234;
+        $refreshToken->expiry = time() + 3600;
         $refreshToken->scopes = ['basic'];
         $this->assertTrue($refreshToken->save());
 
@@ -137,7 +137,7 @@ class OauthRefreshTokenStorageTest extends TestCase
         $refreshToken->id = 'refreshToken2';
         $refreshToken->clientId = 'client1';
         $refreshToken->userId = 'user1';
-        $refreshToken->expiry = 1234;
+        $refreshToken->expiry = time() + 3600;
         $refreshToken->scopes = ['basic'];
         $this->assertTrue($refreshToken->save());
 
@@ -190,7 +190,7 @@ class OauthRefreshTokenStorageTest extends TestCase
         $refreshToken->id = 'refreshToken1';
         $refreshToken->clientId = 'client1';
         $refreshToken->userId = 'user1';
-        $refreshToken->expiry = 1234;
+        $refreshToken->expiry = time() + 3600;
         $refreshToken->scopes = ['basic'];
         $this->assertTrue($refreshToken->save());
 
@@ -200,7 +200,7 @@ class OauthRefreshTokenStorageTest extends TestCase
         $refreshToken->id = 'refreshToken2';
         $refreshToken->clientId = 'client1';
         $refreshToken->userId = 'user1';
-        $refreshToken->expiry = 1234;
+        $refreshToken->expiry = time() + 3600;
         $refreshToken->scopes = ['basic'];
         $this->assertTrue($refreshToken->save());
 
@@ -239,7 +239,7 @@ class OauthRefreshTokenStorageTest extends TestCase
         $refreshToken->id = 'refreshToken1';
         $refreshToken->clientId = 'client1';
         $refreshToken->userId = 'user1';
-        $refreshToken->expiry = 1234;
+        $refreshToken->expiry = time() + 3600;
         $this->assertTrue($refreshToken->save());
 
         $insertedRefreshToken = RefreshToken::findOne('refreshToken1');
@@ -255,7 +255,7 @@ class OauthRefreshTokenStorageTest extends TestCase
         $refreshToken->id = 'refreshToken1';
         $refreshToken->clientId = 'client1';
         $refreshToken->userId = 'user1';
-        $refreshToken->expiry = 1234;
+        $refreshToken->expiry = time() + 3600;
         $this->assertTrue($refreshToken->save());
 
         $insertedRefreshToken->id = 'refreshToken1';
@@ -272,7 +272,7 @@ class OauthRefreshTokenStorageTest extends TestCase
         $refreshToken->id = 'refreshToken1';
         $refreshToken->clientId = 'client1';
         $refreshToken->userId = 'user1';
-        $refreshToken->expiry = 1234;
+        $refreshToken->expiry = time() + 3600;
         $this->assertTrue($refreshToken->save());
 
         $insertedRefreshToken = RefreshToken::findOne('refreshToken1');
@@ -286,13 +286,14 @@ class OauthRefreshTokenStorageTest extends TestCase
         $storage = Yii::createObject('sweelix\oauth2\server\storage\OauthStorage');
         /* @var RefreshTokenInterface $storage */
         $this->assertInstanceOf(RefreshTokenInterface::class, $storage);
-        $this->assertTrue($storage->setRefreshToken('refreshToken1', 'client1', 'user1', 1250));
+        $expiry = time()+3600;
+        $this->assertTrue($storage->setRefreshToken('refreshToken1', 'client1', 'user1', $expiry));
         $refreshToken = RefreshToken::findOne('refreshToken1');
         $this->assertInstanceOf(RefreshToken::className(), $refreshToken);
         $this->assertEquals('refreshToken1', $refreshToken->id);
         $this->assertEquals('client1', $refreshToken->clientId);
         $this->assertEquals('user1', $refreshToken->userId);
-        $this->assertEquals(1250, $refreshToken->expiry);
+        $this->assertEquals($expiry, $refreshToken->expiry);
 
         $refreshTokenData = $storage->getRefreshToken('refreshToken1');
         $this->assertEquals($refreshToken->id, $refreshTokenData['refresh_token']);
@@ -301,13 +302,13 @@ class OauthRefreshTokenStorageTest extends TestCase
         $this->assertEquals($refreshToken->expiry, $refreshTokenData['expires']);
 
         $this->populateScopes();
-        $this->assertTrue($storage->setRefreshToken('refreshToken2', 'client1', 'user1', 1250, 'basic'));
+        $this->assertTrue($storage->setRefreshToken('refreshToken2', 'client1', 'user1', $expiry, 'basic'));
 
         $refreshTokenData = $storage->getRefreshToken('refreshToken2');
         $this->assertEquals('refreshToken2', $refreshTokenData['refresh_token']);
         $this->assertEquals('client1', $refreshTokenData['client_id']);
         $this->assertEquals('user1', $refreshTokenData['user_id']);
-        $this->assertEquals(1250, $refreshTokenData['expires']);
+        $this->assertEquals($expiry, $refreshTokenData['expires']);
         $this->assertEquals('basic', $refreshTokenData['scope']);
 
         $this->assertTrue($storage->unsetRefreshToken('refreshToken2'));
