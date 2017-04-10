@@ -14,7 +14,7 @@
         "php" : ">=5.6.0",
         "ext-openssl": "*",
         "yiisoft/yii2": "~2.0",
-        "yiisoft/yii2-redis": "2.0.4",
+        "yiisoft/yii2-redis": "~2.0",
         "bshaffer/oauth2-server-php": "~1.8",
         "yiisoft/yii2-bootstrap": "~2.0"
     },
@@ -25,11 +25,15 @@
     "autoload": {
         "psr-4": { "sweelix\\oauth2\\server\\": "src" }
     },
+    "config": {
+        "fxp-asset": {
+            "installer-paths": {
+                "npm-asset-library": "vendor/npm",
+                "bower-asset-library": "vendor/bower"
+            }
+        }
+    },
     "extra": {
-        "asset-installer-paths": {
-            "npm-asset-library": "vendor/npm",
-            "bower-asset-library": "vendor/bower"
-        },
         "branch-alias": {
             "dev-devel": "1.1.x-dev"
         }
