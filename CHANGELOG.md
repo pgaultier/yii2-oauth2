@@ -1,6 +1,9 @@
 Oauth2 Yii2 Change Log
 ======================
 
+1.2.0 April 10, 2017
+--------------------
+
  * Chg: Update `fxp-asset`
  * Chg: update dependencies
  * Enh: Adding new methods `findAllByUserId()` and `findAllByClientId()` for models `AccessToken` and `RefreshToken`
