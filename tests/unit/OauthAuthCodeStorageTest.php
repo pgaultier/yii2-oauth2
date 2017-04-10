@@ -32,7 +32,7 @@ class OauthAuthCodeStorageTest extends TestCase
         $authCode->id = 'authCode1';
         $authCode->clientId = 'client1';
         $authCode->redirectUri = 'http://www.sweelix.net';
-        $authCode->expiry = 1234;
+        $authCode->expiry = time() + 30;
         $authCode->tokenId = 'accessToken1';
         $this->assertTrue($authCode->save());
 
@@ -43,7 +43,7 @@ class OauthAuthCodeStorageTest extends TestCase
         $authCode->id = 'authCode2';
         $authCode->clientId = 'client1';
         $authCode->redirectUri = 'http://www.sweelix.net';
-        $authCode->expiry = 1234;
+        $authCode->expiry = time() + 30;
         $authCode->scopes = ['basic'];
         $authCode->tokenId = 'accessToken1';
         $this->assertFalse($authCode->save());
@@ -57,7 +57,7 @@ class OauthAuthCodeStorageTest extends TestCase
         $authCode->id = 'authCode2';
         $authCode->clientId = 'client1';
         $authCode->redirectUri = 'http://www.sweelix.net';
-        $authCode->expiry = 1234;
+        $authCode->expiry = time() + 30;
         $authCode->scopes = ['basic'];
         $authCode->tokenId = 'accessToken1';
         $this->expectException(DuplicateKeyException::class);
@@ -74,7 +74,7 @@ class OauthAuthCodeStorageTest extends TestCase
         $authCode->id = 'authCode1';
         $authCode->clientId = 'client1';
         $authCode->redirectUri = 'http://www.sweelix.net';
-        $authCode->expiry = 1234;
+        $authCode->expiry = time() + 30;
         $authCode->tokenId = 'accessToken1';
         $this->assertTrue($authCode->save());
 
@@ -85,7 +85,7 @@ class OauthAuthCodeStorageTest extends TestCase
         $authCode->id = 'authCode2';
         $authCode->clientId = 'client1';
         $authCode->redirectUri = 'http://www.sweelix.net';
-        $authCode->expiry = 1234;
+        $authCode->expiry = time() + 30;
         $authCode->tokenId = 'accessToken1';
         $this->assertTrue($authCode->save());
 
@@ -115,7 +115,7 @@ class OauthAuthCodeStorageTest extends TestCase
         $authCode->id = 'authCode1';
         $authCode->clientId = 'client1';
         $authCode->redirectUri = 'http://www.sweelix.net';
-        $authCode->expiry = 1234;
+        $authCode->expiry = time() + 30;
         $authCode->tokenId = 'accessToken1';
         $this->assertTrue($authCode->save());
 
@@ -132,7 +132,8 @@ class OauthAuthCodeStorageTest extends TestCase
         /* @var AuthorizationCodeInterface $storage */
         $this->assertInstanceOf(AuthorizationCodeInterface::class, $storage);
 
-        $this->assertTrue($storage->setAuthorizationCode('authCode1', 'client1', 'user1', null, 154, 'basic', 'accessToken1'));
+        $expiry = time() + 30;
+        $this->assertTrue($storage->setAuthorizationCode('authCode1', 'client1', 'user1', null, $expiry, 'basic', 'accessToken1'));
 
         $authCode = AuthCode::findOne('authCode1');
         $this->assertEquals('authCode1', $authCode->id);
@@ -145,14 +146,14 @@ class OauthAuthCodeStorageTest extends TestCase
         $authCodeData = $storage->getAuthorizationCode('authCode1');
         $this->assertEquals('client1',$authCodeData['client_id']);
         $this->assertEquals('user1',$authCodeData['user_id']);
-        $this->assertEquals('154',$authCodeData['expires']);
+        $this->assertEquals($expiry,$authCodeData['expires']);
         $this->assertEquals('basic',$authCodeData['scope']);
 
         $storage->expireAuthorizationCode('authCode1');
         $authCodeData = $storage->getAuthorizationCode('authCode1');
         $this->assertNull($authCodeData);
 
-        $this->assertTrue($storage->setAuthorizationCode('authCode1', 'client1', 'user1', null, 154, null, 'accessToken1'));
+        $this->assertTrue($storage->setAuthorizationCode('authCode1', 'client1', 'user1', null, $expiry, null, 'accessToken1'));
 
         $authCode = AuthCode::findOne('authCode1');
         $this->assertEquals('authCode1', $authCode->id);
@@ -165,7 +166,7 @@ class OauthAuthCodeStorageTest extends TestCase
         $authCodeData = $storage->getAuthorizationCode('authCode1');
         $this->assertEquals('client1',$authCodeData['client_id']);
         $this->assertEquals('user1',$authCodeData['user_id']);
-        $this->assertEquals('154',$authCodeData['expires']);
+        $this->assertEquals($expiry,$authCodeData['expires']);
         $this->assertEquals('',$authCodeData['scope']);
 
         $storage->expireAuthorizationCode('authCode1');

@@ -23,7 +23,7 @@ If you use Packagist for installing packages, then you can update your composer.
 ``` json
 {
     "require": {
-        "sweelix/yii2-oauth2-server": "~1.1.0"
+        "sweelix/yii2-oauth2-server": "~1.2.0"
     }
 }
 ```
@@ -66,6 +66,9 @@ Configure Module
  * `backend` : can only be **redis** for the moment
  * `db` : id of the redis component or connection or connection configuration
  * `identityClass` : user class used to link oauth2 authorization system default to user component `identityClass`
+ * `webUserParamId` : allow separation between main app user (session) and module app user, (default to **__oauth2**)
+ * `identityCookieName` : allow separation between main app user (cookie) and module app user, (default to **oauth2**)
+ * `webUser` : allow full management of module web user, (default to **[]**)
  * `baseEndPoint` : base path for token and authorize endpoints default to `''`
     * Token endpoint https://host.xxx/token
     * Authorize endpoint https://host.xxx/authorize
@@ -110,6 +113,11 @@ Configure Module
 ### OpenID
 
  * `allowOpenIdConnect` : enable openId connect (default : **false**) // not implemented yet
+
+### Authorization Code parameters
+
+ * `enforceRedirect` : enforce redirect parameter (default to **false**)
+ * `authorizationCodeTTL` : TTL of authorization code (default to **30**)
 
 ### CORS
 
@@ -353,6 +361,71 @@ use yii\helpers\Html;
 
 ``` 
 
+Exposed Models overview
+-----------------------
+
+The Oauth2 Yii2 extension expose severall models which can be used in your application.
+All models can be overloaded using Yii2 DI.
+
+For example, if you want to overload the `Client` model, you have to inject your own model in the DI using:
+
+```php
+
+Yii::$container->set('sweelix\oauth2\server\interfaces\ClientModelInterface', [
+    'class' => YourClientModel::className(),
+]);
+```
+
+### Client / ClientModelInterface
+
+ * `Client::findOne($id)` - Find client by ID
+ * `Client::findAllByUserId($id)` - Find all clients accepted by user (userId)
+ * `$client->save()` - Save client
+ * `$client->delete()` - Delete client
+ * `$client->hasUser($userId)` - Check if user (userId) has accepted the client
+ * `$client->addUser($userId)` - Attach the user (userId) to the client
+ * `$client->removeUser($userId)` - Dettach the user (userId) from the client
+ 
+### AccessToken / AccessTokenModelInterface
+
+ * `AccessToken::findOne($id)` - Find accessToken by ID
+ * `AccessToken::findAllByUserId($id)` - Find all accessTokens for user (userId)
+ * `AccessToken::findAllByClientId($id)` - Find all accessTokens for client (clientId)
+ * `AccessToken::deleteAllByUserId($id)` - Delete all accessTokens for user (userId)
+ * `AccessToken::deleteAllByClientId($id)` - Delete all accessTokens for client (clientId)
+ * `$accessToken->save()` - Save accessToken
+ * `$accessToken->delete()` - Delete accessToken
+
+### RefreshToken / RefreshTokenModelInterface
+
+ * `RefreshToken::findOne($id)` - Find accessToken by ID
+ * `RefreshToken::findAllByUserId($id)` - Find all refreshTokens for user (userId)
+ * `RefreshToken::findAllByClientId($id)` - Find all refreshTokens for client (clientId)
+ * `RefreshToken::deleteAllByUserId($id)` - Delete all refreshTokens for user (userId)
+ * `RefreshToken::deleteAllByClientId($id)` - Delete all refreshTokens for client (clientId)
+ * `$refreshToken->save()` - Save refreshToken
+ * `$refreshToken->delete()` - Delete refreshToken
+
+### AuthCode / AuthCodeModelInterface
+
+ * `AuthCode::findOne($id)` - Find authCode by ID
+ * `$authCode->save()` - Save authCode
+ * `$authCode->delete()` - Delete authCode
+
+### Scope / ScopeModelInterface
+
+ * `Scope::findOne($id)` - Find scope by ID
+ * `Scope::findAvailableScopeIds()` - Find all scopes IDs
+ * `Scope::findDefaultScopeIds()` - Find default scopes IDs
+ * `$scope->save()` - Save scope
+ * `$scope->delete()` - Delete scope
+
+### CypherKey / CypherKeyModelInterface
+
+ * `CypherKey::findOne($id)` - Find cypherKey by ID
+ * `$cypherKey->save()` - Save cypherKey
+ * `$cypherKey->delete()` - Delete cypherKey
+ * `$cypherKey->generateKeys()` - Generate random keys for current cypherKey
 
 Linking RBAC and Scope systems
 ------------------------------

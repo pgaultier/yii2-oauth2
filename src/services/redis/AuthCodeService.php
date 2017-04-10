@@ -7,7 +7,7 @@
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2017 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version 1.1.0
+ * @version 1.2.0
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\services\redis
  */
@@ -29,7 +29,7 @@ use Yii;
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2017 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version 1.1.0
+ * @version 1.2.0
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\services\redis
  * @since 1.0.0
@@ -86,8 +86,12 @@ class AuthCodeService extends BaseService implements AuthCodeServiceInterface
         $values = $authCode->getDirtyAttributes($attributes);
         $redisParameters = [$authCodeKey];
         $this->setAttributesDefinitions($authCode->attributesDefinition());
+        $expire = null;
         foreach ($values as $key => $value)
         {
+            if ($key === 'expiry') {
+                $expire = $value;
+            }
             if ($value !== null) {
                 $redisParameters[] = $key;
                 $redisParameters[] = $this->convertToDatabase($key, $value);
@@ -98,6 +102,11 @@ class AuthCodeService extends BaseService implements AuthCodeServiceInterface
         if ($transaction === true) {
             try {
                 $this->db->executeCommand('HMSET', $redisParameters);
+                if ($expire !== null) {
+                    $realData = date('Y-m-d H:i:s');
+                    $expireData = date('Y-m-d H:i:s', $expire);
+                    $this->db->executeCommand('EXPIREAT', [$authCodeKey, $expire]);
+                }
                 $this->db->executeCommand('EXEC');
             } catch (DatabaseException $e) {
                 // @codeCoverageIgnoreStart
@@ -156,11 +165,18 @@ class AuthCodeService extends BaseService implements AuthCodeServiceInterface
             $redisUpdateParameters = [$authCodeKey];
             $redisDeleteParameters = [$authCodeKey];
             $this->setAttributesDefinitions($authCode->attributesDefinition());
+            $expire = null;
             foreach ($values as $key => $value)
             {
                 if ($value === null) {
+                    if ($key === 'expiry') {
+                        $expire = false;
+                    }
                     $redisDeleteParameters[] = $key;
                 } else {
+                    if (($key === 'expiry') && ($value > 0)) {
+                        $expire = $value;
+                    }
                     $redisUpdateParameters[] = $key;
                     $redisUpdateParameters[] = $this->convertToDatabase($key, $value);
                 }
@@ -170,6 +186,11 @@ class AuthCodeService extends BaseService implements AuthCodeServiceInterface
             }
             if (count($redisUpdateParameters) > 1) {
                 $this->db->executeCommand('HMSET', $redisUpdateParameters);
+            }
+            if ($expire === false) {
+                $this->db->executeCommand('PERSIST', [$authCodeKey]);
+            } elseif ($expire > 0) {
+                $this->db->executeCommand('EXPIREAT', [$authCodeKey, $expire]);
             }
 
             $this->db->executeCommand('EXEC');

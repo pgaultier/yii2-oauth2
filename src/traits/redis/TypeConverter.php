@@ -7,7 +7,7 @@
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2017 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version 1.1.0
+ * @version 1.2.0
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\traits\redis
  */
@@ -23,7 +23,7 @@ use yii\helpers\Json;
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2017 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version 1.1.0
+ * @version 1.2.0
  * @link http://www.sweelix.net
  * @package modules\v1\traits\redis
  * @since 1.0.0

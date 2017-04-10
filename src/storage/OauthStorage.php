@@ -7,7 +7,7 @@
  * @author pgaultier
  * @copyright 2010-2017 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version 1.1.0
+ * @version 1.2.0
  * @link http://www.sweelix.net
  * @packages sweelix\oauth2\server\storage
  */
@@ -33,7 +33,7 @@ use Yii;
  * @author pgaultier
  * @copyright 2010-2017 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version 1.1.0
+ * @version 1.2.0
  * @link http://www.sweelix.net
  * @packages sweelix\oauth2\server\storage
  * @since 1.0.0

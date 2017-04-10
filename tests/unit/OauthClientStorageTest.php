@@ -254,13 +254,37 @@ class OauthClientStorageTest extends TestCase
         $client2->name = 'Test client';
         $this->assertTrue($client2->save());
 
+        // client1 ->
+        // client2 -> user1, user2
         $this->assertTrue($client2->addUser('user1'));
         $this->assertTrue($client2->addUser('user2'));
 
         $this->assertFalse($client1->hasUser('user1'));
         $this->assertTrue($client2->hasUser('user1'));
         $this->assertTrue($client2->hasUser('user2'));
+
+        $user1Clients = Client::findAllByUserId('user1');
+        $this->assertTrue(is_array($user1Clients));
+        $this->assertEquals(1, count($user1Clients));
+
+        // client1 ->
+        // client2 -> user2
         $this->assertTrue($client2->removeUser('user1'));
         $this->assertFalse($client2->hasUser('user1'));
+
+        $user2Clients = Client::findAllByUserId('user2');
+        $this->assertTrue(is_array($user2Clients));
+        $this->assertEquals(1, count($user2Clients));
+
+        // client1 -> user1, user2
+        // client2 -> user2
+        $this->assertTrue($client1->addUser('user1'));
+        $this->assertTrue($client1->addUser('user2'));
+
+        $user2Clients = Client::findAllByUserId('user2');
+        $this->assertTrue(is_array($user2Clients));
+        $this->assertEquals(2, count($user2Clients));
+
+
     }
 }

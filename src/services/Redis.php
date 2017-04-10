@@ -7,7 +7,7 @@
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2017 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version 1.1.0
+ * @version 1.2.0
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\services
  */
@@ -31,7 +31,7 @@ use Yii;
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2017 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version 1.1.0
+ * @version 1.2.0
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\services
  * @since 1.0.0
@@ -47,6 +47,8 @@ class Redis implements ServiceBootstrapInterface
             Yii::$container->setSingleton('sweelix\oauth2\server\interfaces\AccessTokenServiceInterface', [
                 'class' => AccessTokenService::className(),
                 'namespace' => 'oauth2:accessTokens',
+                'userNamespace' => 'oauth2:users',
+                'clientNamespace' => 'oauth2:clients',
             ]);
         }
         if (Yii::$container->hasSingleton('sweelix\oauth2\server\interfaces\AuthCodeServiceInterface') === false) {
@@ -59,6 +61,7 @@ class Redis implements ServiceBootstrapInterface
             Yii::$container->setSingleton('sweelix\oauth2\server\interfaces\ClientServiceInterface', [
                 'class' => ClientService::className(),
                 'namespace' => 'oauth2:clients',
+                'userNamespace' => 'oauth2:users',
             ]);
         }
         if (Yii::$container->hasSingleton('sweelix\oauth2\server\interfaces\CypherKeyServiceInterface') === false) {
@@ -83,6 +86,8 @@ class Redis implements ServiceBootstrapInterface
             Yii::$container->setSingleton('sweelix\oauth2\server\interfaces\RefreshTokenServiceInterface', [
                 'class' => RefreshTokenService::className(),
                 'namespace' => 'oauth2:refreshTokens',
+                'userNamespace' => 'oauth2:users',
+                'clientNamespace' => 'oauth2:clients',
             ]);
         }
         if (Yii::$container->hasSingleton('sweelix\oauth2\server\interfaces\ScopeServiceInterface') === false) {

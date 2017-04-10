@@ -7,7 +7,7 @@
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2017 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version 1.1.0
+ * @version 1.2.0
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\models
  */
@@ -24,7 +24,7 @@ use Yii;
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2017 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version 1.1.0
+ * @version 1.2.0
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\models
  * @since 1.0.0
@@ -122,4 +122,37 @@ class AccessToken extends BaseModel implements AccessTokenModelInterface
     {
         return self::getDataService()->delete($this);
     }
+
+    /**
+     * @inheritdoc
+     */
+    public static function findAllByUserId($userId)
+    {
+        return self::getDataService()->findAllByUserId($userId);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function deleteAllByUserId($userId)
+    {
+        return self::getDataService()->deleteAllByUserId($userId);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function findAllByClientId($clientId)
+    {
+        return self::getDataService()->findAllByClientId($clientId);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function deleteAllByClientId($clientId)
+    {
+        return self::getDataService()->deleteAllByClientId($clientId);
+    }
+
 }

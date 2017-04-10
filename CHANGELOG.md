@@ -1,7 +1,18 @@
 Oauth2 Yii2 Change Log
 ======================
 
-1.1.1 January 02, 2017
+1.2.0 April 10, 2017
+--------------------
+
+ * Chg: Update `fxp-asset`
+ * Chg: update dependencies
+ * Enh: Adding new methods `findAllByUserId()` and `findAllByClientId()` for models `AccessToken` and `RefreshToken`
+ * Enh: Adding new methods `hasUser()`, `addUser()`, `removeUser()` and `findAllByUserId()` from model `Client`
+ * Enh: Allow oauth2 `user` to be fully decoupled from app `user` 
+ * Fix: Fix Jwt token
+ * Enh: Enable redis automatic expire for `AccessToken`, `RefreshToken` and `AuthorizationCode`
+
+1.1.0 January 02, 2017
 ----------------------
 
  * Chg: update dependencies

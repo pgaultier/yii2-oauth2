@@ -7,7 +7,7 @@
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2017 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version 1.1.0
+ * @version 1.2.0
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\services
  */
@@ -31,7 +31,7 @@ use Yii;
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2017 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version 1.1.0
+ * @version 1.2.0
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\services
  * @since 1.0.0
@@ -107,6 +107,8 @@ class Oauth implements ServiceBootstrapInterface
             'allow_public_clients' => $module->allowPublicClients,
             'always_issue_new_refresh_token' => $module->alwaysIssueNewRefreshToken,
             'unset_refresh_token_after_use' => $module->unsetRefreshTokenAfterUse,
+            'enforce_redirect' => $module->enforceRedirect,
+            'auth_code_lifetime' => $module->authorizationCodeTTL,
         ];
         if (is_array($config) === false) {
             $config = [];

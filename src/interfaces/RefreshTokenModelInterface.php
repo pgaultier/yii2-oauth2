@@ -7,7 +7,7 @@
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2017 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version 1.1.0
+ * @version 1.2.0
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\interfaces
  */
@@ -20,7 +20,7 @@ namespace sweelix\oauth2\server\interfaces;
  * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2017 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version 1.1.0
+ * @version 1.2.0
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\interfaces
  * @since 1.0.0
@@ -58,4 +58,36 @@ interface RefreshTokenModelInterface extends BaseModelInterface
      * @throws \yii\base\UnknownClassException
      */
     public function delete();
+
+    /**
+     * @param string|integer $userId
+     * @return RefreshTokenModelInterface[]
+     * @since XXX
+     * @throws \yii\base\UnknownClassException
+     */
+    public static function findAllByUserId($userId);
+
+    /**
+     * @param string|integer $userId
+     * @return bool
+     * @since XXX
+     * @throws \yii\base\UnknownClassException
+     */
+    public static function deleteAllByUserId($userId);
+
+    /**
+     * @param string $clientId
+     * @return RefreshTokenModelInterface[]
+     * @since XXX
+     * @throws \yii\base\UnknownClassException
+     */
+    public static function findAllByClientId($clientId);
+
+    /**
+     * @param string $clientId
+     * @return bool
+     * @since XXX
+     * @throws \yii\base\UnknownClassException
+     */
+    public static function deleteAllByClientId($clientId);
 }

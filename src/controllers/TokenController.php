@@ -4,10 +4,10 @@
  *
  * PHP version 5.6+
  *
- * @author pgaultier
+ * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2017 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version 1.1.0
+ * @version 1.2.0
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\controllers
  */
@@ -27,10 +27,10 @@ use Yii;
 /**
  * Oauth2 main controller
  *
- * @author pgaultier
+ * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2017 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version 1.1.0
+ * @version 1.2.0
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\controllers
  * @since 1.0.0
@@ -109,7 +109,7 @@ class TokenController extends Controller
                 break;
             case 'urn:ietf:params:oauth:grant-type:jwt-bearer':
                 $grantIsValid = true;
-                $oauthGrantType = Yii::createObject('OAuth2\GrantType\RefreshToken');
+                $oauthGrantType = Yii::createObject('OAuth2\GrantType\JwtBearer');
                 /* @var \OAuth2\GrantType\JwtBearer $oauthGrantType */
                 $oauthServer->addGrantType($oauthGrantType);
                 break;

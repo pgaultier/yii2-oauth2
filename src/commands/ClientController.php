@@ -4,10 +4,10 @@
  *
  * PHP version 5.6+
  *
- * @author pgaultier
+ * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2017 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version 1.1.0
+ * @version 1.2.0
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\commands
  */
@@ -21,10 +21,10 @@ use Yii;
 /**
  * Manage oauth clients
  *
- * @author pgaultier
+ * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2017 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version 1.1.0
+ * @version 1.2.0
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\commands
  * @since 1.0.0
@@ -102,7 +102,7 @@ class ClientController extends Controller
                 $this->stdout(' - id: ' . $client->id . "\n");
                 $this->stdout(' - secret: ' . $client->secret . "\n");
                 $this->stdout(' - name: ' . $client->name . "\n");
-                $this->stdout(' - redirectUri: ' . $client->redirectUri . "\n");
+                $this->stdout(' - redirectUri: ' . implode(',', $client->redirectUri) . "\n");
                 return Controller::EXIT_CODE_NORMAL;
             } else {
                 $this->stdout('Client cannot be updated.'."\n");
