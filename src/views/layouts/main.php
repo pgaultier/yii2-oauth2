@@ -4,10 +4,10 @@
  *
  * PHP version 5.6+
  *
- * @author pgaultier
+ * @author Philippe Gaultier <pgaultier@sweelix.net>
  * @copyright 2010-2017 Philippe Gaultier
  * @license http://www.sweelix.net/license license
- * @version 1.1.0
+ * @version 1.2.0
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server\views\layouts
  *
