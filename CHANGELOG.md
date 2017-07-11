@@ -1,6 +1,8 @@
 Oauth2 Yii2 Change Log
 ======================
 
+1.2.1 July 11, 2017
+-------------------
 
  * Chg: remove testing support for `HHVM` and php `5.6`
  * Chg: update dependencies
