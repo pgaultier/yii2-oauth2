@@ -1,6 +1,10 @@
 Oauth2 Yii2 Change Log
 ======================
 
+
+ * Chg: update dependencies
+ * Enh: adding `.gitattributes`
+ 
 1.2.0 April 10, 2017
 --------------------
 
