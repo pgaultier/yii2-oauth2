@@ -2,6 +2,7 @@ Oauth2 Yii2 Change Log
 ======================
 
 
+ * Chg: remove testing support for `HHVM` and php `5.6`
  * Chg: update dependencies
  * Enh: adding `.gitattributes`
  
