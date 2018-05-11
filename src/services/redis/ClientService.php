@@ -129,7 +129,7 @@ class ClientService extends BaseService implements ClientServiceInterface
             } catch (DatabaseException $e) {
                 // @codeCoverageIgnoreStart
                 // we have a REDIS exception, we should not discard
-                Yii::trace('Error while inserting entity', __METHOD__);
+                Yii::debug('Error while inserting entity', __METHOD__);
                 throw $e;
                 // @codeCoverageIgnoreEnd
             }
@@ -203,7 +203,7 @@ class ClientService extends BaseService implements ClientServiceInterface
         } catch (DatabaseException $e) {
             // @codeCoverageIgnoreStart
             // we have a REDIS exception, we should not discard
-            Yii::trace('Error while updating entity', __METHOD__);
+            Yii::debug('Error while updating entity', __METHOD__);
             throw $e;
             // @codeCoverageIgnoreEnd
         }

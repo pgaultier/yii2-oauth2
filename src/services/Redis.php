@@ -45,7 +45,7 @@ class Redis implements ServiceBootstrapInterface
     {
         if (Yii::$container->hasSingleton('sweelix\oauth2\server\interfaces\AccessTokenServiceInterface') === false) {
             Yii::$container->setSingleton('sweelix\oauth2\server\interfaces\AccessTokenServiceInterface', [
-                'class' => AccessTokenService::className(),
+                'class' => AccessTokenService::class,
                 'namespace' => 'oauth2:accessTokens',
                 'userNamespace' => 'oauth2:users',
                 'clientNamespace' => 'oauth2:clients',
@@ -53,38 +53,38 @@ class Redis implements ServiceBootstrapInterface
         }
         if (Yii::$container->hasSingleton('sweelix\oauth2\server\interfaces\AuthCodeServiceInterface') === false) {
             Yii::$container->setSingleton('sweelix\oauth2\server\interfaces\AuthCodeServiceInterface', [
-                'class' => AuthCodeService::className(),
+                'class' => AuthCodeService::class,
                 'namespace' => 'oauth2:authCodes',
             ]);
         }
         if (Yii::$container->hasSingleton('sweelix\oauth2\server\interfaces\ClientServiceInterface') === false) {
             Yii::$container->setSingleton('sweelix\oauth2\server\interfaces\ClientServiceInterface', [
-                'class' => ClientService::className(),
+                'class' => ClientService::class,
                 'namespace' => 'oauth2:clients',
                 'userNamespace' => 'oauth2:users',
             ]);
         }
         if (Yii::$container->hasSingleton('sweelix\oauth2\server\interfaces\CypherKeyServiceInterface') === false) {
             Yii::$container->setSingleton('sweelix\oauth2\server\interfaces\CypherKeyServiceInterface', [
-                'class' => CypherKeyService::className(),
+                'class' => CypherKeyService::class,
                 'namespace' => 'oauth2:cypherKeys',
             ]);
         }
         if (Yii::$container->hasSingleton('sweelix\oauth2\server\interfaces\JtiServiceInterface') === false) {
             Yii::$container->setSingleton('sweelix\oauth2\server\interfaces\JtiServiceInterface', [
-                'class' => JtiService::className(),
+                'class' => JtiService::class,
                 'namespace' => 'oauth2:jti',
             ]);
         }
         if (Yii::$container->hasSingleton('sweelix\oauth2\server\interfaces\JwtServiceInterface') === false) {
             Yii::$container->setSingleton('sweelix\oauth2\server\interfaces\JwtServiceInterface', [
-                'class' => JwtService::className(),
+                'class' => JwtService::class,
                 'namespace' => 'oauth2:jwt',
             ]);
         }
         if (Yii::$container->hasSingleton('sweelix\oauth2\server\interfaces\RefreshTokenServiceInterface') === false) {
             Yii::$container->setSingleton('sweelix\oauth2\server\interfaces\RefreshTokenServiceInterface', [
-                'class' => RefreshTokenService::className(),
+                'class' => RefreshTokenService::class,
                 'namespace' => 'oauth2:refreshTokens',
                 'userNamespace' => 'oauth2:users',
                 'clientNamespace' => 'oauth2:clients',
@@ -92,7 +92,7 @@ class Redis implements ServiceBootstrapInterface
         }
         if (Yii::$container->hasSingleton('sweelix\oauth2\server\interfaces\ScopeServiceInterface') === false) {
             Yii::$container->setSingleton('sweelix\oauth2\server\interfaces\ScopeServiceInterface', [
-                'class' => ScopeService::className(),
+                'class' => ScopeService::class,
                 'namespace' => 'oauth2:scopes',
             ]);
         }

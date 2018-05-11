@@ -102,7 +102,7 @@ class CypherKeyService extends BaseService implements CypherKeyServiceInterface
             } catch (DatabaseException $e) {
                 // @codeCoverageIgnoreStart
                 // we have a REDIS exception, we should not discard
-                Yii::trace('Error while inserting entity', __METHOD__);
+                Yii::debug('Error while inserting entity', __METHOD__);
                 throw $e;
                 // @codeCoverageIgnoreEnd
             }
@@ -176,7 +176,7 @@ class CypherKeyService extends BaseService implements CypherKeyServiceInterface
         } catch (DatabaseException $e) {
             // @codeCoverageIgnoreStart
             // we have a REDIS exception, we should not discard
-            Yii::trace('Error while updating entity', __METHOD__);
+            Yii::debug('Error while updating entity', __METHOD__);
             throw $e;
             // @codeCoverageIgnoreEnd
         }
@@ -201,7 +201,7 @@ class CypherKeyService extends BaseService implements CypherKeyServiceInterface
         $cypherKeyExists = (bool)$this->db->executeCommand('EXISTS', [$cypherKeyKey]);
         if ($cypherKeyExists === true) {
             $cypherKeyData = $this->db->executeCommand('HGETALL', [$cypherKeyKey]);
-            $record = Yii::createObject(CypherKey::className());
+            $record = Yii::createObject(CypherKey::class);
             /** @var CypherKey $record */
             $properties = $record->attributesDefinition();
             $this->setAttributesDefinitions($properties);
