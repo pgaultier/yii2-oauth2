@@ -171,7 +171,7 @@ class AuthorizationCodeCest extends CestCase
         $code = $I->grabFromCurrentUrl('~code=([^&]+)~');
 
         $codeModel = AuthCode::findOne($code);
-        $I->assertInstanceOf(AuthCode::className(), $codeModel);
+        $I->assertInstanceOf(AuthCode::class, $codeModel);
         $I->assertEquals('userid1', $codeModel->userId);
         $response = $I->requestRoute('POST', 'oauth2/token/index', [], [
             'client_id' => 'client2',
@@ -184,9 +184,9 @@ class AuthorizationCodeCest extends CestCase
         $codeModel = AuthCode::findOne($code);
         $I->assertNull($codeModel);
         $accessToken = AccessToken::findOne($response['access_token']);
-        $I->assertInstanceOf(AccessToken::className(), $accessToken);
+        $I->assertInstanceOf(AccessToken::class, $accessToken);
         $refreshToken = RefreshToken::findOne($response['refresh_token']);
-        $I->assertInstanceOf(RefreshToken::className(), $refreshToken);
+        $I->assertInstanceOf(RefreshToken::class, $refreshToken);
 
     }
 }

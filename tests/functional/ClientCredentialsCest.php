@@ -88,6 +88,6 @@ class ClientCredentialsCest extends CestCase
         $response = Json::decode($response);
         $I->assertArrayHasKey('access_token', $response);
         $accessToken = AccessToken::findOne($response['access_token']);
-        $I->assertInstanceOf(AccessToken::className(), $accessToken);
+        $I->assertInstanceOf(AccessToken::class, $accessToken);
     }
 }
