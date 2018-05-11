@@ -13,13 +13,12 @@
     "require": {
         "php" : ">=5.6.0",
         "ext-openssl": "*",
-        "yiisoft/yii2": "~2.0",
+        "yiisoft/yii2": "~2.0.13",
         "yiisoft/yii2-redis": "~2.0",
         "bshaffer/oauth2-server-php": "~1.8",
         "yiisoft/yii2-bootstrap": "~2.0"
     },
     "require-dev" : {
-        "php" : ">=5.6.0",
         "codeception/codeception": "~2.2"
     },
     "autoload": {
