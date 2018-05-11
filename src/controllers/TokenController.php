@@ -55,7 +55,7 @@ class TokenController extends Controller
             ], Module::getInstance()->cors);
 
             $behaviors['corsFilter'] = [
-                'class' => Cors::className(),
+                'class' => Cors::class,
                 'cors' => $corsFilter,
             ];
         }

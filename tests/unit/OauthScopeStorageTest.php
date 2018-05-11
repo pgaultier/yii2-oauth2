@@ -26,14 +26,14 @@ class OauthScopeStorageTest extends TestCase
     {
         $scope = Yii::createObject('sweelix\oauth2\server\models\Scope');
         /* @var Scope $scope */
-        $this->assertInstanceOf(Scope::className(), $scope);
+        $this->assertInstanceOf(Scope::class, $scope);
         $scope->id = 'basic';
         $scope->isDefault = false;
         $scope->definition = 'Basic Scope';
         $this->assertTrue($scope->save());
 
         $insertedScope = Scope::findOne('basic');
-        $this->assertInstanceOf(Scope::className(), $insertedScope);
+        $this->assertInstanceOf(Scope::class, $insertedScope);
         $this->assertEquals($scope->id, $insertedScope->id);
         $this->assertEquals($scope->isDefault, $insertedScope->isDefault);
         $this->assertEquals($scope->definition, $insertedScope->definition);
@@ -49,7 +49,7 @@ class OauthScopeStorageTest extends TestCase
 
         $scope = Yii::createObject('sweelix\oauth2\server\models\Scope');
         /* @var Scope $scope */
-        $this->assertInstanceOf(Scope::className(), $scope);
+        $this->assertInstanceOf(Scope::class, $scope);
         $scope->id = 'extended';
         $scope->definition = 'Extended Scope';
         $this->assertFalse($scope->save());
@@ -57,7 +57,7 @@ class OauthScopeStorageTest extends TestCase
 
         $scope = Yii::createObject('sweelix\oauth2\server\models\Scope');
         /* @var Scope $scope */
-        $this->assertInstanceOf(Scope::className(), $scope);
+        $this->assertInstanceOf(Scope::class, $scope);
         $scope->id = 'basic';
         $scope->isDefault = false;
         $scope->definition = 'Basic Scope';
@@ -69,7 +69,7 @@ class OauthScopeStorageTest extends TestCase
     {
         $basicScope = Yii::createObject('sweelix\oauth2\server\models\Scope');
         /* @var Scope $basicScope */
-        $this->assertInstanceOf(Scope::className(), $basicScope);
+        $this->assertInstanceOf(Scope::class, $basicScope);
         $basicScope->id = 'basic';
         $basicScope->isDefault = true;
         $basicScope->definition = 'Basic Scope';
@@ -77,7 +77,7 @@ class OauthScopeStorageTest extends TestCase
 
         $emailScope = Yii::createObject('sweelix\oauth2\server\models\Scope');
         /* @var Scope $emailScope */
-        $this->assertInstanceOf(Scope::className(), $emailScope);
+        $this->assertInstanceOf(Scope::class, $emailScope);
         $emailScope->id = 'email';
         $emailScope->isDefault = false;
         $emailScope->definition = 'Email Scope';
@@ -134,7 +134,7 @@ class OauthScopeStorageTest extends TestCase
     {
         $basicScope = Yii::createObject('sweelix\oauth2\server\models\Scope');
         /* @var Scope $basicScope */
-        $this->assertInstanceOf(Scope::className(), $basicScope);
+        $this->assertInstanceOf(Scope::class, $basicScope);
         $basicScope->id = 'basic';
         $basicScope->isDefault = true;
         $basicScope->definition = 'Basic Scope';
@@ -142,7 +142,7 @@ class OauthScopeStorageTest extends TestCase
 
         $emailScope = Yii::createObject('sweelix\oauth2\server\models\Scope');
         /* @var Scope $emailScope */
-        $this->assertInstanceOf(Scope::className(), $emailScope);
+        $this->assertInstanceOf(Scope::class, $emailScope);
         $emailScope->id = 'email';
         $emailScope->isDefault = false;
         $emailScope->definition = 'Email Scope';
@@ -181,7 +181,7 @@ class OauthScopeStorageTest extends TestCase
 
         $basicScope = Yii::createObject('sweelix\oauth2\server\models\Scope');
         /* @var Scope $basicScope */
-        $this->assertInstanceOf(Scope::className(), $basicScope);
+        $this->assertInstanceOf(Scope::class, $basicScope);
         $basicScope->id = 'basic';
         $basicScope->isDefault = true;
         $basicScope->definition = 'Basic Scope';
@@ -195,7 +195,7 @@ class OauthScopeStorageTest extends TestCase
 
         $emailScope = Yii::createObject('sweelix\oauth2\server\models\Scope');
         /* @var Scope $basicScope */
-        $this->assertInstanceOf(Scope::className(), $emailScope);
+        $this->assertInstanceOf(Scope::class, $emailScope);
         $emailScope->id = 'email';
         $emailScope->isDefault = false;
         $emailScope->definition = 'Email Scope';

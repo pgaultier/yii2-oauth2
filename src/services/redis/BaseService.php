@@ -18,7 +18,7 @@ use sweelix\oauth2\server\interfaces\BaseModelInterface;
 use sweelix\oauth2\server\models\BaseModel;
 use sweelix\oauth2\server\Module;
 use sweelix\oauth2\server\traits\redis\TypeConverter;
-use yii\base\Object;
+use yii\base\BaseObject;
 use yii\di\Instance;
 use yii\helpers\Json;
 use yii\redis\Connection;
@@ -35,7 +35,7 @@ use Yii;
  * @package modules\v1\services\redis
  * @since 1.0.0
  */
-class BaseService extends Object
+class BaseService extends BaseObject
 {
     use TypeConverter;
 
@@ -55,7 +55,7 @@ class BaseService extends Object
     public function init()
     {
         parent::init();
-        $this->db = Instance::ensure(Module::getInstance()->db, Connection::className());
+        $this->db = Instance::ensure(Module::getInstance()->db, Connection::class);
     }
 
     /**

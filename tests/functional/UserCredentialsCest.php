@@ -110,9 +110,9 @@ class UserCredentialsCest extends CestCase
         $I->assertArrayHasKey('access_token', $response);
         $I->assertArrayHasKey('refresh_token', $response);
         $accessToken = AccessToken::findOne($response['access_token']);
-        $I->assertInstanceOf(AccessToken::className(), $accessToken);
+        $I->assertInstanceOf(AccessToken::class, $accessToken);
         $refreshToken = RefreshToken::findOne($response['refresh_token']);
-        $I->assertInstanceOf(RefreshToken::className(), $refreshToken);
+        $I->assertInstanceOf(RefreshToken::class, $refreshToken);
 
     }
 }

@@ -17,6 +17,7 @@ namespace sweelix\oauth2\server\commands;
 use sweelix\oauth2\server\models\Client;
 use yii\console\Controller;
 use Yii;
+use yii\console\ExitCode;
 
 /**
  * Manage oauth clients
@@ -80,10 +81,10 @@ class ClientController extends Controller
             $this->stdout(' - secret: ' . $client->secret . "\n");
             $this->stdout(' - name: ' . $client->name . "\n");
             $this->stdout(' - redirectUri: ' . implode(',', $client->redirectUri) . "\n");
-            return Controller::EXIT_CODE_NORMAL;
+            return ExitCode::OK;
         } else {
             $this->stdout('Client cannot be created.'."\n");
-            return Controller::EXIT_CODE_ERROR;
+            return ExitCode::UNSPECIFIED_ERROR;
         }
     }
 
@@ -103,14 +104,14 @@ class ClientController extends Controller
                 $this->stdout(' - secret: ' . $client->secret . "\n");
                 $this->stdout(' - name: ' . $client->name . "\n");
                 $this->stdout(' - redirectUri: ' . implode(',', $client->redirectUri) . "\n");
-                return Controller::EXIT_CODE_NORMAL;
+                return ExitCode::OK;
             } else {
                 $this->stdout('Client cannot be updated.'."\n");
-                return Controller::EXIT_CODE_ERROR;
+                return ExitCode::UNSPECIFIED_ERROR;
             }
         } else {
             $this->stdout('Client '.$id.' does not exist'."\n");
-            return Controller::EXIT_CODE_ERROR;
+            return ExitCode::UNSPECIFIED_ERROR;
         }
     }
 

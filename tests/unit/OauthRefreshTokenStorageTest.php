@@ -28,7 +28,7 @@ class OauthRefreshTokenStorageTest extends TestCase
     {
         $refreshToken = Yii::createObject('sweelix\oauth2\server\interfaces\RefreshTokenModelInterface');
         /* @var RefreshToken $refreshToken */
-        $this->assertInstanceOf(RefreshToken::className(), $refreshToken);
+        $this->assertInstanceOf(RefreshToken::class, $refreshToken);
         $refreshToken->id = 'refreshToken1';
         $refreshToken->clientId = 'client1';
         $refreshToken->userId = 'user1';
@@ -36,7 +36,7 @@ class OauthRefreshTokenStorageTest extends TestCase
         $this->assertTrue($refreshToken->save());
 
         $insertedRefreshToken = RefreshToken::findOne('refreshToken1');
-        $this->assertInstanceOf(RefreshToken::className(), $insertedRefreshToken);
+        $this->assertInstanceOf(RefreshToken::class, $insertedRefreshToken);
         $this->assertEquals($refreshToken->id, $insertedRefreshToken->id);
         $this->assertEquals($refreshToken->clientId, $insertedRefreshToken->clientId);
         $this->assertEquals($refreshToken->userId, $insertedRefreshToken->userId);
@@ -48,7 +48,7 @@ class OauthRefreshTokenStorageTest extends TestCase
         $this->assertTrue(is_array($refreshTokens));
         $this->assertEquals(1, count($refreshTokens));
 
-        $this->assertInstanceOf(RefreshToken::className(), $refreshTokens[0]);
+        $this->assertInstanceOf(RefreshToken::class, $refreshTokens[0]);
         $this->assertEquals($refreshToken->id, $refreshTokens[0]->id);
         $this->assertEquals($refreshToken->clientId, $refreshTokens[0]->clientId);
         $this->assertEquals($refreshToken->userId, $refreshTokens[0]->userId);
@@ -60,7 +60,7 @@ class OauthRefreshTokenStorageTest extends TestCase
 
         $refreshToken = Yii::createObject('sweelix\oauth2\server\interfaces\RefreshTokenModelInterface');
         /* @var RefreshToken $refreshToken */
-        $this->assertInstanceOf(RefreshToken::className(), $refreshToken);
+        $this->assertInstanceOf(RefreshToken::class, $refreshToken);
         $refreshToken->id = 'refreshToken2';
         $refreshToken->clientId = 'client1';
         $refreshToken->userId = 'user1';
@@ -70,7 +70,7 @@ class OauthRefreshTokenStorageTest extends TestCase
 
         $refreshToken = Yii::createObject('sweelix\oauth2\server\interfaces\RefreshTokenModelInterface');
         /* @var RefreshToken $refreshToken */
-        $this->assertInstanceOf(RefreshToken::className(), $refreshToken);
+        $this->assertInstanceOf(RefreshToken::class, $refreshToken);
         $refreshToken->id = 'refreshToken3';
         $refreshToken->clientId = 'client1';
         $refreshToken->userId = 'user1';
@@ -123,7 +123,7 @@ class OauthRefreshTokenStorageTest extends TestCase
 
         $refreshToken = Yii::createObject('sweelix\oauth2\server\interfaces\RefreshTokenModelInterface');
         /* @var RefreshToken $refreshToken */
-        $this->assertInstanceOf(RefreshToken::className(), $refreshToken);
+        $this->assertInstanceOf(RefreshToken::class, $refreshToken);
         $refreshToken->id = 'refreshToken1';
         $refreshToken->clientId = 'client1';
         $refreshToken->userId = 'user1';
@@ -133,7 +133,7 @@ class OauthRefreshTokenStorageTest extends TestCase
 
         $refreshToken = Yii::createObject('sweelix\oauth2\server\interfaces\RefreshTokenModelInterface');
         /* @var RefreshToken $refreshToken */
-        $this->assertInstanceOf(RefreshToken::className(), $refreshToken);
+        $this->assertInstanceOf(RefreshToken::class, $refreshToken);
         $refreshToken->id = 'refreshToken2';
         $refreshToken->clientId = 'client1';
         $refreshToken->userId = 'user1';
@@ -158,7 +158,7 @@ class OauthRefreshTokenStorageTest extends TestCase
         $this->assertEquals(0, count($refreshTokens));
 
         $client = Client::findOne('client1');
-        $this->assertInstanceOf(Client::className(), $client);
+        $this->assertInstanceOf(Client::class, $client);
 
         $this->assertTrue(RefreshToken::deleteAllByClientId('client1'));
 
@@ -186,7 +186,7 @@ class OauthRefreshTokenStorageTest extends TestCase
 
         $refreshToken = Yii::createObject('sweelix\oauth2\server\interfaces\RefreshTokenModelInterface');
         /* @var RefreshToken $refreshToken */
-        $this->assertInstanceOf(RefreshToken::className(), $refreshToken);
+        $this->assertInstanceOf(RefreshToken::class, $refreshToken);
         $refreshToken->id = 'refreshToken1';
         $refreshToken->clientId = 'client1';
         $refreshToken->userId = 'user1';
@@ -196,7 +196,7 @@ class OauthRefreshTokenStorageTest extends TestCase
 
         $refreshToken = Yii::createObject('sweelix\oauth2\server\interfaces\RefreshTokenModelInterface');
         /* @var RefreshToken $refreshToken */
-        $this->assertInstanceOf(RefreshToken::className(), $refreshToken);
+        $this->assertInstanceOf(RefreshToken::class, $refreshToken);
         $refreshToken->id = 'refreshToken2';
         $refreshToken->clientId = 'client1';
         $refreshToken->userId = 'user1';
@@ -221,7 +221,7 @@ class OauthRefreshTokenStorageTest extends TestCase
         $this->assertEquals(0, count($refreshTokens));
 
         $client = Client::findOne('client1');
-        $this->assertInstanceOf(Client::className(), $client);
+        $this->assertInstanceOf(Client::class, $client);
 
         $this->assertTrue(RefreshToken::deleteAllByUserId('user1'));
 
@@ -235,7 +235,7 @@ class OauthRefreshTokenStorageTest extends TestCase
     {
         $refreshToken = Yii::createObject('sweelix\oauth2\server\interfaces\RefreshTokenModelInterface');
         /* @var RefreshToken $refreshToken */
-        $this->assertInstanceOf(RefreshToken::className(), $refreshToken);
+        $this->assertInstanceOf(RefreshToken::class, $refreshToken);
         $refreshToken->id = 'refreshToken1';
         $refreshToken->clientId = 'client1';
         $refreshToken->userId = 'user1';
@@ -243,7 +243,7 @@ class OauthRefreshTokenStorageTest extends TestCase
         $this->assertTrue($refreshToken->save());
 
         $insertedRefreshToken = RefreshToken::findOne('refreshToken1');
-        $this->assertInstanceOf(RefreshToken::className(), $insertedRefreshToken);
+        $this->assertInstanceOf(RefreshToken::class, $insertedRefreshToken);
 
         $insertedRefreshToken->id = 'refreshToken2';
         $insertedRefreshToken->expiry = null;
@@ -251,7 +251,7 @@ class OauthRefreshTokenStorageTest extends TestCase
 
         $refreshToken = Yii::createObject('sweelix\oauth2\server\interfaces\RefreshTokenModelInterface');
         /* @var RefreshToken $refreshToken */
-        $this->assertInstanceOf(RefreshToken::className(), $refreshToken);
+        $this->assertInstanceOf(RefreshToken::class, $refreshToken);
         $refreshToken->id = 'refreshToken1';
         $refreshToken->clientId = 'client1';
         $refreshToken->userId = 'user1';
@@ -268,7 +268,7 @@ class OauthRefreshTokenStorageTest extends TestCase
     {
         $refreshToken = Yii::createObject('sweelix\oauth2\server\interfaces\RefreshTokenModelInterface');
         /* @var RefreshToken $refreshToken */
-        $this->assertInstanceOf(RefreshToken::className(), $refreshToken);
+        $this->assertInstanceOf(RefreshToken::class, $refreshToken);
         $refreshToken->id = 'refreshToken1';
         $refreshToken->clientId = 'client1';
         $refreshToken->userId = 'user1';
@@ -276,7 +276,7 @@ class OauthRefreshTokenStorageTest extends TestCase
         $this->assertTrue($refreshToken->save());
 
         $insertedRefreshToken = RefreshToken::findOne('refreshToken1');
-        $this->assertInstanceOf(RefreshToken::className(), $insertedRefreshToken);
+        $this->assertInstanceOf(RefreshToken::class, $insertedRefreshToken);
 
         $this->assertTrue($insertedRefreshToken->delete());
     }
@@ -289,7 +289,7 @@ class OauthRefreshTokenStorageTest extends TestCase
         $expiry = time()+3600;
         $this->assertTrue($storage->setRefreshToken('refreshToken1', 'client1', 'user1', $expiry));
         $refreshToken = RefreshToken::findOne('refreshToken1');
-        $this->assertInstanceOf(RefreshToken::className(), $refreshToken);
+        $this->assertInstanceOf(RefreshToken::class, $refreshToken);
         $this->assertEquals('refreshToken1', $refreshToken->id);
         $this->assertEquals('client1', $refreshToken->clientId);
         $this->assertEquals('user1', $refreshToken->userId);

@@ -29,7 +29,7 @@ class OauthAccessTokenStorageTest extends TestCase
     {
         $accessToken = Yii::createObject('sweelix\oauth2\server\interfaces\AccessTokenModelInterface');
         /* @var AccessToken $accessToken */
-        $this->assertInstanceOf(AccessToken::className(), $accessToken);
+        $this->assertInstanceOf(AccessToken::class, $accessToken);
         $accessToken->id = 'accessToken1';
         $accessToken->clientId = 'client1';
         $accessToken->userId = 'user1';
@@ -37,7 +37,7 @@ class OauthAccessTokenStorageTest extends TestCase
         $this->assertTrue($accessToken->save());
 
         $insertedAccessToken = AccessToken::findOne('accessToken1');
-        $this->assertInstanceOf(AccessToken::className(), $insertedAccessToken);
+        $this->assertInstanceOf(AccessToken::class, $insertedAccessToken);
         $this->assertEquals($accessToken->id, $insertedAccessToken->id);
         $this->assertEquals($accessToken->clientId, $insertedAccessToken->clientId);
         $this->assertEquals($accessToken->userId, $insertedAccessToken->userId);
@@ -49,7 +49,7 @@ class OauthAccessTokenStorageTest extends TestCase
         $this->assertTrue(is_array($accessTokens));
         $this->assertEquals(1, count($accessTokens));
 
-        $this->assertInstanceOf(AccessToken::className(), $accessTokens[0]);
+        $this->assertInstanceOf(AccessToken::class, $accessTokens[0]);
         $this->assertEquals($accessToken->id, $accessTokens[0]->id);
         $this->assertEquals($accessToken->clientId, $accessTokens[0]->clientId);
         $this->assertEquals($accessToken->userId, $accessTokens[0]->userId);
@@ -61,7 +61,7 @@ class OauthAccessTokenStorageTest extends TestCase
 
         $accessToken = Yii::createObject('sweelix\oauth2\server\interfaces\AccessTokenModelInterface');
         /* @var AccessToken $accessToken */
-        $this->assertInstanceOf(AccessToken::className(), $accessToken);
+        $this->assertInstanceOf(AccessToken::class, $accessToken);
         $accessToken->id = 'accessToken2';
         $accessToken->clientId = 'client1';
         $accessToken->userId = 'user1';
@@ -71,7 +71,7 @@ class OauthAccessTokenStorageTest extends TestCase
 
         $newAccessToken = Yii::createObject('sweelix\oauth2\server\interfaces\AccessTokenModelInterface');
         /* @var AccessToken $newAccessToken */
-        $this->assertInstanceOf(AccessToken::className(), $newAccessToken);
+        $this->assertInstanceOf(AccessToken::class, $newAccessToken);
         $newAccessToken->id = 'accessToken3';
         $newAccessToken->clientId = 'client1';
         $newAccessToken->userId = 'user1';
@@ -124,7 +124,7 @@ class OauthAccessTokenStorageTest extends TestCase
 
         $accessToken = Yii::createObject('sweelix\oauth2\server\interfaces\AccessTokenModelInterface');
         /* @var AccessToken $accessToken */
-        $this->assertInstanceOf(AccessToken::className(), $accessToken);
+        $this->assertInstanceOf(AccessToken::class, $accessToken);
         $accessToken->id = 'accessToken1';
         $accessToken->clientId = 'client1';
         $accessToken->userId = 'user1';
@@ -134,7 +134,7 @@ class OauthAccessTokenStorageTest extends TestCase
 
         $accessToken = Yii::createObject('sweelix\oauth2\server\interfaces\AccessTokenModelInterface');
         /* @var AccessToken $accessToken */
-        $this->assertInstanceOf(AccessToken::className(), $accessToken);
+        $this->assertInstanceOf(AccessToken::class, $accessToken);
         $accessToken->id = 'accessToken2';
         $accessToken->clientId = 'client1';
         $accessToken->userId = 'user1';
@@ -159,7 +159,7 @@ class OauthAccessTokenStorageTest extends TestCase
         $this->assertEquals(0, count($refreshTokens));
 
         $client = Client::findOne('client1');
-        $this->assertInstanceOf(Client::className(), $client);
+        $this->assertInstanceOf(Client::class, $client);
 
         $this->assertTrue(AccessToken::deleteAllByClientId('client1'));
 
@@ -187,7 +187,7 @@ class OauthAccessTokenStorageTest extends TestCase
 
         $accessToken = Yii::createObject('sweelix\oauth2\server\interfaces\AccessTokenModelInterface');
         /* @var AccessToken $accessToken */
-        $this->assertInstanceOf(AccessToken::className(), $accessToken);
+        $this->assertInstanceOf(AccessToken::class, $accessToken);
         $accessToken->id = 'accessToken1';
         $accessToken->clientId = 'client1';
         $accessToken->userId = 'user1';
@@ -197,7 +197,7 @@ class OauthAccessTokenStorageTest extends TestCase
 
         $accessToken = Yii::createObject('sweelix\oauth2\server\interfaces\AccessTokenModelInterface');
         /* @var AccessToken $accessToken */
-        $this->assertInstanceOf(AccessToken::className(), $accessToken);
+        $this->assertInstanceOf(AccessToken::class, $accessToken);
         $accessToken->id = 'accessToken2';
         $accessToken->clientId = 'client1';
         $accessToken->userId = 'user1';
@@ -222,7 +222,7 @@ class OauthAccessTokenStorageTest extends TestCase
         $this->assertEquals(0, count($refreshTokens));
 
         $client = Client::findOne('client1');
-        $this->assertInstanceOf(Client::className(), $client);
+        $this->assertInstanceOf(Client::class, $client);
 
         $this->assertTrue(AccessToken::deleteAllByUserId('user1'));
 
@@ -236,7 +236,7 @@ class OauthAccessTokenStorageTest extends TestCase
     {
         $accessToken = Yii::createObject('sweelix\oauth2\server\interfaces\AccessTokenModelInterface');
         /* @var AccessToken $accessToken */
-        $this->assertInstanceOf(AccessToken::className(), $accessToken);
+        $this->assertInstanceOf(AccessToken::class, $accessToken);
         $accessToken->id = 'accessToken1';
         $accessToken->clientId = 'client1';
         $accessToken->userId = 'user1';
@@ -244,7 +244,7 @@ class OauthAccessTokenStorageTest extends TestCase
         $this->assertTrue($accessToken->save());
 
         $insertedAccessToken = AccessToken::findOne('accessToken1');
-        $this->assertInstanceOf(AccessToken::className(), $insertedAccessToken);
+        $this->assertInstanceOf(AccessToken::class, $insertedAccessToken);
 
         $insertedAccessToken->id = 'accessToken2';
         $insertedAccessToken->expiry = null;
@@ -252,7 +252,7 @@ class OauthAccessTokenStorageTest extends TestCase
 
         $accessToken = Yii::createObject('sweelix\oauth2\server\interfaces\AccessTokenModelInterface');
         /* @var AccessToken $accessToken */
-        $this->assertInstanceOf(AccessToken::className(), $accessToken);
+        $this->assertInstanceOf(AccessToken::class, $accessToken);
         $accessToken->id = 'accessToken1';
         $accessToken->clientId = 'client1';
         $accessToken->userId = 'user1';
@@ -269,7 +269,7 @@ class OauthAccessTokenStorageTest extends TestCase
     {
         $accessToken = Yii::createObject('sweelix\oauth2\server\interfaces\AccessTokenModelInterface');
         /* @var AccessToken $accessToken */
-        $this->assertInstanceOf(AccessToken::className(), $accessToken);
+        $this->assertInstanceOf(AccessToken::class, $accessToken);
         $accessToken->id = 'accessToken1';
         $accessToken->clientId = 'client1';
         $accessToken->userId = 'user1';
@@ -277,7 +277,7 @@ class OauthAccessTokenStorageTest extends TestCase
         $this->assertTrue($accessToken->save());
 
         $insertedAccessToken = AccessToken::findOne('accessToken1');
-        $this->assertInstanceOf(AccessToken::className(), $insertedAccessToken);
+        $this->assertInstanceOf(AccessToken::class, $insertedAccessToken);
 
         $this->assertTrue($insertedAccessToken->delete());
     }
@@ -290,7 +290,7 @@ class OauthAccessTokenStorageTest extends TestCase
         $expiry = time()+3600;
         $this->assertTrue($storage->setAccessToken('accessToken1', 'client1', 'user1', $expiry));
         $accessToken = AccessToken::findOne('accessToken1');
-        $this->assertInstanceOf(AccessToken::className(), $accessToken);
+        $this->assertInstanceOf(AccessToken::class, $accessToken);
         $this->assertEquals('accessToken1', $accessToken->id);
         $this->assertEquals('client1', $accessToken->clientId);
         $this->assertEquals('user1', $accessToken->userId);

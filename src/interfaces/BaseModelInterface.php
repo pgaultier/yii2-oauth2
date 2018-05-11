@@ -131,7 +131,7 @@ interface BaseModelInterface
      * Sets the named attribute value.
      * @param string $name the attribute name
      * @param mixed $value the attribute value.
-     * @throws \yii\base\InvalidParamException if the named attribute does not exist.
+     * @throws \yii\base\InvalidArgumentException if the named attribute does not exist.
      * @see hasAttribute()
      */
     public function setAttribute($name, $value);
@@ -154,7 +154,7 @@ interface BaseModelInterface
      * Sets the old value of the named attribute.
      * @param string $name the attribute name
      * @param mixed $value the old attribute value.
-     * @throws \yii\base\InvalidParamException if the named attribute does not exist.
+     * @throws \yii\base\InvalidArgumentException if the named attribute does not exist.
      * @see hasAttribute()
      */
     public function setOldAttribute($name, $value);
