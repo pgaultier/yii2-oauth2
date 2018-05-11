@@ -1,6 +1,9 @@
 Oauth2 Yii2 Change Log
 ======================
 
+1.3.0 May 11, 2018
+------------------
+
  * Enh: update minimal Yii requirement to version 2.0.13
  * Enh: update console script deprecated error codes
  * Enh: update deprecated method from `Yii::trace()` to `Yii::debug()`
