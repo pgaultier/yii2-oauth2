@@ -45,7 +45,7 @@ class AccessToken extends BaseModel implements AccessTokenModelInterface
     {
         $behaviors = parent::behaviors();
         $behaviors['emptyArray'] = [
-            'class' => EmptyArrayBehavior::className(),
+            'class' => EmptyArrayBehavior::class,
             'attributes' => ['scopes'],
         ];
         return $behaviors;

@@ -50,11 +50,11 @@ class Client extends BaseModel implements ClientModelInterface
     {
         $behaviors = parent::behaviors();
         $behaviors['emptyArray'] = [
-            'class' => EmptyArrayBehavior::className(),
+            'class' => EmptyArrayBehavior::class,
             'attributes' => ['scopes', 'grantTypes'],
         ];
         $behaviors['splitToArray'] = [
-            'class' => SplitToArrayBehavior::className(),
+            'class' => SplitToArrayBehavior::class,
             'attributes' => ['redirectUri'],
         ];
         return $behaviors;

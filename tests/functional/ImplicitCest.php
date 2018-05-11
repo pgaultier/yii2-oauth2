@@ -139,7 +139,7 @@ class ImplicitCest extends CestCase
         $token = $I->grabFromCurrentUrl('~access_token=([^&]+)~');
 
         $accessToken = AccessToken::findOne($token);
-        $I->assertInstanceOf(AccessToken::className(), $accessToken);
+        $I->assertInstanceOf(AccessToken::class, $accessToken);
 
         // check we can skip login and authorize
         $I->amOnRoute('oauth2/authorize/index', [
@@ -153,7 +153,7 @@ class ImplicitCest extends CestCase
         $token = $I->grabFromCurrentUrl('~access_token=([^&]+)~');
 
         $accessToken = AccessToken::findOne($token);
-        $I->assertInstanceOf(AccessToken::className(), $accessToken);
+        $I->assertInstanceOf(AccessToken::class, $accessToken);
 
         $I->assertTrue($client->hasUser('userid1'));
 
@@ -177,7 +177,7 @@ class ImplicitCest extends CestCase
         $token = $I->grabFromCurrentUrl('~access_token=([^&]+)~');
 
         $accessToken = AccessToken::findOne($token);
-        $I->assertInstanceOf(AccessToken::className(), $accessToken);
+        $I->assertInstanceOf(AccessToken::class, $accessToken);
 
 
 

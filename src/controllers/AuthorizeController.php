@@ -63,7 +63,7 @@ class AuthorizeController extends Controller
     {
         $behaviors = parent::behaviors();
         $behaviors['access'] = [
-            'class' => AccessControl::className(),
+            'class' => AccessControl::class,
             'only' => ['authorize'],
             'rules' => [
                 [

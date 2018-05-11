@@ -47,7 +47,7 @@ class AuthCode extends BaseModel implements AuthCodeModelInterface
     {
         $behaviors = parent::behaviors();
         $behaviors['emptyArray'] = [
-            'class' => EmptyArrayBehavior::className(),
+            'class' => EmptyArrayBehavior::class,
             'attributes' => ['scopes'],
         ];
         return $behaviors;
