@@ -73,7 +73,7 @@ class ClientController extends Controller
         $client->redirectUri = $redirectUri;
         $client->userId = $this->userId;
         $client->isPublic = (bool)$this->isPublic;
-        $client->scopes = empty($this->scope) ? null : explode(',', $this->scopes);
+        $client->scopes = empty($this->scopes) ? null : explode(',', $this->scopes);
         $client->grantTypes = empty($this->grantTypes) ? null : explode(',', $this->grantTypes);
         if ($client->save() === true) {
             $this->stdout('Client created :'."\n");
@@ -96,7 +96,7 @@ class ClientController extends Controller
             $client->name = $this->name;
             $client->userId = $this->userId;
             $client->isPublic = (bool)$this->isPublic;
-            $client->scopes = empty($this->scope) ? null : explode(',', $this->scopes);
+            $client->scopes = empty($this->scopes) ? null : explode(',', $this->scopes);
             $client->grantTypes = empty($this->grantTypes) ? null : explode(',', $this->grantTypes);
             if ($client->save() === true) {
                 $this->stdout('Client updated :' . "\n");
