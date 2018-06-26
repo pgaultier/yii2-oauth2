@@ -97,7 +97,7 @@ class AuthCode extends BaseModel implements AuthCodeModelInterface
             'clientId' => 'string',
             'userId' => 'string',
             'redirectUri' => 'string',
-            'expiry' => 'string',
+            'expiry' => 'date',
             'scopes' => 'array',
             'tokenId' => 'string',
         ];

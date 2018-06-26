@@ -39,12 +39,14 @@ interface JtiServiceInterface
     /**
      * @param string $key
      * @return JtiModelInterface|null
+     * @throws \Exception
      */
     public function findOne($key);
 
     /**
      * @param JtiModelInterface $jti
      * @return boolean
+     * @throws \Exception
      */
     public function delete(JtiModelInterface $jti);
 

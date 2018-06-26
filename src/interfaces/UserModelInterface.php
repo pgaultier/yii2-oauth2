@@ -14,7 +14,6 @@
 
 namespace sweelix\oauth2\server\interfaces;
 
-use OAuth2\Controller\ResourceController;
 use yii\web\IdentityInterface;
 
 /**

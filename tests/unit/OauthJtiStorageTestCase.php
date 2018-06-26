@@ -9,7 +9,7 @@ use Yii;
 /**
  * ManagerTestCase
  */
-class OauthJtiStorageTest extends TestCase
+class OauthJtiStorageTestCase extends TestCase
 {
     protected function setUp()
     {
@@ -17,6 +17,7 @@ class OauthJtiStorageTest extends TestCase
         $this->mockApplication([
         ]);
         $this->cleanDatabase();
+        $this->populateClients();
     }
     protected function tearDown()
     {
@@ -51,8 +52,6 @@ class OauthJtiStorageTest extends TestCase
         $jti->jti = 'Real jti data';
         $this->expectException(DuplicateKeyException::class);
         $jti->save();
-
-
     }
 
     public function testUpdate()
@@ -147,7 +146,6 @@ class OauthJtiStorageTest extends TestCase
 
         $jti = Jti::findOne(['clientId' => 'client1', 'subject' => 'subject', 'audience' => 'audience', 'expires' => 1250, 'jti' => 'Real jti data']);
         $this->assertNull($jti);
-
     }
 
     public function testStorage()
@@ -186,6 +184,5 @@ class OauthJtiStorageTest extends TestCase
 
         $this->expectException(DuplicateKeyException::class);
         $storage->setJti('client2', 'subject', 'audience', 1250, 'Real jti data');
-
     }
 }

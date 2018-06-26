@@ -1,16 +1,18 @@
 <?php
 
 namespace tests\unit;
+
 use OAuth2\Storage\AccessTokenInterface;
 use sweelix\oauth2\server\exceptions\DuplicateKeyException;
 use sweelix\oauth2\server\interfaces\ClientModelInterface;
 use sweelix\oauth2\server\models\AccessToken;
 use sweelix\oauth2\server\models\Client;
 use Yii;
+
 /**
  * ManagerTestCase
  */
-class OauthAccessTokenStorageTest extends TestCase
+class OauthAccessTokenStorageTestCase extends TestCase
 {
     protected function setUp()
     {
@@ -18,7 +20,9 @@ class OauthAccessTokenStorageTest extends TestCase
         $this->mockApplication([
         ]);
         $this->cleanDatabase();
+        $this->populateClients();
     }
+
     protected function tearDown()
     {
         parent::tearDown();
@@ -33,7 +37,7 @@ class OauthAccessTokenStorageTest extends TestCase
         $accessToken->id = 'accessToken1';
         $accessToken->clientId = 'client1';
         $accessToken->userId = 'user1';
-        $accessToken->expiry = time()+3600;
+        $accessToken->expiry = time() + 3600;
         $this->assertTrue($accessToken->save());
 
         $insertedAccessToken = AccessToken::findOne('accessToken1');
@@ -42,7 +46,7 @@ class OauthAccessTokenStorageTest extends TestCase
         $this->assertEquals($accessToken->clientId, $insertedAccessToken->clientId);
         $this->assertEquals($accessToken->userId, $insertedAccessToken->userId);
         $this->assertEquals($accessToken->expiry, $insertedAccessToken->expiry);
-        $this->assertTrue(is_array($insertedAccessToken->scopes)) ;
+        $this->assertTrue(is_array($insertedAccessToken->scopes));
         $this->assertTrue(empty($insertedAccessToken->scopes));
 
         $accessTokens = AccessToken::findAllByUserId('user1');
@@ -54,7 +58,7 @@ class OauthAccessTokenStorageTest extends TestCase
         $this->assertEquals($accessToken->clientId, $accessTokens[0]->clientId);
         $this->assertEquals($accessToken->userId, $accessTokens[0]->userId);
         $this->assertEquals($accessToken->expiry, $accessTokens[0]->expiry);
-        $this->assertTrue(is_array($accessTokens[0]->scopes)) ;
+        $this->assertTrue(is_array($accessTokens[0]->scopes));
         $this->assertTrue(empty($accessTokens[0]->scopes));
 
         $this->populateScopes();
@@ -65,7 +69,7 @@ class OauthAccessTokenStorageTest extends TestCase
         $accessToken->id = 'accessToken2';
         $accessToken->clientId = 'client1';
         $accessToken->userId = 'user1';
-        $accessToken->expiry = time()+3600;
+        $accessToken->expiry = time() + 3600;
         $accessToken->scopes = ['basic'];
         $this->assertTrue($accessToken->save());
 
@@ -75,7 +79,7 @@ class OauthAccessTokenStorageTest extends TestCase
         $newAccessToken->id = 'accessToken3';
         $newAccessToken->clientId = 'client1';
         $newAccessToken->userId = 'user1';
-        $accessToken->expiry = time()+3600;
+        $accessToken->expiry = time() + 3600;
         $newAccessToken->scopes = ['fail'];
         $this->assertFalse($newAccessToken->save());
 
@@ -108,17 +112,20 @@ class OauthAccessTokenStorageTest extends TestCase
 
     public function testDeleteAllByClientId()
     {
-        $client1 = Yii::createObject('sweelix\oauth2\server\interfaces\ClientModelInterface');
-        /* @var ClientModelInterface $client1 */
-        $this->assertInstanceOf(ClientModelInterface::class, $client1);
-        $client1->id = 'client1';
-        $client1->secret = 'secret1';
-        $client1->isPublic = true;
-        $client1->grantTypes = [];
-        $client1->userId = 'uid';
-        $client1->scopes = [];
-        $client1->name = 'Test client';
-        $this->assertTrue($client1->save());
+        $client1 = Client::findOne('client1');
+        if ($client1 === null) {
+            $client1 = Yii::createObject('sweelix\oauth2\server\interfaces\ClientModelInterface');
+            /* @var ClientModelInterface $client1 */
+            $this->assertInstanceOf(ClientModelInterface::class, $client1);
+            $client1->id = 'client1';
+            $client1->secret = 'secret1';
+            $client1->isPublic = true;
+            $client1->grantTypes = [];
+            $client1->userId = 'uid';
+            $client1->scopes = [];
+            $client1->name = 'Test client';
+            $this->assertTrue($client1->save());
+        }
 
         $this->populateScopes();
 
@@ -128,7 +135,7 @@ class OauthAccessTokenStorageTest extends TestCase
         $accessToken->id = 'accessToken1';
         $accessToken->clientId = 'client1';
         $accessToken->userId = 'user1';
-        $accessToken->expiry = time()+3600;
+        $accessToken->expiry = time() + 3600;
         $accessToken->scopes = ['basic'];
         $this->assertTrue($accessToken->save());
 
@@ -138,7 +145,7 @@ class OauthAccessTokenStorageTest extends TestCase
         $accessToken->id = 'accessToken2';
         $accessToken->clientId = 'client1';
         $accessToken->userId = 'user1';
-        $accessToken->expiry = time()+3600;
+        $accessToken->expiry = time() + 3600;
         $accessToken->scopes = ['basic'];
         $this->assertTrue($accessToken->save());
 
@@ -171,17 +178,20 @@ class OauthAccessTokenStorageTest extends TestCase
 
     public function testDeleteAllByUserId()
     {
-        $client1 = Yii::createObject('sweelix\oauth2\server\interfaces\ClientModelInterface');
-        /* @var ClientModelInterface $client1 */
-        $this->assertInstanceOf(ClientModelInterface::class, $client1);
-        $client1->id = 'client1';
-        $client1->secret = 'secret1';
-        $client1->isPublic = true;
-        $client1->grantTypes = [];
-        $client1->userId = 'uid';
-        $client1->scopes = [];
-        $client1->name = 'Test client';
-        $this->assertTrue($client1->save());
+        $client1 = Client::findOne('client1');
+        if ($client1 === null) {
+            $client1 = Yii::createObject('sweelix\oauth2\server\interfaces\ClientModelInterface');
+            /* @var ClientModelInterface $client1 */
+            $this->assertInstanceOf(ClientModelInterface::class, $client1);
+            $client1->id = 'client1';
+            $client1->secret = 'secret1';
+            $client1->isPublic = true;
+            $client1->grantTypes = [];
+            $client1->userId = 'uid';
+            $client1->scopes = [];
+            $client1->name = 'Test client';
+            $this->assertTrue($client1->save());
+        }
 
         $this->populateScopes();
 
@@ -191,7 +201,7 @@ class OauthAccessTokenStorageTest extends TestCase
         $accessToken->id = 'accessToken1';
         $accessToken->clientId = 'client1';
         $accessToken->userId = 'user1';
-        $accessToken->expiry = time()+3600;
+        $accessToken->expiry = time() + 3600;
         $accessToken->scopes = ['basic'];
         $this->assertTrue($accessToken->save());
 
@@ -201,7 +211,7 @@ class OauthAccessTokenStorageTest extends TestCase
         $accessToken->id = 'accessToken2';
         $accessToken->clientId = 'client1';
         $accessToken->userId = 'user1';
-        $accessToken->expiry = time()+3600;
+        $accessToken->expiry = time() + 3600;
         $accessToken->scopes = ['basic'];
         $this->assertTrue($accessToken->save());
 
@@ -240,7 +250,7 @@ class OauthAccessTokenStorageTest extends TestCase
         $accessToken->id = 'accessToken1';
         $accessToken->clientId = 'client1';
         $accessToken->userId = 'user1';
-        $accessToken->expiry = time()+3600;
+        $accessToken->expiry = time() + 3600;
         $this->assertTrue($accessToken->save());
 
         $insertedAccessToken = AccessToken::findOne('accessToken1');
@@ -256,13 +266,22 @@ class OauthAccessTokenStorageTest extends TestCase
         $accessToken->id = 'accessToken1';
         $accessToken->clientId = 'client1';
         $accessToken->userId = 'user1';
-        $accessToken->expiry = time()+3600;
+        $accessToken->expiry = time() + 3600;
         $this->assertTrue($accessToken->save());
 
         $insertedAccessToken->id = 'accessToken1';
         $this->expectException(DuplicateKeyException::class);
         $insertedAccessToken->save();
 
+        $this->populateScopes();
+
+        $accessToken = AccessToken::findOne('accessToken1');
+        $accessToken->scopes = ['basic'];
+        $this->assertTrue($accessToken->save());
+
+        $accessToken = AccessToken::findOne('accessToken1');
+        $accessToken->scopes = ['wrongScope'];
+        $this->assertFalse($accessToken->save());
     }
 
     public function testDelete()
@@ -273,7 +292,7 @@ class OauthAccessTokenStorageTest extends TestCase
         $accessToken->id = 'accessToken1';
         $accessToken->clientId = 'client1';
         $accessToken->userId = 'user1';
-        $accessToken->expiry = time()+3600;
+        $accessToken->expiry = time() + 3600;
         $this->assertTrue($accessToken->save());
 
         $insertedAccessToken = AccessToken::findOne('accessToken1');
@@ -287,7 +306,7 @@ class OauthAccessTokenStorageTest extends TestCase
         $storage = Yii::createObject('sweelix\oauth2\server\storage\OauthStorage');
         /* @var AccessTokenInterface $storage */
         $this->assertInstanceOf(AccessTokenInterface::class, $storage);
-        $expiry = time()+3600;
+        $expiry = time() + 3600;
         $this->assertTrue($storage->setAccessToken('accessToken1', 'client1', 'user1', $expiry));
         $accessToken = AccessToken::findOne('accessToken1');
         $this->assertInstanceOf(AccessToken::class, $accessToken);

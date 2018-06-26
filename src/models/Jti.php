@@ -76,7 +76,7 @@ class Jti extends BaseModel implements JtiModelInterface
             'clientId' => 'string',
             'subject' => 'string',
             'audience' => 'string',
-            'expires' => 'string',
+            'expires' => 'date',
             'jti' => 'string',
         ];
     }

@@ -39,36 +39,42 @@ interface AccessTokenServiceInterface
     /**
      * @param string $key
      * @return AccessTokenModelInterface|null
+     * @throws \Exception
      */
     public function findOne($key);
 
     /**
      * @param AccessTokenModelInterface $accessToken
      * @return boolean
+     * @throws \Exception
      */
     public function delete(AccessTokenModelInterface $accessToken);
 
     /**
      * @param string $userId
      * @return AccessTokenModelInterface[]
+     * @throws \Exception
      */
     public function findAllByUserId($userId);
 
     /**
      * @param string $userId
      * @return bool
+     * @throws \Exception
      */
     public function deleteAllByUserId($userId);
 
     /**
      * @param string $clientId
      * @return AccessTokenModelInterface[]
+     * @throws \Exception
      */
     public function findAllByClientId($clientId);
 
     /**
      * @param string $clientId
      * @return bool
+     * @throws \Exception
      */
     public function deleteAllByClientId($clientId);
 

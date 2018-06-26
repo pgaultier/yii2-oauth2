@@ -13,13 +13,13 @@
  */
 namespace sweelix\oauth2\server;
 
+use sweelix\oauth2\server\services\MySql;
 use sweelix\oauth2\server\services\Oauth;
 use sweelix\oauth2\server\services\Redis;
 use yii\base\BootstrapInterface;
 use yii\base\Module as BaseModule;
 use yii\console\Application as ConsoleApplication;
 use Yii;
-use yii\di\Instance;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -36,7 +36,7 @@ use yii\helpers\ArrayHelper;
 class Module extends BaseModule implements BootstrapInterface
 {
     /**
-     * @var string backend to use, available backends are 'redis'
+     * @var string backend to use, available backends are 'redis' or 'mysql
      */
     public $backend;
 
@@ -255,9 +255,10 @@ class Module extends BaseModule implements BootstrapInterface
         }
         if ($this->backend === 'redis') {
             Redis::register($app);
+        } else if ($this->backend === 'mysql') {
+            MySql::register($app);
         }
         Oauth::register($app);
-
     }
 
     /**
@@ -327,6 +328,8 @@ class Module extends BaseModule implements BootstrapInterface
         $app->controllerMap['oauth2:key'] = [
             'class' => 'sweelix\oauth2\server\commands\KeyController',
         ];
-
+        $app->controllerMap['oauth2:cronjob'] = [
+            'class' => 'sweelix\oauth2\server\commands\CronJobController',
+        ];
     }
 }

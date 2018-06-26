@@ -39,12 +39,14 @@ interface AuthCodeServiceInterface
     /**
      * @param string $key
      * @return AuthCodeModelInterface|null
+     * @throws \Exception
      */
     public function findOne($key);
 
     /**
      * @param AuthCodeModelInterface $authCode
      * @return boolean
+     * @throws \Exception
      */
     public function delete(AuthCodeModelInterface $authCode);
 
