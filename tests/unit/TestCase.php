@@ -2,6 +2,8 @@
 
 namespace tests\unit;
 
+use yii\db\Exception;
+use yii\db\Query;
 use yii\helpers\ArrayHelper;
 use Yii;
 
@@ -185,6 +187,15 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
                 Yii::$app->redis->executeCommand('DEL', $keys);
             }
         } else if ($this->moduleType === 'mysql') {
+            try {
+                (new Query())
+                    ->select('*')
+                    ->from('oauthCypherKeys')
+                    ->all();
+            } catch (Exception $e) {
+                $sql = file_get_contents(Yii::getAlias('@tests') . '/_data/oauth2.sql');
+                Yii::$app->db->createCommand($sql)->execute();
+            }
             Yii::$app->db->createCommand()->delete('oauthCypherKeys')->execute();
             Yii::$app->db->createCommand()->delete('oauthScopeRefreshToken')->execute();
             Yii::$app->db->createCommand()->delete('oauthScopeAuthorizationCode')->execute();
