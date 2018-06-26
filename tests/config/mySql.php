@@ -16,7 +16,7 @@ $isGitlab = getenv('GITLAB_CI');
 return [
     'class' => 'yii\db\Connection',
     'dsn' => 'mysql:host=localhost;dbname=oauth2',
-    'username' => 'root',
+    'username' => 'travis',
     'password' => '',
     'charset' => 'utf8',
 ];
