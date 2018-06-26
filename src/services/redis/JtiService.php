@@ -198,24 +198,24 @@ class JtiService extends BaseService implements JtiServiceInterface
     public function findOne($key)
     {
         $record = null;
-        $accessTokenKey = $this->getJtiKey($key);
-        $accessTokenExists = (bool)$this->db->executeCommand('EXISTS', [$accessTokenKey]);
-        if ($accessTokenExists === true) {
-            $accessTokenData = $this->db->executeCommand('HGETALL', [$accessTokenKey]);
+        $jtiKey = $this->getJtiKey($key);
+        $jtiExists = (bool)$this->db->executeCommand('EXISTS', [$jtiKey]);
+        if ($jtiExists === true) {
+            $jtiData = $this->db->executeCommand('HGETALL', [$jtiKey]);
             $record = Yii::createObject('sweelix\oauth2\server\interfaces\JtiModelInterface');
             /** @var JtiModelInterface $record */
             $properties = $record->attributesDefinition();
             $this->setAttributesDefinitions($properties);
             $attributes = [];
-            for ($i = 0; $i < count($accessTokenData); $i += 2) {
-                if (isset($properties[$accessTokenData[$i]]) === true) {
-                    $accessTokenData[$i + 1] = $this->convertToModel($accessTokenData[$i], $accessTokenData[($i + 1)]);
-                    $record->setAttribute($accessTokenData[$i], $accessTokenData[$i + 1]);
-                    $attributes[$accessTokenData[$i]] = $accessTokenData[$i + 1];
+            for ($i = 0; $i < count($jtiData); $i += 2) {
+                if (isset($properties[$jtiData[$i]]) === true) {
+                    $jtiData[$i + 1] = $this->convertToModel($jtiData[$i], $jtiData[($i + 1)]);
+                    $record->setAttribute($jtiData[$i], $jtiData[$i + 1]);
+                    $attributes[$jtiData[$i]] = $jtiData[$i + 1];
                     // @codeCoverageIgnoreStart
-                } elseif ($record->canSetProperty($accessTokenData[$i])) {
+                } elseif ($record->canSetProperty($jtiData[$i])) {
                     // TODO: find a way to test attribute population
-                    $record->{$accessTokenData[$i]} = $accessTokenData[$i + 1];
+                    $record->{$jtiData[$i]} = $jtiData[$i + 1];
                 }
                 // @codeCoverageIgnoreEnd
             }

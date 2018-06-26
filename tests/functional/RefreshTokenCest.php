@@ -14,6 +14,7 @@
 
 namespace tests\functional;
 
+use Codeception\Scenario;
 use FunctionalTester;
 use sweelix\oauth2\server\models\AccessToken;
 use sweelix\oauth2\server\models\RefreshToken;
@@ -22,15 +23,15 @@ use yii\helpers\Json;
 
 class RefreshTokenCest extends CestCase
 {
-    public function _before(FunctionalTester $I)
+    public function _before(FunctionalTester $I, Scenario $scenario)
     {
-        $this->cleanDatabase();
+        $this->cleanDatabase($scenario->current('env'));
     }
 
     public function _after(FunctionalTester $I)
     {
         // Yii::$app->redis->close();
-        // $this->destroyApplication();
+         $this->destroyApplication();
     }
 
     public function checkWithCorrectClientAndCorrectGrant(FunctionalTester $I)

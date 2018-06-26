@@ -14,8 +14,6 @@
 
 namespace sweelix\oauth2\server\interfaces;
 
-use sweelix\oauth2\server\models\CypherKey;
-
 /**
  * This is the cypher key service interface
  *
@@ -31,23 +29,25 @@ interface CypherKeyServiceInterface
 {
     /**
      * Save or update Cypher Key depending on isNewRecord flag
-     * @param CypherKey $accessToken
+     * @param CypherKeyModelInterface $cypherKey
      * @param null|array $attributes attributes to save
      * @return boolean
      * @throws \Exception
      */
-    public function save(CypherKey $accessToken, $attributes);
+    public function save(CypherKeyModelInterface $cypherKey, $attributes);
 
     /**
      * @param string $key
-     * @return CypherKey|null
+     * @return CypherKeyModelInterface|null
+     * @throws \Exception
      */
     public function findOne($key);
 
     /**
-     * @param CypherKey $accessToken
+     * @param CypherKeyModelInterface $cypherKey
      * @return boolean
+     * @throws \Exception
      */
-    public function delete(CypherKey $accessToken);
+    public function delete(CypherKeyModelInterface $cypherKey);
 
 }

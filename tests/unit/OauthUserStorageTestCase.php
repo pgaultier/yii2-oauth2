@@ -6,7 +6,7 @@ use Yii;
 /**
  * ManagerTestCase
  */
-class OauthUserStorageTest extends TestCase
+class OauthUserStorageTestCase extends TestCase
 {
     protected function setUp()
     {

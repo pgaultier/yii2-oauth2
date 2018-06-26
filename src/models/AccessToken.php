@@ -88,7 +88,7 @@ class AccessToken extends BaseModel implements AccessTokenModelInterface
             'id' => 'string',
             'clientId' => 'string',
             'userId' => 'string',
-            'expiry' => 'string',
+            'expiry' => 'date',
             'scopes' => 'array',
         ];
     }

@@ -87,7 +87,7 @@ class RefreshToken extends BaseModel implements RefreshTokenModelInterface
             'id' => 'string',
             'clientId' => 'string',
             'userId' => 'string',
-            'expiry' => 'string',
+            'expiry' => 'date',
             'scopes' => 'array',
         ];
     }

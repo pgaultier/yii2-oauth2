@@ -39,12 +39,14 @@ interface JwtServiceInterface
     /**
      * @param string $key
      * @return JwtModelInterface|null
+     * @throws \Exception
      */
     public function findOne($key);
 
     /**
      * @param JwtModelInterface $jwt
      * @return boolean
+     * @throws \Exception
      */
     public function delete(JwtModelInterface $jwt);
 

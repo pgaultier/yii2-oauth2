@@ -16,7 +16,7 @@ namespace sweelix\oauth2\server\services\redis;
 
 use sweelix\oauth2\server\exceptions\DuplicateIndexException;
 use sweelix\oauth2\server\exceptions\DuplicateKeyException;
-use sweelix\oauth2\server\models\CypherKey;
+use sweelix\oauth2\server\interfaces\CypherKeyModelInterface;
 use sweelix\oauth2\server\interfaces\CypherKeyServiceInterface;
 use yii\db\Exception as DatabaseException;
 use Yii;
@@ -50,7 +50,7 @@ class CypherKeyService extends BaseService implements CypherKeyServiceInterface
     /**
      * @inheritdoc
      */
-    public function save(CypherKey $cypherKey, $attributes)
+    public function save(CypherKeyModelInterface $cypherKey, $attributes)
     {
         if ($cypherKey->getIsNewRecord()) {
             $result = $this->insert($cypherKey, $attributes);
@@ -62,7 +62,7 @@ class CypherKeyService extends BaseService implements CypherKeyServiceInterface
 
     /**
      * Save Cypher Key
-     * @param CypherKey $cypherKey
+     * @param CypherKeyModelInterface $cypherKey
      * @param null|array $attributes attributes to save
      * @return bool
      * @throws DatabaseException
@@ -70,7 +70,7 @@ class CypherKeyService extends BaseService implements CypherKeyServiceInterface
      * @throws DuplicateKeyException
      * @since 1.0.0
      */
-    protected function insert(CypherKey $cypherKey, $attributes)
+    protected function insert(CypherKeyModelInterface $cypherKey, $attributes)
     {
         $result = false;
         if (!$cypherKey->beforeSave(true)) {
@@ -117,14 +117,14 @@ class CypherKeyService extends BaseService implements CypherKeyServiceInterface
 
     /**
      * Update Cypher Key
-     * @param CypherKey $cypherKey
+     * @param CypherKeyModelInterface $cypherKey
      * @param null|array $attributes attributes to save
      * @return bool
      * @throws DatabaseException
      * @throws DuplicateIndexException
      * @throws DuplicateKeyException
      */
-    protected function update(CypherKey $cypherKey, $attributes)
+    protected function update(CypherKeyModelInterface $cypherKey, $attributes)
     {
         if (!$cypherKey->beforeSave(false)) {
             return false;
@@ -201,8 +201,8 @@ class CypherKeyService extends BaseService implements CypherKeyServiceInterface
         $cypherKeyExists = (bool)$this->db->executeCommand('EXISTS', [$cypherKeyKey]);
         if ($cypherKeyExists === true) {
             $cypherKeyData = $this->db->executeCommand('HGETALL', [$cypherKeyKey]);
-            $record = Yii::createObject(CypherKey::class);
-            /** @var CypherKey $record */
+            $record = Yii::createObject(CypherKeyModelInterface::class);
+            /** @var CypherKeyModelInterface $record */
             $properties = $record->attributesDefinition();
             $this->setAttributesDefinitions($properties);
             $attributes = [];
@@ -229,7 +229,7 @@ class CypherKeyService extends BaseService implements CypherKeyServiceInterface
     /**
      * @inheritdoc
      */
-    public function delete(CypherKey $cypherKey)
+    public function delete(CypherKeyModelInterface $cypherKey)
     {
         $result = false;
         if ($cypherKey->beforeDelete()) {

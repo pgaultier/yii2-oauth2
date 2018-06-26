@@ -1,6 +1,6 @@
 <?php
 /**
- * test.php
+ * testMysql.php
  *
  * PHP version 5.6+
  *
@@ -11,6 +11,7 @@
  * @link http://www.sweelix.net
  * @since XXX
  */
+
 return [
     'basePath' => __DIR__ . '/../../src',
     // Force vendor path to avoid misconfiguration
@@ -20,9 +21,10 @@ return [
     'bootstrap' => ['oauth2'],
     'modules' => [
         'oauth2' => [
+            'baseEndPoint' => 'mysql',
             'class' => 'sweelix\oauth2\server\Module',
-            'backend' => 'redis',
-            'db' => 'redis',
+            'backend' => 'mysql',
+            'db' => 'db',
             // 'identityClass' => 'app\models\User',
             'enforceState' => false,
             'allowImplicit' => true,
@@ -30,7 +32,7 @@ return [
         ],
     ],
     'components' => [
-        'redis' => require('redis.php'),
+        'db' => require('mysql.php'),
         'request' => [
             'cookieValidationKey' => 'TyBzAFkUXiTuv4zW6lElWhOVAWVBMqsQ',
             'enableCsrfValidation' => false,

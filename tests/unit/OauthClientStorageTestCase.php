@@ -9,7 +9,7 @@ use Yii;
 /**
  * ManagerTestCase
  */
-class OauthClientStorageTest extends TestCase
+class OauthClientStorageTestCase extends TestCase
 {
     protected function setUp()
     {
@@ -36,7 +36,6 @@ class OauthClientStorageTest extends TestCase
         $client->userId = 'uid';
         $client->scopes = [];
         $client->name = 'Test client';
-
         $this->assertTrue($client->save());
 
         $insertedClient = Client::findOne('client1');
@@ -125,8 +124,12 @@ class OauthClientStorageTest extends TestCase
 
         $client2 = Client::findOne('client2');
         $client2->secret = 'secret2';
-        $status = $client2->save();
-        $this->assertTrue($status);
+        $client2->scopes = ['email'];
+        $this->assertTrue($client2->save());
+
+        $client2 = Client::findOne('client1');
+        $client2->scopes = ['wrongScope'];
+        $this->assertFalse($client2->save());
 
         $client2 = Client::findOne('client2');
         $client2->id = 'client3';
@@ -144,6 +147,8 @@ class OauthClientStorageTest extends TestCase
 
     public function testDelete()
     {
+        $this->populateScopes();
+
         $client = Yii::createObject('sweelix\oauth2\server\interfaces\ClientModelInterface');
         /* @var ClientModelInterface $client */
         $this->assertInstanceOf(ClientModelInterface::class, $client);
@@ -152,6 +157,7 @@ class OauthClientStorageTest extends TestCase
         $client->isPublic = true;
         $client->userId = 'uid';
         $client->name = 'Test client';
+        $client->scopes = ['basic', 'email'];
         $this->assertTrue($client->save());
 
         $client->delete();
@@ -284,7 +290,5 @@ class OauthClientStorageTest extends TestCase
         $user2Clients = Client::findAllByUserId('user2');
         $this->assertTrue(is_array($user2Clients));
         $this->assertEquals(2, count($user2Clients));
-
-
     }
 }

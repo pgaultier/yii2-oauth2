@@ -9,7 +9,7 @@ use Yii;
 /**
  * ManagerTestCase
  */
-class OauthCypherKeyStorageTest extends TestCase
+class OauthCypherKeyStorageTestCase extends TestCase
 {
     protected function setUp()
     {
