@@ -38,6 +38,17 @@ class CestCase
     protected function destroyApplication()
     {
 //        Yii::$app = null;
+
+        Yii::$container->clear('sweelix\oauth2\server\interfaces\AccessTokenModelInterface');
+        Yii::$container->clear('sweelix\oauth2\server\interfaces\AuthCodeModelInterface');
+        Yii::$container->clear('sweelix\oauth2\server\interfaces\ClientModelInterface');
+        Yii::$container->clear('sweelix\oauth2\server\interfaces\CypherKeyModelInterface');
+        Yii::$container->clear('sweelix\oauth2\server\interfaces\JtiModelInterface');
+        Yii::$container->clear('sweelix\oauth2\server\interfaces\JwtModelInterface');
+        Yii::$container->clear('sweelix\oauth2\server\interfaces\RefreshTokenModelInterface');
+        Yii::$container->clear('sweelix\oauth2\server\interfaces\ScopeModelInterface');
+        Yii::$container->clear('sweelix\oauth2\server\interfaces\UserModelInterface');
+
         Yii::$container->clear('sweelix\oauth2\server\interfaces\AccessTokenServiceInterface');
         Yii::$container->clear('sweelix\oauth2\server\interfaces\AuthCodeServiceInterface');
         Yii::$container->clear('sweelix\oauth2\server\interfaces\ClientServiceInterface');
