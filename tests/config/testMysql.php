@@ -32,7 +32,7 @@ return [
         ],
     ],
     'components' => [
-        'db' => require('mysql.php'),
+        'db' => require('mySql.php'),
         'request' => [
             'cookieValidationKey' => 'TyBzAFkUXiTuv4zW6lElWhOVAWVBMqsQ',
             'enableCsrfValidation' => false,
