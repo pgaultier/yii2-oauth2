@@ -36,7 +36,7 @@ before_script:
       PHPUNIT_FLAGS="--coverage --coverage-xml coverage.clover"
     fi
 script:
-  - php vendor/bin/codecept run unit, functional --env mysql --env redis $PHPUNIT_FLAGS
+  - php vendor/bin/codecept run unit,functional --env mysql --env redis $PHPUNIT_FLAGS
 
 after_script:
   - |
