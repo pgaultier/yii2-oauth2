@@ -6,6 +6,7 @@ php:
 
 services:
   - redis-server
+  - mysql
 
 # faster builds on new travis setup not using sudo
 sudo: false
@@ -16,6 +17,8 @@ cache:
     - vendor
     - $HOME/.composer/cache
 
+before_install:
+  - mysql -e 'CREATE DATABASE IF NOT EXISTS oauth2;'
 
 install:
   - travis_retry composer self-update && composer --version
