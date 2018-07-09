@@ -28,10 +28,10 @@ If you use Packagist for installing packages, then you can update your composer.
 }
 ```
 
-Howto use it
+How to use it
 ------------
 
-Add extension to your configuration
+Add extension to your configuration :
 
 ``` php
 return [
@@ -45,8 +45,8 @@ return [
         //....
         'oauth2' => [
             'class' => 'sweelix\oauth2\server\Module',
-            'backend' => 'redis',
-            'db' => 'redis',
+            'backend' => BACKEND,
+            'db' => DB,
             'identityClass' => 'app\models\User', // only if you don't want to use the user identityClass
             //
             // Parameters
@@ -58,13 +58,40 @@ return [
 ];
 ```
 
+You also need to enable PrettyUrl:
+
+```php
+'components' => [
+    //....
+    'urlManager' => [
+        'enablePrettyUrl' => true,
+        'rules' => [
+            // your rules go here
+        ],
+        // ....
+    ]
+    // ....
+]
+```
+
+### Migrations (MySql only)
+
+All the migrations needed can be found inside src/migrations. Be sure to configure the database connection before applying them.
+
+### Grant types
+
+You can find examples and explanations about every grant types [here](http://bshaffer.github.io/oauth2-server-php-docs/grant-types/authorization-code/)
+and [here](https://alexbilbie.com/guide-to-oauth-2-grants/).
+
+For the Jwt Bearer Grant, you will need to create a Jwt entry in your database for the given client and subject.
+
 Configure Module
 ----------------
 
 ### Basic module parameters
 
- * `backend` : can only be **redis** for the moment
- * `db` : id of the redis component or connection or connection configuration
+ * `backend` : can be **redis** or **mysql**
+ * `db` : id of the component or connection or connection configuration
  * `identityClass` : user class used to link oauth2 authorization system default to user component `identityClass`
  * `webUserParamId` : allow separation between main app user (session) and module app user, (default to **__oauth2**)
  * `identityCookieName` : allow separation between main app user (cookie) and module app user, (default to **oauth2**)
@@ -88,7 +115,7 @@ Configure Module
 
 ### JWT parameters
 
- * `allowJwtAccessToken` : enable JWT (default : **false**)
+ * `useJwtAccessToken` : send access tokens as JWT (default : **false**)
  * `allowAlgorithm` : available algorithm for JWT (default : **['RS256', 'RS384', 'RS512']**)
  * `jwtAudience` : default to token endpoint
  * `storeEncryptedTokenString` : store encrypted token (default : **true**)
@@ -380,6 +407,7 @@ Yii::$container->set('sweelix\oauth2\server\interfaces\ClientModelInterface', [
 
  * `Client::findOne($id)` - Find client by ID
  * `Client::findAllByUserId($id)` - Find all clients accepted by user (userId)
+ * `Client::findAll()` - Find all existing clients
  * `$client->save()` - Save client
  * `$client->delete()` - Delete client
  * `$client->hasUser($userId)` - Check if user (userId) has accepted the client
@@ -393,6 +421,8 @@ Yii::$container->set('sweelix\oauth2\server\interfaces\ClientModelInterface', [
  * `AccessToken::findAllByClientId($id)` - Find all accessTokens for client (clientId)
  * `AccessToken::deleteAllByUserId($id)` - Delete all accessTokens for user (userId)
  * `AccessToken::deleteAllByClientId($id)` - Delete all accessTokens for client (clientId)
+ * `AccessToken::findAll()` - Find all existing accessTokens
+ * `AccessToken::deleteAllExpired()` - Delete all expired accessTokens
  * `$accessToken->save()` - Save accessToken
  * `$accessToken->delete()` - Delete accessToken
 
@@ -403,6 +433,8 @@ Yii::$container->set('sweelix\oauth2\server\interfaces\ClientModelInterface', [
  * `RefreshToken::findAllByClientId($id)` - Find all refreshTokens for client (clientId)
  * `RefreshToken::deleteAllByUserId($id)` - Delete all refreshTokens for user (userId)
  * `RefreshToken::deleteAllByClientId($id)` - Delete all refreshTokens for client (clientId)
+ * `RefreshToken::findAll()` - Find all existing refreshTokens
+ * `RefreshToken::deleteAllExpired()` - Delete all expired refreshTokens
  * `$refreshToken->save()` - Save refreshToken
  * `$refreshToken->delete()` - Delete refreshToken
 
@@ -426,6 +458,26 @@ Yii::$container->set('sweelix\oauth2\server\interfaces\ClientModelInterface', [
  * `$cypherKey->save()` - Save cypherKey
  * `$cypherKey->delete()` - Delete cypherKey
  * `$cypherKey->generateKeys()` - Generate random keys for current cypherKey
+ 
+### Jti / JtiModelInterface
+
+ * `Jti::findOne($id)` - Find jti by ID
+ * `Jti::findAllBySubject($id)` - Find all jtis for user (userId)
+ * `Jti::findAllByClientId($id)` - Find all jtis for client (clientId)
+ * `Jti::deleteAllBySubject($id)` - Delete all jtis for user (userId)
+ * `Jti::deleteAllByClientId($id)` - Delete all jtis for client (clientId)
+ * `Jti::findAll()` - Find all existing jtis
+ * `Jti::deleteAllExpired()` - Delete all expired jtis
+ * `Jti::getFingerprint($clientId, $subject, $audience, $expires, $jti)` - Get a jti fingerprint for given params
+ * `$jti->save()` - Save jti
+ * `$jti->delete()` - Delete jti
+
+### Jwt / JwtModelInterface
+
+ * `Jwt::findOne($id)` - Find jwt by ID
+ * `Jwt::getFingerprint($clientId, $subject)` - Get jwt fingerprint for given clientId and subject
+ * `$jwt->save()` - Save jwt
+ * `$jwt->delete()` - Delete jwt
 
 Linking RBAC and Scope systems
 ------------------------------
@@ -445,7 +497,7 @@ Permission system will be slightly modified to allow fine grained checks :
 Running the tests
 -----------------
 
-Before running the tests, you should edit the file tests/config/redis.php and change the config to match your environment.
+Before running the tests, you should edit the file tests/config/BACKEND.php and change the config to match your environment.
 
 CLI System
 ----------
@@ -454,5 +506,14 @@ Several commands are available to manage oauth2 system
 
  * `php protected/yii.php oauth2:client/create`
  * `php protected/yii.php oauth2:client/update`
+ * `php protected/yii.php oauth2:client/delete`
+ * `php protected/yii.php oauth2:jwt/create`
+ * `php protected/yii.php oauth2:jwt/update`
+ * `php protected/yii.php oauth2:jwt/delete`
  * `php protected/yii.php oauth2:key/create`
+ * `php protected/yii.php oauth2:key/update`
+ * `php protected/yii.php oauth2:key/delete`
  * `php protected/yii.php oauth2:scope/create`
+ * `php protected/yii.php oauth2:scope/update`
+ * `php protected/yii.php oauth2:scope/delete`
+ * `php protected/yii.php oauth2:cronjob/remove-expired` - Run this one with your cron manager
