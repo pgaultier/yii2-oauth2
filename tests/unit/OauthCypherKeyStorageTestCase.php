@@ -1,11 +1,13 @@
 <?php
 
 namespace tests\unit;
+
 use OAuth2\Storage\PublicKeyInterface;
 use sweelix\oauth2\server\exceptions\DuplicateKeyException;
 use sweelix\oauth2\server\interfaces\CypherKeyModelInterface;
 use sweelix\oauth2\server\models\CypherKey;
 use Yii;
+
 /**
  * ManagerTestCase
  */
@@ -17,7 +19,9 @@ class OauthCypherKeyStorageTestCase extends TestCase
         $this->mockApplication([
         ]);
         $this->cleanDatabase();
+        $this->populateClients();
     }
+
     protected function tearDown()
     {
         parent::tearDown();
@@ -53,7 +57,6 @@ class OauthCypherKeyStorageTestCase extends TestCase
         $cypherKey->generateKeys();
         $this->expectException(DuplicateKeyException::class);
         $cypherKey->save();
-
     }
 
     public function testUpdate()
@@ -110,7 +113,6 @@ class OauthCypherKeyStorageTestCase extends TestCase
 
         $cypherKey = CypherKey::findOne('client1');
         $this->assertNull($cypherKey);
-
     }
 
     public function testStorage()
@@ -165,6 +167,5 @@ class OauthCypherKeyStorageTestCase extends TestCase
         $this->assertEquals($clientPrivateKey, $privateKey);
         $encryptionAlgorithm = $storage->getEncryptionAlgorithm('client1');
         $this->assertEquals('RS512', $encryptionAlgorithm);
-
     }
 }
