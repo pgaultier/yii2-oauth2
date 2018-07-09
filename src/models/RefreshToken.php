@@ -63,6 +63,7 @@ class RefreshToken extends BaseModel implements RefreshTokenModelInterface
 
     /**
      * @return \sweelix\oauth2\server\interfaces\RefreshTokenServiceInterface
+     * @throws \yii\base\InvalidConfigException
      */
     protected static function getDataService()
     {
@@ -154,4 +155,19 @@ class RefreshToken extends BaseModel implements RefreshTokenModelInterface
         return self::getDataService()->deleteAllByClientId($clientId);
     }
 
+    /**
+     * @inheritdoc
+     */
+    public static function deleteAllExpired()
+    {
+        return self::getDataService()->deleteAllExpired();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function findAll()
+    {
+        return self::getDataService()->findAll();
+    }
 }

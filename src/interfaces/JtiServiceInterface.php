@@ -50,4 +50,43 @@ interface JtiServiceInterface
      */
     public function delete(JtiModelInterface $jti);
 
+    /**
+     * @param string $subject
+     * @return JtiModelInterface[]
+     * @throws \Exception
+     */
+    public function findAllBySubject($subject);
+
+    /**
+     * @param string $subject
+     * @return bool
+     * @throws \Exception
+     */
+    public function deleteAllBySubject($subject);
+
+    /**
+     * @param string $clientId
+     * @return JtiModelInterface[]
+     * @throws \Exception
+     */
+    public function findAllByClientId($clientId);
+
+    /**
+     * @param string $clientId
+     * @return bool
+     * @throws \Exception
+     */
+    public function deleteAllByClientId($clientId);
+
+    /**
+     * @return bool
+     * @throws \Exception
+     */
+    public function deleteAllExpired();
+
+    /**
+     * @return JtiModelInterface[]
+     * @throws \Exception
+     */
+    public function findAll();
 }

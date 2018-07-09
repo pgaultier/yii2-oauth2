@@ -35,7 +35,7 @@ class m180618_144400_oauthScopeAccessToken extends Migration
     {
         $this->createTable('{{%oauthScopeAccessToken}}', [
             'scopeId' => $this->string(255),
-            'accessTokenId' => $this->string(255),
+            'accessTokenId' => $this->string(750),
             'PRIMARY KEY(scopeId, accessTokenId)',
         ], 'ENGINE=InnoDB DEFAULT CHARSET=utf8');
         $this->addForeignKey(

@@ -78,4 +78,15 @@ interface AccessTokenServiceInterface
      */
     public function deleteAllByClientId($clientId);
 
+    /**
+     * @return bool
+     * @throws \Exception
+     */
+    public function deleteAllExpired();
+
+    /**
+     * @return AccessTokenModelInterface[]
+     * @throws \Exception
+     */
+    public function findAll();
 }

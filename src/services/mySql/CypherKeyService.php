@@ -20,7 +20,6 @@ use sweelix\oauth2\server\interfaces\CypherKeyModelInterface;
 use sweelix\oauth2\server\interfaces\CypherKeyServiceInterface;
 use yii\db\Exception as DatabaseException;
 use Yii;
-use yii\db\Expression;
 use yii\db\Query;
 
 /**
@@ -76,8 +75,8 @@ class CypherKeyService extends BaseService implements CypherKeyServiceInterface
                 $cypherKeyParameters[$key] = $this->convertToDatabase($key, $value);
             }
         }
-        $cypherKeyParameters['dateCreated'] = new Expression('NOW()');
-        $cypherKeyParameters['dateUpdated'] = new Expression('NOW()');
+        $cypherKeyParameters['dateCreated'] = date('Y-m-d H:i:s');
+        $cypherKeyParameters['dateUpdated'] = date('Y-m-d H:i:s');
         try {
             $this->db->createCommand()
                 ->insert($this->cypherKeysTable, $cypherKeyParameters)
@@ -132,7 +131,7 @@ class CypherKeyService extends BaseService implements CypherKeyServiceInterface
                 $cypherKeyParameters[$key] = ($value !== null) ? $this->convertToDatabase($key, $value) : null;
             }
         }
-        $cypherKeyParameters['dateUpdated'] = new Expression('NOW()');
+        $cypherKeyParameters['dateUpdated'] = date('Y-m-d H:i:s');
         try {
             if (array_key_exists($modelKey, $values) === true) {
                 $oldCypherKeyKey = $cypherKey->getOldKey();

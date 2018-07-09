@@ -90,4 +90,16 @@ interface AccessTokenModelInterface extends BaseModelInterface
      * @throws \yii\base\UnknownClassException
      */
     public static function deleteAllByClientId($clientId);
+
+    /**
+     * @return bool
+     * @throws \yii\base\UnknownClassException
+     */
+    public static function deleteAllExpired();
+
+    /**
+     * @return AccessTokenModelInterface[]
+     * @throws \yii\base\UnknownClassException
+     */
+    public static function findAll();
 }

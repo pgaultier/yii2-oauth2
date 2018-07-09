@@ -20,8 +20,6 @@ use sweelix\oauth2\server\interfaces\JtiModelInterface;
 use sweelix\oauth2\server\interfaces\JtiServiceInterface;
 use yii\db\Exception as DatabaseException;
 use Yii;
-use Exception;
-use yii\db\Expression;
 use yii\db\Query;
 
 /**
@@ -77,8 +75,8 @@ class JtiService extends BaseService implements JtiServiceInterface
                 $jtisParameters[$key] = $this->convertToDatabase($key, $value);
             }
         }
-        $jtisParameters['dateCreated'] = new Expression('NOW()');
-        $jtisParameters['dateUpdated'] = new Expression('NOW()');
+        $jtisParameters['dateCreated'] = date('Y-m-d H:i:s');
+        $jtisParameters['dateUpdated'] = date('Y-m-d H:i:s');
         try {
             $this->db->createCommand()
                 ->insert($this->jtisTable, $jtisParameters)
@@ -131,7 +129,7 @@ class JtiService extends BaseService implements JtiServiceInterface
         foreach ($values as $key => $value) {
             $jtiParameters[$key] = ($value !== null) ? $this->convertToDatabase($key, $value) : null;
         }
-        $jtiParameters['dateUpdated'] = new Expression('NOW()');
+        $jtiParameters['dateUpdated'] = date('Y-m-d H:i:s');
         try {
             if (array_key_exists($modelKey, $values) === true) {
                 $oldJtiKey = $jti->getOldKey();
@@ -227,5 +225,106 @@ class JtiService extends BaseService implements JtiServiceInterface
             $result = true;
         }
         return $result;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function findAllBySubject($subject)
+    {
+        $jtisList = (new Query())
+            ->select('*')
+            ->from($this->jtisTable)
+            ->where('subject = :subject', [':subject' => $subject])
+            ->all($this->db);
+        $jtis = [];
+        foreach ($jtisList as $jti) {
+            $result = $this->findOne($jti['id']);
+            if ($result instanceof JtiModelInterface) {
+                $jtis[] = $result;
+            }
+        }
+        return $jtis;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function deleteAllBySubject($subject)
+    {
+        $jtis = $this->findAllBySubject($subject);
+        foreach ($jtis as $jti) {
+            $this->delete($jti);
+        }
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function findAllByClientId($clientId)
+    {
+        $jtisList = (new Query())
+            ->select('*')
+            ->from($this->jtisTable)
+            ->where('clientId = :clientId', [':clientId' => $clientId])
+            ->all($this->db);
+        $jtis = [];
+        foreach ($jtisList as $jti) {
+            $result = $this->findOne($jti['id']);
+            if ($result instanceof JtiModelInterface) {
+                $jtis[] = $result;
+            }
+        }
+        return $jtis;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function deleteAllByClientId($clientId)
+    {
+        $jtis = $this->findAllByClientId($clientId);
+        foreach ($jtis as $jti) {
+            $this->delete($jti);
+        }
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function deleteAllExpired()
+    {
+        $jtis = (new Query())->select('*')
+            ->from($this->jtisTable)
+            ->where('expires < :date', [':date' => date('Y-m-d H:i:s')])
+            ->all();
+        foreach ($jtis as $jtiQuery) {
+            $jti = $this->findOne($jtiQuery['id']);
+            if ($jti instanceof JtiModelInterface) {
+                $this->delete($jti);
+            }
+        }
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function findAll()
+    {
+        $jtisList = (new Query())
+            ->select('*')
+            ->from($this->jtisTable)
+            ->all($this->db);
+        $jtis = [];
+        foreach ($jtisList as $jti) {
+            $result = $this->findOne($jti['id']);
+            if ($result instanceof JtiModelInterface) {
+                $jtis[] = $result;
+            }
+        }
+        return $jtis;
     }
 }

@@ -80,4 +80,10 @@ interface ClientServiceInterface
      * @throws \Exception
      */
     public function findAllByUserId($userId);
+
+    /**
+     * @return ClientModelInterface[]
+     * @throws \Exception
+     */
+    public function findAll();
 }

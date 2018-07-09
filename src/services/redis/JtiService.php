@@ -20,7 +20,6 @@ use sweelix\oauth2\server\interfaces\JtiModelInterface;
 use sweelix\oauth2\server\interfaces\JtiServiceInterface;
 use yii\db\Exception as DatabaseException;
 use Yii;
-use Exception;
 
 /**
  * This is the jti service for redis
@@ -37,6 +36,15 @@ use Exception;
  */
 class JtiService extends BaseService implements JtiServiceInterface
 {
+    /**
+     * @var string subject namespace (collection for jtis)
+     */
+    public $subjectNamespace = '';
+
+    /**
+     * @var string client namespace (collection for jtis)
+     */
+    public $clientNamespace = '';
 
     /**
      * @param string $jid jti ID
@@ -46,6 +54,40 @@ class JtiService extends BaseService implements JtiServiceInterface
     protected function getJtiKey($jid)
     {
         return $this->namespace . ':' . $jid;
+    }
+
+    /**
+     * @param string $sid subject ID
+     * @return string user jtis collection Key
+     */
+    protected function getSubjectJtisKey($sid)
+    {
+        return $this->subjectNamespace . ':' . $sid . ':jtis';
+    }
+
+    /**
+     * @param string $cid client ID
+     * @return string client jtis collection Key
+     */
+    protected function getClientJtisKey($cid)
+    {
+        return $this->clientNamespace . ':' . $cid . ':jtis';
+    }
+
+    /**
+     * @return string key of all jtis list
+     */
+    protected function getJtiListKey()
+    {
+        return $this->namespace . ':keys';
+    }
+
+    /**
+     * @return string key of all subjects list
+     */
+    protected function getSubjectListKey()
+    {
+        return $this->subjectNamespace . ':keys';
     }
 
     /**
@@ -77,18 +119,31 @@ class JtiService extends BaseService implements JtiServiceInterface
         if (!$jti->beforeSave(true)) {
             return $result;
         }
-        $jtiKey = $this->getJtiKey($jti->getKey());
+        $jtiId = $jti->getKey();
+        $jtiKey = $this->getJtiKey($jtiId);
+        if (empty($jti->subject) === false) {
+            $subjectJtisKey = $this->getSubjectJtisKey($jti->subject);
+        } else {
+            $subjectJtisKey = null;
+        }
+        $clientJtisKey = $this->getClientJtisKey($jti->clientId);
+        $jtiListKey = $this->getJtiListKey();
+        $subjectListKey = $this->getSubjectListKey();
+
         //check if record exists
         $entityStatus = (int)$this->db->executeCommand('EXISTS', [$jtiKey]);
         if ($entityStatus === 1) {
-            throw new DuplicateKeyException('Duplicate key "'.$jtiKey.'"');
+            throw new DuplicateKeyException('Duplicate key "' . $jtiKey . '"');
         }
 
         $values = $jti->getDirtyAttributes($attributes);
         $redisParameters = [$jtiKey];
         $this->setAttributesDefinitions($jti->attributesDefinition());
-        foreach ($values as $key => $value)
-        {
+        $expire = null;
+        foreach ($values as $key => $value) {
+            if (($key === 'expires') && ($value > 0)) {
+                $expire = $value;
+            }
             if ($value !== null) {
                 $redisParameters[] = $key;
                 $redisParameters[] = $this->convertToDatabase($key, $value);
@@ -99,6 +154,15 @@ class JtiService extends BaseService implements JtiServiceInterface
         if ($transaction === true) {
             try {
                 $this->db->executeCommand('HMSET', $redisParameters);
+                if ($expire !== null) {
+                    $this->db->executeCommand('EXPIREAT', [$jtiKey, $expire]);
+                }
+                if ($subjectJtisKey !== null) {
+                    $this->db->executeCommand('ZADD', [$subjectJtisKey, $expire === false ? -1 : $expire, $jtiId]);
+                }
+                $this->db->executeCommand('ZADD', [$clientJtisKey, $expire === false ? -1 : $expire, $jtiId]);
+                $this->db->executeCommand('ZADD', [$jtiListKey, $expire === false ? -1 : $expire, $jtiId]);
+                $this->db->executeCommand('SADD', [$subjectListKey, $jti->subject]);
                 $this->db->executeCommand('EXEC');
             } catch (DatabaseException $e) {
                 // @codeCoverageIgnoreStart
@@ -135,33 +199,54 @@ class JtiService extends BaseService implements JtiServiceInterface
         $modelKey = $jti->key();
         $jtiId = isset($values[$modelKey]) ? $values[$modelKey] : $jti->getKey();
         $jtiKey = $this->getJtiKey($jtiId);
+        $jtiListKey = $this->getJtiListKey();
+        $subjectListKey = $this->getSubjectListKey();
 
+        if (empty($jti->subject) === false) {
+            $subjectJtisKey = $this->getSubjectJtisKey($jti->subject);
+        } else {
+            $subjectJtisKey = null;
+        }
+        $clientJtisKey = $this->getClientJtisKey($jti->clientId);
 
         if (isset($values[$modelKey]) === true) {
             $newJtiKey = $this->getJtiKey($values[$modelKey]);
             $entityStatus = (int)$this->db->executeCommand('EXISTS', [$newJtiKey]);
             if ($entityStatus === 1) {
-                throw new DuplicateKeyException('Duplicate key "'.$newJtiKey.'"');
+                throw new DuplicateKeyException('Duplicate key "' . $newJtiKey . '"');
             }
         }
 
         $this->db->executeCommand('MULTI');
         try {
+            $reAddKeyInList = false;
             if (array_key_exists($modelKey, $values) === true) {
                 $oldId = $jti->getOldKey();
                 $oldJtiKey = $this->getJtiKey($oldId);
 
                 $this->db->executeCommand('RENAMENX', [$oldJtiKey, $jtiKey]);
+                if ($subjectJtisKey !== null) {
+                    $this->db->executeCommand('ZREM', [$subjectJtisKey, $oldJtiKey]);
+                }
+                $this->db->executeCommand('ZREM', [$clientJtisKey, $oldJtiKey]);
+                $this->db->executeCommand('ZREM', [$jtiListKey, $oldJtiKey]);
+                $reAddKeyInList = true;
             }
 
             $redisUpdateParameters = [$jtiKey];
             $redisDeleteParameters = [$jtiKey];
             $this->setAttributesDefinitions($jti->attributesDefinition());
-            foreach ($values as $key => $value)
-            {
+            $expire = $jti->expires;
+            foreach ($values as $key => $value) {
                 if ($value === null) {
+                    if ($key === 'expires') {
+                        $expire = false;
+                    }
                     $redisDeleteParameters[] = $key;
                 } else {
+                    if (($key === 'expires') && ($value > 0)) {
+                        $expire = $value;
+                    }
                     $redisUpdateParameters[] = $key;
                     $redisUpdateParameters[] = $this->convertToDatabase($key, $value);
                 }
@@ -172,6 +257,20 @@ class JtiService extends BaseService implements JtiServiceInterface
             if (count($redisUpdateParameters) > 1) {
                 $this->db->executeCommand('HMSET', $redisUpdateParameters);
             }
+            if ($expire === false) {
+                $this->db->executeCommand('PERSIST', [$jtiKey]);
+            } elseif ($expire > 0) {
+                $this->db->executeCommand('EXPIREAT', [$jtiKey, $expire]);
+            }
+
+            if ($reAddKeyInList === true) {
+                if ($subjectJtisKey !== null) {
+                    $this->db->executeCommand('ZADD', [$subjectJtisKey, $expire === false ? -1 : $expire, $jtiKey]);
+                }
+                $this->db->executeCommand('ZADD', [$clientJtisKey, $expire === false ? -1 : $expire, $jtiKey]);
+                $this->db->executeCommand('ZADD', [$jtiListKey, $expire === false ? -1 : $expire, $jtiKey]);
+            }
+            $this->db->executeCommand('SADD', [$subjectListKey, $jti->subject]);
 
             $this->db->executeCommand('EXEC');
         } catch (DatabaseException $e) {
@@ -230,17 +329,94 @@ class JtiService extends BaseService implements JtiServiceInterface
     /**
      * @inheritdoc
      */
+    public function findAllBySubject($subject)
+    {
+        $subjectJtisKey = $this->getSubjectJtisKey($subject);
+        $subjectJtis = $this->db->executeCommand('ZRANGE', [$subjectJtisKey, 0, -1]);
+        $jtis = [];
+        if ((is_array($subjectJtis) === true) && (count($subjectJtis) > 0)) {
+            foreach ($subjectJtis as $subjectJtiId) {
+                $jtis[] = $this->findOne($subjectJtiId);
+            }
+        }
+        return $jtis;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function deleteAllBySubject($subject)
+    {
+        $subjectJtisKey = $this->getSubjectJtisKey($subject);
+        $subjectJtis = $this->db->executeCommand('ZRANGE', [$subjectJtisKey, 0, -1]);
+        foreach ($subjectJtis as $subjectJtiId) {
+            $subjectJti = $this->findOne($subjectJtiId);
+            if ($subjectJti instanceof JtiModelInterface) {
+                $this->delete($subjectJti);
+            }
+        }
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function findAllByClientId($clientId)
+    {
+        $clientJtisKey = $this->getClientJtisKey($clientId);
+        $clientJtis = $this->db->executeCommand('ZRANGE', [$clientJtisKey, 0, -1]);
+        $jtis = [];
+        if ((is_array($clientJtis) === true) && (count($clientJtis) > 0)) {
+            foreach ($clientJtis as $clientJtiId) {
+                $jtis[] = $this->findOne($clientJtiId);
+            }
+        }
+        return $jtis;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function deleteAllByClientId($clientId)
+    {
+        $clientJtisKey = $this->getClientJtisKey($clientId);
+        $clientJtis = $this->db->executeCommand('ZRANGE', [$clientJtisKey, 0, -1]);
+        foreach ($clientJtis as $clientJtiId) {
+            $clientJti = $this->findOne($clientJtiId);
+            if ($clientJti instanceof JtiModelInterface) {
+                $this->delete($clientJti);
+            }
+        }
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function delete(JtiModelInterface $jti)
     {
         $result = false;
         if ($jti->beforeDelete()) {
+            if (empty($jti->subject) === false) {
+                $subjectJtisKey = $this->getSubjectJtisKey($jti->subject);
+            } else {
+                $subjectJtisKey = null;
+            }
+            $clientJtisKey = $this->getClientJtisKey($jti->clientId);
+            $jtiListKey = $this->getJtiListKey();
+
             $this->db->executeCommand('MULTI');
             $id = $jti->getOldKey();
             $jtiKey = $this->getJtiKey($id);
 
             $this->db->executeCommand('DEL', [$jtiKey]);
+            if ($subjectJtisKey !== null) {
+                $this->db->executeCommand('ZREM', [$subjectJtisKey, $id]);
+            }
+            $this->db->executeCommand('ZREM', [$clientJtisKey, $id]);
+            $this->db->executeCommand('ZREM', [$jtiListKey, $id]);
             //TODO: check results to return correct information
-            $queryResult = $this->db->executeCommand('EXEC');
+            $this->db->executeCommand('EXEC');
             $jti->setIsNewRecord(true);
             $jti->afterDelete();
             $result = true;
@@ -248,4 +424,46 @@ class JtiService extends BaseService implements JtiServiceInterface
         return $result;
     }
 
+    /**
+     * @inheritdoc
+     */
+    public function deleteAllExpired()
+    {
+        $date = time();
+        $jtiListKey = $this->getJtiListKey();
+        $this->db->executeCommand('ZREMRANGEBYSCORE', [$jtiListKey, -1, $date]);
+
+        $client = Yii::createObject('sweelix\oauth2\server\interfaces\ClientModelInterface');
+        $clientClass = get_class($client);
+        /* @var \sweelix\oauth2\server\interfaces\ClientModelInterface[] $clientList */
+        $clientList = $clientClass::findAll();
+        foreach ($clientList as $client) {
+            $clientJtisKey = $this->getClientJtisKey($client->getKey());
+            $this->db->executeCommand('ZREMRANGEBYSCORE', [$clientJtisKey, -1, $date]);
+        }
+
+        $subjectListKey = $this->getSubjectListKey();
+        $subjects = $this->db->executeCommand('SMEMBERS', [$subjectListKey]);
+        foreach ($subjects as $subject) {
+            $subjectJtisKey = $this->getSubjectJtisKey($subject);
+            $this->db->executeCommand('ZREMRANGEBYSCORE', [$subjectJtisKey, '-inf', $date]);
+        }
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function findAll()
+    {
+        $jtiListKey = $this->getJtiListKey();
+        $jtiList = $this->db->executeCommand('ZRANGE', [$jtiListKey, 0, -1]);
+        $jtis = [];
+        if ((is_array($jtiList) === true) && (count($jtiList) > 0)) {
+            foreach ($jtiList as $jtiId) {
+                $jtis[] = $this->findOne($jtiId);
+            }
+        }
+        return $jtis;
+    }
 }

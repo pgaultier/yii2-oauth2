@@ -20,8 +20,6 @@ use sweelix\oauth2\server\interfaces\JwtModelInterface;
 use sweelix\oauth2\server\interfaces\JwtServiceInterface;
 use yii\db\Exception as DatabaseException;
 use Yii;
-use Exception;
-use yii\db\Expression;
 use yii\db\Query;
 
 /**
@@ -76,8 +74,8 @@ class JwtService extends BaseService implements JwtServiceInterface
                 $jwtParameters[$key] = $this->convertToDatabase($key, $value);
             }
         }
-        $jwtParameters['dateCreated'] = new Expression('NOW()');
-        $jwtParameters['dateUpdated'] = new Expression('NOW()');
+        $jwtParameters['dateCreated'] = date('Y-m-d H:i:s');
+        $jwtParameters['dateUpdated'] = date('Y-m-d H:i:s');
         try {
             $this->db->createCommand()
                 ->insert($this->jwtsTable, $jwtParameters)
@@ -130,7 +128,7 @@ class JwtService extends BaseService implements JwtServiceInterface
         foreach ($values as $key => $value) {
             $jwtParameters[$key] = ($value !== null) ? $this->convertToDatabase($key, $value) : null;
         }
-        $jwtParameters['dateUpdated'] = new Expression('NOW()');
+        $jwtParameters['dateUpdated'] = date('Y-m-d H:i:s');
         try {
             if (array_key_exists($modelKey, $values) === true) {
                 $oldJwtKey = $jwt->getOldKey();

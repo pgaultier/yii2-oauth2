@@ -11,6 +11,7 @@
  * @link http://www.sweelix.net
  * @package sweelix\oauth2\server
  */
+
 namespace sweelix\oauth2\server;
 
 use sweelix\oauth2\server\services\MySql;
@@ -86,7 +87,7 @@ class Module extends BaseModule implements BootstrapInterface
     /**
      * @var bool configure oauth server (use_jwt_access_tokens)
      */
-    public $allowJwtAccessToken = false;
+    public $useJwtAccessToken = false;
 
     /**
      * @var array configure oauth server (allowed_algorithms)
@@ -272,19 +273,19 @@ class Module extends BaseModule implements BootstrapInterface
         }
         $this->setUpDi($app);
         if (empty($this->baseEndPoint) === false) {
-            $this->baseEndPoint = trim($this->baseEndPoint, '/').'/';
+            $this->baseEndPoint = trim($this->baseEndPoint, '/') . '/';
         }
 
         if ($app instanceof ConsoleApplication) {
             $this->mapConsoleControllers($app);
         } else {
             $app->getUrlManager()->addRules([
-                ['verb' => 'POST', 'pattern' => $this->baseEndPoint.'token', 'route' => $this->id.'/token/index'],
-                ['verb' => 'OPTIONS', 'pattern' => $this->baseEndPoint.'token', 'route' => $this->id.'/token/options'],
-                ['verb' => 'GET', 'pattern' => $this->baseEndPoint.'authorize', 'route' => $this->id.'/authorize/index'],
-                ['pattern' => $this->baseEndPoint.'authorize-login', 'route' => $this->id.'/authorize/login'],
-                ['pattern' => $this->baseEndPoint.'authorize-application', 'route' => $this->id.'/authorize/authorize'],
-                ['pattern' => $this->baseEndPoint.'authorize-error', 'route' => $this->id.'/authorize/error'],
+                ['verb' => 'POST', 'pattern' => $this->baseEndPoint . 'token', 'route' => $this->id . '/token/index'],
+                ['verb' => 'OPTIONS', 'pattern' => $this->baseEndPoint . 'token', 'route' => $this->id . '/token/options'],
+                ['verb' => 'GET', 'pattern' => $this->baseEndPoint . 'authorize', 'route' => $this->id . '/authorize/index'],
+                ['pattern' => $this->baseEndPoint . 'authorize-login', 'route' => $this->id . '/authorize/login'],
+                ['pattern' => $this->baseEndPoint . 'authorize-application', 'route' => $this->id . '/authorize/authorize'],
+                ['pattern' => $this->baseEndPoint . 'authorize-error', 'route' => $this->id . '/authorize/error'],
             ]);
         }
     }
@@ -330,6 +331,9 @@ class Module extends BaseModule implements BootstrapInterface
         ];
         $app->controllerMap['oauth2:cronjob'] = [
             'class' => 'sweelix\oauth2\server\commands\CronJobController',
+        ];
+        $app->controllerMap['oauth2:jwt'] = [
+            'class' => 'sweelix\oauth2\server\commands\JwtController',
         ];
     }
 }
