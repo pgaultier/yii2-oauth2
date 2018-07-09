@@ -37,6 +37,7 @@ use Yii;
  */
 class AccessToken extends BaseModel implements AccessTokenModelInterface
 {
+    const JWT_REGEX = '/^([^.]+)\.([^.]+)\.([^.]+)$/';
 
     /**
      * @inheritdoc
@@ -64,6 +65,7 @@ class AccessToken extends BaseModel implements AccessTokenModelInterface
 
     /**
      * @return \sweelix\oauth2\server\interfaces\AccessTokenServiceInterface
+     * @throws \yii\base\InvalidConfigException
      */
     protected static function getDataService()
     {
@@ -155,4 +157,19 @@ class AccessToken extends BaseModel implements AccessTokenModelInterface
         return self::getDataService()->deleteAllByClientId($clientId);
     }
 
+    /**
+     * @inheritdoc
+     */
+    public static function deleteAllExpired()
+    {
+        return self::getDataService()->deleteAllExpired();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function findAll()
+    {
+        return self::getDataService()->findAll();
+    }
 }

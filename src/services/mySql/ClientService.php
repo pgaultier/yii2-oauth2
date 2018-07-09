@@ -20,7 +20,6 @@ use sweelix\oauth2\server\interfaces\ClientModelInterface;
 use sweelix\oauth2\server\interfaces\ClientServiceInterface;
 use yii\db\Exception as DatabaseException;
 use Yii;
-use yii\db\Expression;
 use yii\db\Query;
 
 /**
@@ -94,8 +93,8 @@ class ClientService extends BaseService implements ClientServiceInterface
                 $clientParameters[$key] = $this->convertToDatabase($key, $value);
             }
         }
-        $clientParameters['dateCreated'] = new Expression('NOW()');
-        $clientParameters['dateUpdated'] = new Expression('NOW()');
+        $clientParameters['dateCreated'] = date('Y-m-d H:i:s');
+        $clientParameters['dateUpdated'] = date('Y-m-d H:i:s');
         try {
             $this->db->createCommand()
                 ->insert($this->clientsTable, $clientParameters)
@@ -174,7 +173,7 @@ class ClientService extends BaseService implements ClientServiceInterface
                 $clientParameters[$key] = ($value !== null) ? $this->convertToDatabase($key, $value) : null;
             }
         }
-        $clientParameters['dateUpdated'] = new Expression('NOW()');
+        $clientParameters['dateUpdated'] = date('Y-m-d H:i:s');
         try {
             if (array_key_exists($modelKey, $values) === true) {
                 $oldClientKey = $client->getOldKey();
@@ -402,6 +401,25 @@ class ClientService extends BaseService implements ClientServiceInterface
         $clients = [];
         foreach ($clientsList as $client) {
             $result = $this->findOne($client['clientId']);
+            if ($result instanceof ClientModelInterface) {
+                $clients[] = $result;
+            }
+        }
+        return $clients;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function findAll()
+    {
+        $clientsList = (new Query())
+            ->select('*')
+            ->from($this->clientsTable)
+            ->all($this->db);
+        $clients = [];
+        foreach ($clientsList as $client) {
+            $result = $this->findOne($client['id']);
             if ($result instanceof ClientModelInterface) {
                 $clients[] = $result;
             }

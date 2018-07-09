@@ -56,9 +56,12 @@ class ClientController extends Controller
             'isPublic'
         ];
     }
+
     /**
      * Create new Oauth client
      * @return int
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\base\UnknownClassException
      * @since 1.0.0
      */
     public function actionCreate()
@@ -76,21 +79,43 @@ class ClientController extends Controller
         $client->scopes = empty($this->scopes) ? null : explode(',', $this->scopes);
         $client->grantTypes = empty($this->grantTypes) ? null : explode(',', $this->grantTypes);
         if ($client->save() === true) {
-            $this->stdout('Client created :'."\n");
+            $this->stdout('Client created :' . "\n");
             $this->stdout(' - id: ' . $client->id . "\n");
             $this->stdout(' - secret: ' . $client->secret . "\n");
             $this->stdout(' - name: ' . $client->name . "\n");
             $this->stdout(' - redirectUri: ' . implode(',', $client->redirectUri) . "\n");
             return ExitCode::OK;
         } else {
-            $this->stdout('Client cannot be created.'."\n");
+            $this->stdout('Client cannot be created.' . "\n");
             return ExitCode::UNSPECIFIED_ERROR;
         }
     }
 
+    /**
+     * Generate random string
+     * @param int $length
+     * @return string
+     * @since 1.0.0
+     */
+    protected function getRandomString($length = 40)
+    {
+        $bytes = (int)$length / 2;
+        return bin2hex(openssl_random_pseudo_bytes($bytes));
+    }
+
+    /**
+     * Update Oauth client
+     * @param $id
+     * @return int
+     * @throws \yii\base\UnknownClassException
+     * @throws \yii\base\InvalidConfigException
+     */
     public function actionUpdate($id)
     {
-        $client = Client::findOne($id);
+        $client = Yii::createObject('sweelix\oauth2\server\interfaces\ClientModelInterface');
+        $clientClass = get_class($client);
+        /* @var \sweelix\oauth2\server\interfaces\ClientModelInterface $client */
+        $client = $clientClass::findOne($id);
         if ($client !== null) {
             $client->redirectUri = $this->redirectUri;
             $client->name = $this->name;
@@ -106,24 +131,39 @@ class ClientController extends Controller
                 $this->stdout(' - redirectUri: ' . implode(',', $client->redirectUri) . "\n");
                 return ExitCode::OK;
             } else {
-                $this->stdout('Client cannot be updated.'."\n");
+                $this->stdout('Client ' . $id . ' cannot be updated.' . "\n");
                 return ExitCode::UNSPECIFIED_ERROR;
             }
         } else {
-            $this->stdout('Client '.$id.' does not exist'."\n");
+            $this->stdout('Client ' . $id . ' does not exist' . "\n");
             return ExitCode::UNSPECIFIED_ERROR;
         }
     }
 
     /**
-     * Generate random string
-     * @param int $length
-     * @return string
-     * @since 1.0.0
+     * Delete Oauth client
+     * @param $id
+     * @return int
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\base\UnknownClassException
      */
-    protected function getRandomString($length = 40)
+    public function actionDelete($id)
     {
-        $bytes = (int) $length/2;
-        return bin2hex(openssl_random_pseudo_bytes($bytes));
+        $client = Yii::createObject('sweelix\oauth2\server\interfaces\ClientModelInterface');
+        $clientClass = get_class($client);
+        /* @var \sweelix\oauth2\server\interfaces\ClientModelInterface $client */
+        $client = $clientClass::findOne($id);
+        if ($client !== null) {
+            if ($client->delete() === true) {
+                $this->stdout('Client ' . $id . ' deleted' . "\n");
+                return ExitCode::OK;
+            } else {
+                $this->stdout('Client ' . $id . ' cannot be deleted.' . "\n");
+                return ExitCode::UNSPECIFIED_ERROR;
+            }
+        } else {
+            $this->stdout('Client ' . $id . ' does not exist' . "\n");
+            return ExitCode::UNSPECIFIED_ERROR;
+        }
     }
 }

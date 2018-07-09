@@ -34,7 +34,7 @@ class m180618_132800_oauthAccessTokens extends Migration
     public function safeUp()
     {
         $this->createTable('{{%oauthAccessTokens}}', [
-            'id' => $this->string(255),
+            'id' => $this->string(1024),
             'clientId' => $this->string(255),
             'userId' => $this->string(255),
             'expiry' => $this->dateTime(),

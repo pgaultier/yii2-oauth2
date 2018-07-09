@@ -78,4 +78,15 @@ interface RefreshTokenServiceInterface
      */
     public function deleteAllByClientId($clientId);
 
+    /**
+     * @return bool
+     * @throws \Exception
+     */
+    public function deleteAllExpired();
+
+    /**
+     * @return RefreshTokenModelInterface[]
+     * @throws \Exception
+     */
+    public function findAll();
 }

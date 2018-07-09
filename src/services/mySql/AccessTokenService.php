@@ -20,7 +20,6 @@ use sweelix\oauth2\server\interfaces\AccessTokenModelInterface;
 use sweelix\oauth2\server\interfaces\AccessTokenServiceInterface;
 use yii\db\Exception as DatabaseException;
 use Yii;
-use yii\db\Expression;
 use yii\db\Query;
 
 /**
@@ -79,8 +78,8 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
                 $accessTokenParameters[$key] = $this->convertToDatabase($key, $value);
             }
         }
-        $accessTokenParameters['dateCreated'] = new Expression('NOW()');
-        $accessTokenParameters['dateUpdated'] = new Expression('NOW()');
+        $accessTokenParameters['dateCreated'] = date('Y-m-d H:i:s');
+        $accessTokenParameters['dateUpdated'] = date('Y-m-d H:i:s');
         try {
             $this->db->createCommand()
                 ->insert($this->accessTokensTable, $accessTokenParameters)
@@ -147,7 +146,7 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
                 $accessTokenParameters[$key] = ($value !== null) ? $this->convertToDatabase($key, $value) : null;
             }
         }
-        $accessTokenParameters['dateUpdated'] = new Expression('NOW()');
+        $accessTokenParameters['dateUpdated'] = date('Y-m-d H:i:s');
         try {
             if (array_key_exists($modelKey, $values) === true) {
                 $oldAccessTokenKey = $accessToken->getOldKey();
@@ -308,9 +307,10 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
      */
     public function deleteAllByUserId($userId)
     {
-        $this->db->createCommand()
-            ->delete($this->accessTokensTable, 'userId = :userId', [':userId' => $userId])
-            ->execute();
+        $accessTokens = $this->findAllByUserId($userId);
+        foreach ($accessTokens as $accessToken) {
+            $this->delete($accessToken);
+        }
         return true;
     }
 
@@ -339,9 +339,47 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
      */
     public function deleteAllByClientId($clientId)
     {
-        $this->db->createCommand()
-            ->delete($this->accessTokensTable, 'clientId = :clientId', [':clientId' => $clientId])
-            ->execute();
+        $accessTokens = $this->findAllByClientId($clientId);
+        foreach ($accessTokens as $accessToken) {
+            $this->delete($accessToken);
+        }
         return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function deleteAllExpired()
+    {
+        $accessTokens = (new Query())->select('*')
+            ->from($this->accessTokensTable)
+            ->where('expiry < :date', [':date' => date('Y-m-d H:i:s')])
+            ->all();
+        foreach ($accessTokens as $accessTokenQuery) {
+            $accessToken = $this->findOne($accessTokenQuery['id']);
+            if ($accessToken instanceof AccessTokenModelInterface) {
+                $this->delete($accessToken);
+            }
+        }
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function findAll()
+    {
+        $accessTokensList = (new Query())
+            ->select('*')
+            ->from($this->accessTokensTable)
+            ->all($this->db);
+        $accessTokens = [];
+        foreach ($accessTokensList as $accessToken) {
+            $result = $this->findOne($accessToken['id']);
+            if ($result instanceof AccessTokenModelInterface) {
+                $accessTokens[] = $result;
+            }
+        }
+        return $accessTokens;
     }
 }

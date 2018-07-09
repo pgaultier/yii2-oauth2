@@ -43,23 +43,23 @@ class m180619_095000_oauthGrantTypes extends Migration
         ], 'ENGINE=InnoDB DEFAULT CHARSET=utf8');
         $this->insert('{{%oauthGrantTypes}}', [
             'id' => 'password',
-            'dateCreated' => new Expression('NOW()'),
-            'dateUpdated' => new Expression('NOW()'),
+            'dateCreated' => date('Y-m-d H:i:s'),
+            'dateUpdated' => date('Y-m-d H:i:s'),
         ]);
         $this->insert('{{%oauthGrantTypes}}', [
             'id' => 'client_credentials',
-            'dateCreated' => new Expression('NOW()'),
-            'dateUpdated' => new Expression('NOW()'),
+            'dateCreated' => date('Y-m-d H:i:s'),
+            'dateUpdated' => date('Y-m-d H:i:s'),
         ]);
         $this->insert('{{%oauthGrantTypes}}', [
             'id' => 'refresh_token',
-            'dateCreated' => new Expression('NOW()'),
-            'dateUpdated' => new Expression('NOW()'),
+            'dateCreated' => date('Y-m-d H:i:s'),
+            'dateUpdated' => date('Y-m-d H:i:s'),
         ]);
         $this->insert('{{%oauthGrantTypes}}', [
             'id' => 'authorization_code',
-            'dateCreated' => new Expression('NOW()'),
-            'dateUpdated' => new Expression('NOW()'),
+            'dateCreated' => date('Y-m-d H:i:s'),
+            'dateUpdated' => date('Y-m-d H:i:s'),
         ]);
         return true;
     }

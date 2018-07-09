@@ -38,7 +38,7 @@ class m180618_131600_oauthJwts extends Migration
             'id' => $this->string(255),
             'clientId' => $this->string(255),
             'subject' => $this->string(255),
-            'publicKey' => $this->string(255),
+            'publicKey' => $this->text(),
             'dateCreated' => $this->datetime(),
             'dateUpdated' => $this->datetime(),
             'dateDeleted' => $this->dateTime(),

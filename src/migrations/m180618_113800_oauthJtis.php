@@ -40,7 +40,7 @@ class m180618_113800_oauthJtis extends Migration
             'subject' => $this->string(255),
             'audience' => $this->string(255),
             'expires' => $this->dateTime(),
-            'jti' => $this->string(255),
+            'jti' => $this->text(),
             'dateCreated' => $this->datetime(),
             'dateUpdated' => $this->datetime(),
             'dateDeleted' => $this->dateTime(),

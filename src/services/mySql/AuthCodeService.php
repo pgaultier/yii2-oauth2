@@ -20,7 +20,6 @@ use sweelix\oauth2\server\interfaces\AuthCodeModelInterface;
 use sweelix\oauth2\server\interfaces\AuthCodeServiceInterface;
 use yii\db\Exception as DatabaseException;
 use Yii;
-use yii\db\Expression;
 use yii\db\Query;
 
 /**
@@ -81,8 +80,8 @@ class AuthCodeService extends BaseService implements AuthCodeServiceInterface
                 $authCodeParameters[$key] = $this->convertToDatabase($key, $value);
             }
         }
-        $authCodeParameters['dateCreated'] = new Expression('NOW()');
-        $authCodeParameters['dateUpdated'] = new Expression('NOW()');
+        $authCodeParameters['dateCreated'] = date('Y-m-d H:i:s');
+        $authCodeParameters['dateUpdated'] = date('Y-m-d H:i:s');
         try {
             $this->db->createCommand()
                 ->insert($this->authorizationCodesTable, $authCodeParameters)
@@ -149,7 +148,7 @@ class AuthCodeService extends BaseService implements AuthCodeServiceInterface
                 $authCodeParameters[$key] = ($value !== null) ? $this->convertToDatabase($key, $value) : null;
             }
         }
-        $authCodeParameters['dateUpdated'] = new Expression('NOW()');
+        $authCodeParameters['dateUpdated'] = date('Y-m-d H:i:s');
         try {
             if (array_key_exists($modelKey, $values) === true) {
                 $oldAuthCodeKey = $authCode->getOldKey();

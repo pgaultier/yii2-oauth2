@@ -20,7 +20,6 @@ use sweelix\oauth2\server\interfaces\RefreshTokenModelInterface;
 use sweelix\oauth2\server\interfaces\RefreshTokenServiceInterface;
 use yii\db\Exception as DatabaseException;
 use Yii;
-use yii\db\Expression;
 use yii\db\Query;
 
 /**
@@ -83,8 +82,8 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
                 $refreshTokenParameters[$key] = $this->convertToDatabase($key, $value);
             }
         }
-        $refreshTokenParameters['dateCreated'] = new Expression('NOW()');
-        $refreshTokenParameters['dateUpdated'] = new Expression('NOW()');
+        $refreshTokenParameters['dateCreated'] = date('Y-m-d H:i:s');
+        $refreshTokenParameters['dateUpdated'] = date('Y-m-d H:i:s');
         try {
             $this->db->createCommand()
                 ->insert($this->refreshTokensTable, $refreshTokenParameters)
@@ -151,7 +150,7 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
                 $refreshTokenParameters[$key] = ($value !== null) ? $this->convertToDatabase($key, $value) : null;
             }
         }
-        $refreshTokenParameters['dateUpdated'] = new Expression('NOW()');
+        $refreshTokenParameters['dateUpdated'] = date('Y-m-d H:i:s');
         try {
             if (array_key_exists($modelKey, $values) === true) {
                 $oldRefreshTokenKey = $refreshToken->getOldKey();
@@ -312,9 +311,10 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
      */
     public function deleteAllByUserId($userId)
     {
-        $this->db->createCommand()
-            ->delete($this->refreshTokensTable, 'userId = :userId', [':userId' => $userId])
-            ->execute();
+        $refreshTokens = $this->findAllByUserId($userId);
+        foreach ($refreshTokens as $refreshToken) {
+            $this->delete($refreshToken);
+        }
         return true;
     }
 
@@ -343,9 +343,47 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
      */
     public function deleteAllByClientId($clientId)
     {
-        $this->db->createCommand()
-            ->delete($this->refreshTokensTable, 'clientId = :clientId', [':clientId' => $clientId])
-            ->execute();
+        $refreshTokens = $this->findAllByClientId($clientId);
+        foreach ($refreshTokens as $refreshToken) {
+            $this->delete($refreshToken);
+        }
         return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function deleteAllExpired()
+    {
+        $refreshTokens = (new Query())->select('*')
+            ->from($this->refreshTokensTable)
+            ->where('expiry < :date', [':date' => date('Y-m-d H:i:s')])
+            ->all();
+        foreach ($refreshTokens as $refreshTokenQuery) {
+            $refreshToken = $this->findOne($refreshTokenQuery['id']);
+            if ($refreshToken instanceof RefreshTokenModelInterface) {
+                $this->delete($refreshToken);
+            }
+        }
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function findAll()
+    {
+        $refreshTokensList = (new Query())
+            ->select('*')
+            ->from($this->refreshTokensTable)
+            ->all($this->db);
+        $refreshTokens = [];
+        foreach ($refreshTokensList as $refreshToken) {
+            $result = $this->findOne($refreshToken['id']);
+            if ($result instanceof RefreshTokenModelInterface) {
+                $refreshTokens[] = $result;
+            }
+        }
+        return $refreshTokens;
     }
 }

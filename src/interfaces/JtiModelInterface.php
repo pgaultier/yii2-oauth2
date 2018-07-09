@@ -64,6 +64,50 @@ interface JtiModelInterface extends BaseModelInterface
     public function delete();
 
     /**
+     * @param string|integer $subject
+     * @return JtiModelInterface[]
+     * @since XXX
+     * @throws \yii\base\UnknownClassException
+     */
+    public static function findAllBySubject($subject);
+
+    /**
+     * @param string|integer $subject
+     * @return bool
+     * @since XXX
+     * @throws \yii\base\UnknownClassException
+     */
+    public static function deleteAllBySubject($subject);
+
+    /**
+     * @param string $clientId
+     * @return JtiModelInterface[]
+     * @since XXX
+     * @throws \yii\base\UnknownClassException
+     */
+    public static function findAllByClientId($clientId);
+
+    /**
+     * @param string $clientId
+     * @return bool
+     * @since XXX
+     * @throws \yii\base\UnknownClassException
+     */
+    public static function deleteAllByClientId($clientId);
+
+    /**
+     * @return bool
+     * @throws \yii\base\UnknownClassException
+     */
+    public static function deleteAllExpired();
+
+    /**
+     * @return JtiModelInterface[]
+     * @throws \yii\base\UnknownClassException
+     */
+    public static function findAll();
+
+    /**
      * @param string $clientId
      * @param string $subject
      * @param string $audience

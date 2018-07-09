@@ -37,7 +37,6 @@ use Yii;
  */
 class AuthorizeController extends Controller
 {
-
     /**
      * @inheritdoc
      */
@@ -79,6 +78,7 @@ class AuthorizeController extends Controller
     /**
      * Send back an oauth token
      * @return Response
+     * @throws \yii\base\InvalidConfigException
      * @since 1.0.0
      */
     public function actionIndex()
@@ -139,6 +139,7 @@ class AuthorizeController extends Controller
     /**
      * Display login page
      * @return Response|string
+     * @throws \yii\base\InvalidConfigException
      * @since 1.0.0
      */
     public function actionLogin()
@@ -186,6 +187,7 @@ class AuthorizeController extends Controller
     /**
      * Display authorize page
      * @return string|Response
+     * @throws \yii\base\UnknownClassException
      * @since 1.0.0
      */
     public function actionAuthorize()
@@ -224,14 +226,14 @@ class AuthorizeController extends Controller
             $requestedScopes = [];
             if (empty($additionalScopes) === false) {
                 $additionalScopes = explode(' ', $additionalScopes);
-                foreach($additionalScopes as $scope) {
+                foreach ($additionalScopes as $scope) {
                     $dbScope = Scope::findOne($scope);
                     if ($dbScope !== null) {
                         $requestedScopes[] = $dbScope;
                     } else {
                         Yii::$app->session->setFlash('error', [
                             'error' => 'invalid_scope',
-                            'error_description' => 'Scope '.$scope.' does not exist.',
+                            'error_description' => 'Scope ' . $scope . ' does not exist.',
                         ], false);
                         return $this->redirect(['error']);
                     }
@@ -294,6 +296,7 @@ class AuthorizeController extends Controller
 
     /**
      * @return string classname for selected interface
+     * @throws \yii\base\InvalidConfigException
      * @since 1.0.0
      */
     public function getUserClass()
@@ -304,7 +307,4 @@ class AuthorizeController extends Controller
         }
         return $this->userClass;
     }
-
-
-
 }

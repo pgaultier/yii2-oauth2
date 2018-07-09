@@ -20,7 +20,6 @@ use sweelix\oauth2\server\interfaces\ScopeModelInterface;
 use sweelix\oauth2\server\interfaces\ScopeServiceInterface;
 use yii\db\Exception as DatabaseException;
 use Yii;
-use yii\db\Expression;
 use yii\db\Query;
 
 /**
@@ -82,8 +81,8 @@ class ScopeService extends BaseService implements ScopeServiceInterface
                 $scopeParameters[$key] = $this->convertToDatabase($key, $value);
             }
         }
-        $scopeParameters['dateCreated'] = new Expression('NOW()');
-        $scopeParameters['dateUpdated'] = new Expression('NOW()');
+        $scopeParameters['dateCreated'] = date('Y-m-d H:i:s');
+        $scopeParameters['dateUpdated'] = date('Y-m-d H:i:s');
         try {
             $this->db->createCommand()
                 ->insert($this->scopesTable, $scopeParameters)
@@ -136,7 +135,7 @@ class ScopeService extends BaseService implements ScopeServiceInterface
         foreach ($values as $key => $value) {
             $scopeParameters[$key] = ($value !== null) ? $this->convertToDatabase($key, $value) : null;
         }
-        $scopeParameters['dateUpdated'] = new Expression('NOW()');
+        $scopeParameters['dateUpdated'] = date('Y-m-d H:i:s');
         try {
             if (array_key_exists($modelKey, $values) === true) {
                 $oldScopeKey = $scope->getOldKey();

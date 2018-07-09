@@ -36,7 +36,6 @@ use Yii;
  */
 class AuthCodeService extends BaseService implements AuthCodeServiceInterface
 {
-
     /**
      * @param string $aid auth code ID
      * @return string auth code Key
@@ -103,8 +102,6 @@ class AuthCodeService extends BaseService implements AuthCodeServiceInterface
             try {
                 $this->db->executeCommand('HMSET', $redisParameters);
                 if ($expire !== null) {
-                    $realData = date('Y-m-d H:i:s');
-                    $expireData = date('Y-m-d H:i:s', $expire);
                     $this->db->executeCommand('EXPIREAT', [$authCodeKey, $expire]);
                 }
                 $this->db->executeCommand('EXEC');
@@ -165,7 +162,7 @@ class AuthCodeService extends BaseService implements AuthCodeServiceInterface
             $redisUpdateParameters = [$authCodeKey];
             $redisDeleteParameters = [$authCodeKey];
             $this->setAttributesDefinitions($authCode->attributesDefinition());
-            $expire = null;
+            $expire = $authCode->expiry;
             foreach ($values as $key => $value)
             {
                 if ($value === null) {
@@ -267,5 +264,4 @@ class AuthCodeService extends BaseService implements AuthCodeServiceInterface
         }
         return $result;
     }
-
 }

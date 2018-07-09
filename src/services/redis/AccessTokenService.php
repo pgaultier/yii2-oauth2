@@ -79,6 +79,22 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
     }
 
     /**
+     * @return string key of all access tokens list
+     */
+    protected function getAccessTokenListKey()
+    {
+        return $this->namespace . ':keys';
+    }
+
+    /**
+     * @return string key of all users list
+     */
+    protected function getUserListKey()
+    {
+        return $this->userNamespace . ':keys';
+    }
+
+    /**
      * @inheritdoc
      */
     public function save(AccessTokenModelInterface $accessToken, $attributes)
@@ -115,19 +131,20 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
             $userAccessTokensKey = null;
         }
         $clientAccessTokensKey = $this->getClientAccessTokensKey($accessToken->clientId);
+        $accessTokenListKey = $this->getAccessTokenListKey();
+        $userListKey = $this->getUserListKey();
 
         //check if record exists
         $entityStatus = (int)$this->db->executeCommand('EXISTS', [$accessTokenKey]);
         if ($entityStatus === 1) {
-            throw new DuplicateKeyException('Duplicate key "'.$accessTokenKey.'"');
+            throw new DuplicateKeyException('Duplicate key "' . $accessTokenKey . '"');
         }
 
         $values = $accessToken->getDirtyAttributes($attributes);
         $redisParameters = [$accessTokenKey];
         $this->setAttributesDefinitions($accessToken->attributesDefinition());
         $expire = null;
-        foreach ($values as $key => $value)
-        {
+        foreach ($values as $key => $value) {
             if (($key === 'expiry') && ($value > 0)) {
                 $expire = $value;
             }
@@ -145,9 +162,11 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
                     $this->db->executeCommand('EXPIREAT', [$accessTokenKey, $expire]);
                 }
                 if ($userAccessTokensKey !== null) {
-                    $this->db->executeCommand('SADD', [$userAccessTokensKey, $accessTokenId]);
+                    $this->db->executeCommand('ZADD', [$userAccessTokensKey, $expire === false ? -1 : $expire, $accessTokenId]);
                 }
-                $this->db->executeCommand('SADD', [$clientAccessTokensKey, $accessTokenId]);
+                $this->db->executeCommand('ZADD', [$clientAccessTokensKey, $expire === false ? -1 : $expire, $accessTokenId]);
+                $this->db->executeCommand('ZADD', [$accessTokenListKey, $expire === false ? -1 : $expire, $accessTokenId]);
+                $this->db->executeCommand('SADD', [$userListKey, $accessToken->userId]);
                 $this->db->executeCommand('EXEC');
             } catch (DatabaseException $e) {
                 // @codeCoverageIgnoreStart
@@ -184,6 +203,8 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
         $modelKey = $accessToken->key();
         $accessTokenId = isset($values[$modelKey]) ? $values[$modelKey] : $accessToken->getKey();
         $accessTokenKey = $this->getAccessTokenKey($accessTokenId);
+        $accessTokenListKey = $this->getAccessTokenListKey();
+        $userListKey = $this->getUserListKey();
 
         if (empty($accessToken->userId) === false) {
             $userAccessTokensKey = $this->getUserAccessTokensKey($accessToken->userId);
@@ -196,30 +217,30 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
             $newAccessTokenKey = $this->getAccessTokenKey($values[$modelKey]);
             $entityStatus = (int)$this->db->executeCommand('EXISTS', [$newAccessTokenKey]);
             if ($entityStatus === 1) {
-                throw new DuplicateKeyException('Duplicate key "'.$newAccessTokenKey.'"');
+                throw new DuplicateKeyException('Duplicate key "' . $newAccessTokenKey . '"');
             }
         }
 
         $this->db->executeCommand('MULTI');
         try {
+            $reAddKeyInList = false;
             if (array_key_exists($modelKey, $values) === true) {
                 $oldId = $accessToken->getOldKey();
                 $oldAccessTokenKey = $this->getAccessTokenKey($oldId);
                 $this->db->executeCommand('RENAMENX', [$oldAccessTokenKey, $accessTokenKey]);
                 if ($userAccessTokensKey !== null) {
-                    $this->db->executeCommand('SREM', [$userAccessTokensKey, $oldAccessTokenKey]);
-                    $this->db->executeCommand('SADD', [$userAccessTokensKey, $accessTokenKey]);
+                    $this->db->executeCommand('ZREM', [$userAccessTokensKey, $oldAccessTokenKey]);
                 }
-                $this->db->executeCommand('SREM', [$clientAccessTokensKey, $oldAccessTokenKey]);
-                $this->db->executeCommand('SADD', [$clientAccessTokensKey, $accessTokenKey]);
+                $this->db->executeCommand('ZREM', [$clientAccessTokensKey, $oldAccessTokenKey]);
+                $this->db->executeCommand('ZREM', [$accessTokenListKey, $oldAccessTokenKey]);
+                $reAddKeyInList = true;
             }
 
             $redisUpdateParameters = [$accessTokenKey];
             $redisDeleteParameters = [$accessTokenKey];
             $this->setAttributesDefinitions($accessToken->attributesDefinition());
-            $expire = null;
-            foreach ($values as $key => $value)
-            {
+            $expire = $accessToken->expiry;
+            foreach ($values as $key => $value) {
                 if ($value === null) {
                     if ($key === 'expiry') {
                         $expire = false;
@@ -244,6 +265,15 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
             } elseif ($expire > 0) {
                 $this->db->executeCommand('EXPIREAT', [$accessTokenKey, $expire]);
             }
+
+            if ($reAddKeyInList === true) {
+                if ($userAccessTokensKey !== null) {
+                    $this->db->executeCommand('ZADD', [$userAccessTokensKey, $expire === false ? -1 : $expire, $accessTokenKey]);
+                }
+                $this->db->executeCommand('ZADD', [$clientAccessTokensKey, $expire === false ? -1 : $expire, $accessTokenKey]);
+                $this->db->executeCommand('ZADD', [$accessTokenListKey, $expire === false ? -1 : $expire, $accessTokenKey]);
+            }
+            $this->db->executeCommand('SADD', [$userListKey, $accessToken->userId]);
 
             $this->db->executeCommand('EXEC');
         } catch (DatabaseException $e) {
@@ -284,7 +314,7 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
                     $accessTokenData[$i + 1] = $this->convertToModel($accessTokenData[$i], $accessTokenData[($i + 1)]);
                     $record->setAttribute($accessTokenData[$i], $accessTokenData[$i + 1]);
                     $attributes[$accessTokenData[$i]] = $accessTokenData[$i + 1];
-                // @codeCoverageIgnoreStart
+                    // @codeCoverageIgnoreStart
                 } elseif ($record->canSetProperty($accessTokenData[$i])) {
                     // TODO: find a way to test attribute population
                     $record->{$accessTokenData[$i]} = $accessTokenData[$i + 1];
@@ -305,10 +335,10 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
     public function findAllByUserId($userId)
     {
         $userAccessTokensKey = $this->getUserAccessTokensKey($userId);
-        $userAccessTokens = $this->db->executeCommand('SMEMBERS', [$userAccessTokensKey]);
+        $userAccessTokens = $this->db->executeCommand('ZRANGE', [$userAccessTokensKey, 0, -1]);
         $accessTokens = [];
         if ((is_array($userAccessTokens) === true) && (count($userAccessTokens) > 0)) {
-            foreach($userAccessTokens as $userAccessTokenId) {
+            foreach ($userAccessTokens as $userAccessTokenId) {
                 $accessTokens[] = $this->findOne($userAccessTokenId);
             }
         }
@@ -321,12 +351,13 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
     public function deleteAllByUserId($userId)
     {
         $userAccessTokensKey = $this->getUserAccessTokensKey($userId);
-        $userAccessTokens = $this->db->executeCommand('SMEMBERS', [$userAccessTokensKey]);
-        $userAccessTokenKeys = [$userAccessTokensKey];
-        foreach ($userAccessTokens as $userAccessToken) {
-            $userAccessTokenKeys[] = $this->getAccessTokenKey($userAccessToken);
+        $userAccessTokens = $this->db->executeCommand('ZRANGE', [$userAccessTokensKey, 0, -1]);
+        foreach ($userAccessTokens as $userAccessTokenId) {
+            $userAccessToken = $this->findOne($userAccessTokenId);
+            if ($userAccessToken instanceof AccessTokenModelInterface) {
+                $this->delete($userAccessToken);
+            }
         }
-        $this->db->executeCommand('DEL', $userAccessTokenKeys);
         return true;
     }
 
@@ -336,10 +367,10 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
     public function findAllByClientId($clientId)
     {
         $clientAccessTokensKey = $this->getClientAccessTokensKey($clientId);
-        $clientAccessTokens = $this->db->executeCommand('SMEMBERS', [$clientAccessTokensKey]);
+        $clientAccessTokens = $this->db->executeCommand('ZRANGE', [$clientAccessTokensKey, 0, -1]);
         $accessTokens = [];
         if ((is_array($clientAccessTokens) === true) && (count($clientAccessTokens) > 0)) {
-            foreach($clientAccessTokens as $clientAccessTokenId) {
+            foreach ($clientAccessTokens as $clientAccessTokenId) {
                 $accessTokens[] = $this->findOne($clientAccessTokenId);
             }
         }
@@ -352,12 +383,13 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
     public function deleteAllByClientId($clientId)
     {
         $clientAccessTokensKey = $this->getClientAccessTokensKey($clientId);
-        $clientAccessTokens = $this->db->executeCommand('SMEMBERS', [$clientAccessTokensKey]);
-        $clientAccessTokenKeys = [$clientAccessTokensKey];
-        foreach ($clientAccessTokens as $clientAccessToken) {
-            $clientAccessTokenKeys[] = $this->getAccessTokenKey($clientAccessToken);
+        $clientAccessTokens = $this->db->executeCommand('ZRANGE', [$clientAccessTokensKey, 0, -1]);
+        foreach ($clientAccessTokens as $clientAccessTokenId) {
+            $clientAccessToken = $this->findOne($clientAccessTokenId);
+            if ($clientAccessToken instanceof AccessTokenModelInterface) {
+                $this->delete($clientAccessToken);
+            }
         }
-        $this->db->executeCommand('DEL', $clientAccessTokenKeys);
         return true;
     }
 
@@ -373,7 +405,8 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
             } else {
                 $userAccessTokensKey = null;
             }
-            $clientAccessTokensKey = $this->getClientAccessTokensKey($accessToken->userId);
+            $clientAccessTokensKey = $this->getClientAccessTokensKey($accessToken->clientId);
+            $accessTokenListKey = $this->getAccessTokenListKey();
 
             $this->db->executeCommand('MULTI');
             $id = $accessToken->getOldKey();
@@ -381,11 +414,12 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
 
             $this->db->executeCommand('DEL', [$accessTokenKey]);
             if ($userAccessTokensKey !== null) {
-                $this->db->executeCommand('SREM', [$userAccessTokensKey, $id]);
+                $this->db->executeCommand('ZREM', [$userAccessTokensKey, $id]);
             }
-            $this->db->executeCommand('SREM', [$clientAccessTokensKey, $id]);
+            $this->db->executeCommand('ZREM', [$clientAccessTokensKey, $id]);
+            $this->db->executeCommand('ZREM', [$accessTokenListKey, $id]);
             //TODO: check results to return correct information
-            $queryResult = $this->db->executeCommand('EXEC');
+            $this->db->executeCommand('EXEC');
             $accessToken->setIsNewRecord(true);
             $accessToken->afterDelete();
             $result = true;
@@ -393,4 +427,46 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
         return $result;
     }
 
+    /**
+     * @inheritdoc
+     */
+    public function deleteAllExpired()
+    {
+        $date = time();
+        $accessTokenListKey = $this->getAccessTokenListKey();
+        $this->db->executeCommand('ZREMRANGEBYSCORE', [$accessTokenListKey, '-inf', $date]);
+
+        $client = Yii::createObject('sweelix\oauth2\server\interfaces\ClientModelInterface');
+        $clientClass = get_class($client);
+        /* @var \sweelix\oauth2\server\interfaces\ClientModelInterface[] $clientList */
+        $clientList = $clientClass::findAll();
+        foreach ($clientList as $client) {
+            $clientAccessTokensKey = $this->getClientAccessTokensKey($client->getKey());
+            $this->db->executeCommand('ZREMRANGEBYSCORE', [$clientAccessTokensKey, '-inf', $date]);
+        }
+
+        $userListKey = $this->getUserListKey();
+        $users = $this->db->executeCommand('SMEMBERS', [$userListKey]);
+        foreach ($users as $userId) {
+            $userAccessTokensKey = $this->getUserAccessTokensKey($userId);
+            $this->db->executeCommand('ZREMRANGEBYSCORE', [$userAccessTokensKey, '-inf', $date]);
+        }
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function findAll()
+    {
+        $accessTokenListKey = $this->getAccessTokenListKey();
+        $accessTokenList = $this->db->executeCommand('ZRANGE', [$accessTokenListKey, 0, -1]);
+        $accessTokens = [];
+        if ((is_array($accessTokenList) === true) && (count($accessTokenList) > 0)) {
+            foreach ($accessTokenList as $accessTokenId) {
+                $accessTokens[] = $this->findOne($accessTokenId);
+            }
+        }
+        return $accessTokens;
+    }
 }
