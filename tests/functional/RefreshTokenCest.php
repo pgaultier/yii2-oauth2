@@ -31,7 +31,7 @@ class RefreshTokenCest extends CestCase
     public function _after(FunctionalTester $I)
     {
         // Yii::$app->redis->close();
-         $this->destroyApplication();
+        $this->destroyApplication();
     }
 
     public function checkWithCorrectClientAndCorrectGrant(FunctionalTester $I)
@@ -45,6 +45,12 @@ class RefreshTokenCest extends CestCase
         $client->name = 'Test client 2';
         $I->assertTrue($client->save());
 
+        $cypherKey = Yii::createObject('sweelix\oauth2\server\interfaces\CypherKeyModelInterface');
+        /* @var \sweelix\oauth2\server\interfaces\CypherKeyModelInterface $cypherKey */
+        $cypherKey->id = 'client2';
+        $cypherKey->generateKeys();
+        $I->assertTrue($cypherKey->save());
+
         $response = $I->requestRoute('POST', 'oauth2/token/index', [], [
             'client_id' => 'client2',
             'client_secret' => 'secret2',
@@ -56,8 +62,15 @@ class RefreshTokenCest extends CestCase
         $response = Json::decode($response);
         $I->assertArrayHasKey('access_token', $response);
         $I->assertArrayHasKey('refresh_token', $response);
-        $accessToken = AccessToken::findOne($response['access_token']);
-        $I->assertInstanceOf(AccessToken::class, $accessToken);
+
+        if (preg_match('/^[^.]+[.]{1}[^.]+[.]{1}[^.]+$/', $response['access_token'])) {
+            $payload = (new \OAuth2\Encryption\Jwt())->decode($response['access_token'], $cypherKey->publicKey, true);
+            $I->assertTrue(!!$payload);
+        } else {
+            $accessToken = AccessToken::findOne($response['access_token']);
+            $I->assertInstanceOf(AccessToken::class, $accessToken);
+        }
+
         $refreshToken = RefreshToken::findOne($response['refresh_token']);
         $I->assertInstanceOf(RefreshToken::class, $refreshToken);
 
@@ -71,12 +84,16 @@ class RefreshTokenCest extends CestCase
         $response = Json::decode($response);
         $I->assertArrayHasKey('access_token', $response);
         $I->assertArrayHasKey('refresh_token', $response);
-        $accessToken = AccessToken::findOne($response['access_token']);
-        $I->assertInstanceOf(AccessToken::class, $accessToken);
+
+        if (preg_match('/^[^.]+[.]{1}[^.]+[.]{1}[^.]+$/', $response['access_token'])) {
+            $payload = (new \OAuth2\Encryption\Jwt())->decode($response['access_token'], $cypherKey->publicKey, true);
+            $I->assertTrue(!!$payload);
+        } else {
+            $accessToken = AccessToken::findOne($response['access_token']);
+            $I->assertInstanceOf(AccessToken::class, $accessToken);
+        }
+
         $refreshToken = RefreshToken::findOne($response['refresh_token']);
         $I->assertInstanceOf(RefreshToken::class, $refreshToken);
-
-
     }
-
 }

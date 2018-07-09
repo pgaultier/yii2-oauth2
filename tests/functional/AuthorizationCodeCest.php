@@ -37,7 +37,7 @@ class AuthorizationCodeCest extends CestCase
     public function _after(FunctionalTester $I)
     {
         // Yii::$app->redis->close();
-         $this->destroyApplication();
+        $this->destroyApplication();
     }
 
     public function checkBadAccess(FunctionalTester $I)
@@ -156,6 +156,12 @@ class AuthorizationCodeCest extends CestCase
         $client->redirectUri = ['http://www.sweelix.com/callback', 'http://localhost/cb'];
         $I->assertTrue($client->save());
 
+        $cypherKey = Yii::createObject('sweelix\oauth2\server\interfaces\CypherKeyModelInterface');
+        /* @var \sweelix\oauth2\server\interfaces\CypherKeyModelInterface $cypherKey */
+        $cypherKey->id = 'client2';
+        $cypherKey->generateKeys();
+        $I->assertTrue($cypherKey->save());
+
         $I->amOnRoute('oauth2/authorize/index', [
             'response_type' => 'code',
             'client_id' => 'client2',
@@ -189,8 +195,15 @@ class AuthorizationCodeCest extends CestCase
         $response = Json::decode($response);
         $codeModel = AuthCode::findOne($code);
         $I->assertNull($codeModel);
-        $accessToken = AccessToken::findOne($response['access_token']);
-        $I->assertInstanceOf(AccessToken::class, $accessToken);
+
+        if (preg_match('/^[^.]+[.]{1}[^.]+[.]{1}[^.]+$/', $response['access_token'])) {
+            $payload = (new \OAuth2\Encryption\Jwt())->decode($response['access_token'], $cypherKey->publicKey, true);
+            $I->assertTrue(!!$payload);
+        } else {
+            $accessToken = AccessToken::findOne($response['access_token']);
+            $I->assertInstanceOf(AccessToken::class, $accessToken);
+        }
+
         $refreshToken = RefreshToken::findOne($response['refresh_token']);
         $I->assertInstanceOf(RefreshToken::class, $refreshToken);
 
