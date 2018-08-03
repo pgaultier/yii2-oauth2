@@ -87,7 +87,7 @@ class Module extends BaseModule implements BootstrapInterface
     /**
      * @var bool configure oauth server (use_jwt_access_tokens)
      */
-    public $useJwtAccessToken = false;
+    public $useJwtAccessToken = false; // WARNING: Not sure about the implementation. Use at your own risk !
 
     /**
      * @var array configure oauth server (allowed_algorithms)

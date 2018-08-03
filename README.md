@@ -113,7 +113,7 @@ Configure Module
  * `alwaysIssueNewRefreshToken` : always issue refresh token (default to **true**)
  * `unsetRefreshTokenAfterUse` : unset refresh token after use (default to **true**) 
 
-### JWT parameters
+### JWT parameters (:warning: Not sure about the implementation. Use at your own risk !)
 
  * `useJwtAccessToken` : send access tokens as JWT (default : **false**)
  * `allowAlgorithm` : available algorithm for JWT (default : **['RS256', 'RS384', 'RS512']**)
@@ -459,7 +459,7 @@ Yii::$container->set('sweelix\oauth2\server\interfaces\ClientModelInterface', [
  * `$cypherKey->delete()` - Delete cypherKey
  * `$cypherKey->generateKeys()` - Generate random keys for current cypherKey
  
-### Jti / JtiModelInterface
+### Jti / JtiModelInterface (:warning: Not sure about the implementation. Use at your own risk !)
 
  * `Jti::findOne($id)` - Find jti by ID
  * `Jti::findAllBySubject($id)` - Find all jtis for user (userId)
@@ -472,7 +472,7 @@ Yii::$container->set('sweelix\oauth2\server\interfaces\ClientModelInterface', [
  * `$jti->save()` - Save jti
  * `$jti->delete()` - Delete jti
 
-### Jwt / JwtModelInterface
+### Jwt / JwtModelInterface (:warning: Not sure about the implementation. Use at your own risk !)
 
  * `Jwt::findOne($id)` - Find jwt by ID
  * `Jwt::getFingerprint($clientId, $subject)` - Get jwt fingerprint for given clientId and subject
