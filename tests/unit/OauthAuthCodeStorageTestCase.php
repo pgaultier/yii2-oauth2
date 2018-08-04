@@ -9,7 +9,7 @@ use Yii;
 /**
  * ManagerTestCase
  */
-class OauthAuthCodeStorageTest extends TestCase
+class OauthAuthCodeStorageTestCase extends TestCase
 {
     protected function setUp()
     {
@@ -17,6 +17,8 @@ class OauthAuthCodeStorageTest extends TestCase
         $this->mockApplication([
         ]);
         $this->cleanDatabase();
+        $this->populateClients();
+        $this->populateAccessTokens();
     }
     protected function tearDown()
     {

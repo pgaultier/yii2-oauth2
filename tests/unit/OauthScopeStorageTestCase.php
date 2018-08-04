@@ -1,14 +1,16 @@
 <?php
 
 namespace tests\unit;
+
 use OAuth2\Storage\ScopeInterface;
 use sweelix\oauth2\server\exceptions\DuplicateKeyException;
 use sweelix\oauth2\server\models\Scope;
 use Yii;
+
 /**
  * ManagerTestCase
  */
-class OauthScopeStorageTest extends TestCase
+class OauthScopeStorageTestCase extends TestCase
 {
     protected function setUp()
     {
@@ -17,6 +19,7 @@ class OauthScopeStorageTest extends TestCase
         ]);
         $this->cleanDatabase();
     }
+
     protected function tearDown()
     {
         parent::tearDown();
@@ -168,7 +171,6 @@ class OauthScopeStorageTest extends TestCase
 
         $this->assertEquals(1, count($defaultScopes));
         $this->assertContains('basic', $defaultScopes);
-
     }
 
     public function testStorage()
@@ -197,12 +199,10 @@ class OauthScopeStorageTest extends TestCase
         /* @var Scope $basicScope */
         $this->assertInstanceOf(Scope::class, $emailScope);
         $emailScope->id = 'email';
-        $emailScope->isDefault = false;
+        $emailScope->isDefault = true;
         $emailScope->definition = 'Email Scope';
         $this->assertTrue($emailScope->save());
         $this->assertTrue($storage->scopeExists('basic email'));
         $this->assertTrue($storage->scopeExists('email basic'));
-
     }
-
 }

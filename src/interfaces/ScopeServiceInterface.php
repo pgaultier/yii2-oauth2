@@ -39,18 +39,21 @@ interface ScopeServiceInterface
     /**
      * @param string $key
      * @return ScopeModelInterface|null
+     * @throws \Exception
      */
     public function findOne($key);
 
     /**
      * @param ScopeModelInterface $scope
      * @return boolean
+     * @throws \Exception
      */
     public function delete(ScopeModelInterface $scope);
 
     /**
      * @return array list of scope IDs
      * @since 1.0.0
+     * @throws \Exception
      */
     public function findAvailableScopeIds();
 
@@ -58,6 +61,7 @@ interface ScopeServiceInterface
      * @param string $clientId
      * @return array list of default scope IDs for selected client Id
      * @since 1.0.0
+     * @throws \Exception
      */
     public function findDefaultScopeIds($clientId = null);
 

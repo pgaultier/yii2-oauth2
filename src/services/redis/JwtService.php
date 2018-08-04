@@ -198,24 +198,24 @@ class JwtService extends BaseService implements JwtServiceInterface
     public function findOne($key)
     {
         $record = null;
-        $accessTokenKey = $this->getJwtKey($key);
-        $accessTokenExists = (bool)$this->db->executeCommand('EXISTS', [$accessTokenKey]);
-        if ($accessTokenExists === true) {
-            $accessTokenData = $this->db->executeCommand('HGETALL', [$accessTokenKey]);
+        $jwtKey = $this->getJwtKey($key);
+        $jwtExists = (bool)$this->db->executeCommand('EXISTS', [$jwtKey]);
+        if ($jwtExists === true) {
+            $jwtData = $this->db->executeCommand('HGETALL', [$jwtKey]);
             $record = Yii::createObject('sweelix\oauth2\server\interfaces\JwtModelInterface');
             /** @var JwtModelInterface $record */
             $properties = $record->attributesDefinition();
             $this->setAttributesDefinitions($properties);
             $attributes = [];
-            for ($i = 0; $i < count($accessTokenData); $i += 2) {
-                if (isset($properties[$accessTokenData[$i]]) === true) {
-                    $accessTokenData[$i + 1] = $this->convertToModel($accessTokenData[$i], $accessTokenData[($i + 1)]);
-                    $record->setAttribute($accessTokenData[$i], $accessTokenData[$i + 1]);
-                    $attributes[$accessTokenData[$i]] = $accessTokenData[$i + 1];
+            for ($i = 0; $i < count($jwtData); $i += 2) {
+                if (isset($properties[$jwtData[$i]]) === true) {
+                    $jwtData[$i + 1] = $this->convertToModel($jwtData[$i], $jwtData[($i + 1)]);
+                    $record->setAttribute($jwtData[$i], $jwtData[$i + 1]);
+                    $attributes[$jwtData[$i]] = $jwtData[$i + 1];
                 // @codeCoverageIgnoreStart
-                } elseif ($record->canSetProperty($accessTokenData[$i])) {
+                } elseif ($record->canSetProperty($jwtData[$i])) {
                     // TODO: find a way to test attribute population
-                    $record->{$accessTokenData[$i]} = $accessTokenData[$i + 1];
+                    $record->{$jwtData[$i]} = $jwtData[$i + 1];
                 }
                 // @codeCoverageIgnoreEnd
             }

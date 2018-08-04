@@ -10,7 +10,7 @@ use Yii;
 /**
  * ManagerTestCase
  */
-class OauthRefreshTokenStorageTest extends TestCase
+class OauthRefreshTokenStorageTestCase extends TestCase
 {
     protected function setUp()
     {
@@ -18,6 +18,7 @@ class OauthRefreshTokenStorageTest extends TestCase
         $this->mockApplication([
         ]);
         $this->cleanDatabase();
+        $this->populateClients();
     }
     protected function tearDown()
     {
@@ -107,17 +108,20 @@ class OauthRefreshTokenStorageTest extends TestCase
 
     public function testDeleteAllByClientId()
     {
-        $client1 = Yii::createObject('sweelix\oauth2\server\interfaces\ClientModelInterface');
-        /* @var ClientModelInterface $client1 */
-        $this->assertInstanceOf(ClientModelInterface::class, $client1);
-        $client1->id = 'client1';
-        $client1->secret = 'secret1';
-        $client1->isPublic = true;
-        $client1->grantTypes = [];
-        $client1->userId = 'uid';
-        $client1->scopes = [];
-        $client1->name = 'Test client';
-        $this->assertTrue($client1->save());
+        $client1 = Client::findOne('client1');
+        if ($client1 === null) {
+            $client1 = Yii::createObject('sweelix\oauth2\server\interfaces\ClientModelInterface');
+            /* @var ClientModelInterface $client1 */
+            $this->assertInstanceOf(ClientModelInterface::class, $client1);
+            $client1->id = 'client1';
+            $client1->secret = 'secret1';
+            $client1->isPublic = true;
+            $client1->grantTypes = [];
+            $client1->userId = 'uid';
+            $client1->scopes = [];
+            $client1->name = 'Test client';
+            $this->assertTrue($client1->save());
+        }
 
         $this->populateScopes();
 
@@ -170,17 +174,20 @@ class OauthRefreshTokenStorageTest extends TestCase
 
     public function testDeleteAllByUserId()
     {
-        $client1 = Yii::createObject('sweelix\oauth2\server\interfaces\ClientModelInterface');
-        /* @var ClientModelInterface $client1 */
-        $this->assertInstanceOf(ClientModelInterface::class, $client1);
-        $client1->id = 'client1';
-        $client1->secret = 'secret1';
-        $client1->isPublic = true;
-        $client1->grantTypes = [];
-        $client1->userId = 'uid';
-        $client1->scopes = [];
-        $client1->name = 'Test client';
-        $this->assertTrue($client1->save());
+        $client1 = Client::findOne('client1');
+        if ($client1 === null) {
+            $client1 = Yii::createObject('sweelix\oauth2\server\interfaces\ClientModelInterface');
+            /* @var ClientModelInterface $client1 */
+            $this->assertInstanceOf(ClientModelInterface::class, $client1);
+            $client1->id = 'client1';
+            $client1->secret = 'secret1';
+            $client1->isPublic = true;
+            $client1->grantTypes = [];
+            $client1->userId = 'uid';
+            $client1->scopes = [];
+            $client1->name = 'Test client';
+            $this->assertTrue($client1->save());
+        }
 
         $this->populateScopes();
 

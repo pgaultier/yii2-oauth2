@@ -38,7 +38,6 @@ use Yii;
  */
 class RefreshTokenService extends BaseService implements RefreshTokenServiceInterface
 {
-
     /**
      * @var string user namespace (collection for refreshtokens)
      */
@@ -80,6 +79,22 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
     }
 
     /**
+     * @return string key of all refresh tokens list
+     */
+    protected function getRefreshTokenListKey()
+    {
+        return $this->namespace . ':keys';
+    }
+
+    /**
+     * @return string key of all users list
+     */
+    protected function getUserListKey()
+    {
+        return $this->userNamespace . ':keys';
+    }
+
+    /**
      * @inheritdoc
      */
     public function save(RefreshTokenModelInterface $refreshToken, $attributes)
@@ -116,6 +131,8 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
             $userRefreshTokensKey = null;
         }
         $clientRefreshTokensKey = $this->getClientRefreshTokensKey($refreshToken->clientId);
+        $refreshTokenListKey = $this->getRefreshTokenListKey();
+        $userListKey = $this->getUserListKey();
 
         //check if record exists
         $entityStatus = (int)$this->db->executeCommand('EXISTS', [$refreshTokenKey]);
@@ -126,7 +143,7 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
         $values = $refreshToken->getDirtyAttributes($attributes);
         $redisParameters = [$refreshTokenKey];
         $this->setAttributesDefinitions($refreshToken->attributesDefinition());
-        $expire = null;
+        $expire = $refreshToken->expiry;
         foreach ($values as $key => $value)
         {
             if (($key === 'expiry') && ($value > 0)) {
@@ -146,9 +163,11 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
                     $this->db->executeCommand('EXPIREAT', [$refreshTokenKey, $expire]);
                 }
                 if ($userRefreshTokensKey !== null) {
-                    $this->db->executeCommand('SADD', [$userRefreshTokensKey, $refreshTokenId]);
+                    $this->db->executeCommand('ZADD', [$userRefreshTokensKey, $expire === false ? -1 : $expire, $refreshTokenId]);
                 }
-                $this->db->executeCommand('SADD', [$clientRefreshTokensKey, $refreshTokenId]);
+                $this->db->executeCommand('ZADD', [$clientRefreshTokensKey, $expire === false ? -1 : $expire, $refreshTokenId]);
+                $this->db->executeCommand('ZADD', [$refreshTokenListKey, $expire === false ? -1 : $expire, $refreshTokenId]);
+                $this->db->executeCommand('SADD', [$userListKey, $refreshToken->userId]);
                 $this->db->executeCommand('EXEC');
             } catch (DatabaseException $e) {
                 // @codeCoverageIgnoreStart
@@ -185,6 +204,8 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
         $modelKey = $refreshToken->key();
         $refreshTokenId = isset($values[$modelKey]) ? $values[$modelKey] : $refreshToken->getKey();
         $refreshTokenKey = $this->getRefreshTokenKey($refreshTokenId);
+        $refreshTokenListKey = $this->getRefreshTokenListKey();
+        $userListKey = $this->getUserListKey();
 
         if (empty($refreshToken->userId) === false) {
             $userRefreshTokensKey = $this->getUserRefreshTokensKey($refreshToken->userId);
@@ -203,23 +224,24 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
 
         $this->db->executeCommand('MULTI');
         try {
+            $reAddKeyInList = false;
             if (array_key_exists($modelKey, $values) === true) {
                 $oldId = $refreshToken->getOldKey();
                 $oldRefreshTokenKey = $this->getRefreshTokenKey($oldId);
 
                 $this->db->executeCommand('RENAMENX', [$oldRefreshTokenKey, $refreshTokenKey]);
                 if ($userRefreshTokensKey !== null) {
-                    $this->db->executeCommand('SREM', [$userRefreshTokensKey, $oldRefreshTokenKey]);
-                    $this->db->executeCommand('SADD', [$userRefreshTokensKey, $refreshTokenKey]);
+                    $this->db->executeCommand('ZREM', [$userRefreshTokensKey, $oldRefreshTokenKey]);
                 }
-                $this->db->executeCommand('SREM', [$clientRefreshTokensKey, $oldRefreshTokenKey]);
-                $this->db->executeCommand('SADD', [$clientRefreshTokensKey, $refreshTokenKey]);
+                $this->db->executeCommand('ZREM', [$clientRefreshTokensKey, $oldRefreshTokenKey]);
+                $this->db->executeCommand('ZREM', [$refreshTokenListKey, $oldRefreshTokenKey]);
+                $reAddKeyInList = true;
             }
 
             $redisUpdateParameters = [$refreshTokenKey];
             $redisDeleteParameters = [$refreshTokenKey];
             $this->setAttributesDefinitions($refreshToken->attributesDefinition());
-            $expire = null;
+            $expire = $refreshToken->expiry;
             foreach ($values as $key => $value)
             {
                 if ($value === null) {
@@ -246,6 +268,15 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
             } elseif ($expire > 0) {
                 $this->db->executeCommand('EXPIREAT', [$refreshTokenKey, $expire]);
             }
+
+            if ($reAddKeyInList === true) {
+                if ($userRefreshTokensKey !== null) {
+                    $this->db->executeCommand('ZADD', [$userRefreshTokensKey, $expire === false ? -1 : $expire, $refreshTokenKey]);
+                }
+                $this->db->executeCommand('ZADD', [$clientRefreshTokensKey, $expire === false ? -1 : $expire, $refreshTokenKey]);
+                $this->db->executeCommand('ZADD', [$refreshTokenListKey, $expire === false ? -1 : $expire, $refreshTokenKey]);
+            }
+            $this->db->executeCommand('SADD', [$userListKey, $refreshToken->userId]);
 
             $this->db->executeCommand('EXEC');
         } catch (DatabaseException $e) {
@@ -307,7 +338,7 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
     public function findAllByUserId($userId)
     {
         $userRefreshTokensKey = $this->getUserRefreshTokensKey($userId);
-        $userRefreshTokens = $this->db->executeCommand('SMEMBERS', [$userRefreshTokensKey]);
+        $userRefreshTokens = $this->db->executeCommand('ZRANGE', [$userRefreshTokensKey, 0, -1]);
         $refreshTokens = [];
         if ((is_array($userRefreshTokens) === true) && (count($userRefreshTokens) > 0)) {
             foreach($userRefreshTokens as $userRefreshTokenId) {
@@ -323,12 +354,13 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
     public function deleteAllByUserId($userId)
     {
         $userRefreshTokensKey = $this->getUserRefreshTokensKey($userId);
-        $userRefreshTokens = $this->db->executeCommand('SMEMBERS', [$userRefreshTokensKey]);
-        $userRefreshTokenKeys = [$userRefreshTokensKey];
-        foreach ($userRefreshTokens as $userRefreshToken) {
-            $userRefreshTokenKeys[] = $this->getRefreshTokenKey($userRefreshToken);
+        $userRefreshTokens = $this->db->executeCommand('ZRANGE', [$userRefreshTokensKey, 0, -1]);
+        foreach ($userRefreshTokens as $userRefreshTokenId) {
+            $userRefreshToken = $this->findOne($userRefreshTokenId);
+            if ($userRefreshToken instanceof RefreshTokenModelInterface) {
+                $this->delete($userRefreshToken);
+            }
         }
-        $this->db->executeCommand('DEL', $userRefreshTokenKeys);
         return true;
     }
 
@@ -338,7 +370,7 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
     public function findAllByClientId($clientId)
     {
         $clientRefreshTokensKey = $this->getClientRefreshTokensKey($clientId);
-        $clientRefreshTokens = $this->db->executeCommand('SMEMBERS', [$clientRefreshTokensKey]);
+        $clientRefreshTokens = $this->db->executeCommand('ZRANGE', [$clientRefreshTokensKey, 0, -1]);
         $refreshTokens = [];
         if ((is_array($clientRefreshTokens) === true) && (count($clientRefreshTokens) > 0)) {
             foreach($clientRefreshTokens as $clientRefreshTokenId) {
@@ -354,12 +386,13 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
     public function deleteAllByClientId($clientId)
     {
         $clientRefreshTokensKey = $this->getClientRefreshTokensKey($clientId);
-        $clientRefreshTokens = $this->db->executeCommand('SMEMBERS', [$clientRefreshTokensKey]);
-        $clientRefreshTokenKeys = [$clientRefreshTokensKey];
-        foreach ($clientRefreshTokens as $clientRefreshToken) {
-            $clientRefreshTokenKeys[] = $this->getRefreshTokenKey($clientRefreshToken);
+        $clientRefreshTokens = $this->db->executeCommand('ZRANGE', [$clientRefreshTokensKey, 0, -1]);
+        foreach ($clientRefreshTokens as $clientRefreshTokenId) {
+            $clientRefreshToken = $this->findOne($clientRefreshTokenId);
+            if ($clientRefreshToken instanceof RefreshTokenModelInterface) {
+                $this->delete($clientRefreshToken);
+            }
         }
-        $this->db->executeCommand('DEL', $clientRefreshTokenKeys);
         return true;
     }
 
@@ -376,7 +409,8 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
             } else {
                 $userRefreshTokensKey = null;
             }
-            $clientRefreshTokensKey = $this->getClientRefreshTokensKey($refreshToken->userId);
+            $clientRefreshTokensKey = $this->getClientRefreshTokensKey($refreshToken->clientId);
+            $refreshTokenListKey = $this->getRefreshTokenListKey();
 
             $this->db->executeCommand('MULTI');
             $id = $refreshToken->getOldKey();
@@ -384,9 +418,10 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
 
             $this->db->executeCommand('DEL', [$refreshTokenKey]);
             if ($userRefreshTokensKey !== null) {
-                $this->db->executeCommand('SREM', [$userRefreshTokensKey, $id]);
+                $this->db->executeCommand('ZREM', [$userRefreshTokensKey, $id]);
             }
-            $this->db->executeCommand('SREM', [$clientRefreshTokensKey, $id]);
+            $this->db->executeCommand('ZREM', [$clientRefreshTokensKey, $id]);
+            $this->db->executeCommand('ZREM', [$refreshTokenListKey, $id]);
             //TODO: check results to return correct information
             $queryResult = $this->db->executeCommand('EXEC');
             $refreshToken->setIsNewRecord(true);
@@ -396,4 +431,46 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
         return $result;
     }
 
+    /**
+     * @inheritdoc
+     */
+    public function deleteAllExpired()
+    {
+        $date = time();
+        $refreshTokenListKey = $this->getRefreshTokenListKey();
+        $this->db->executeCommand('ZREMRANGEBYSCORE', [$refreshTokenListKey, -1, $date]);
+
+        $client = Yii::createObject('sweelix\oauth2\server\interfaces\ClientModelInterface');
+        $clientClass = get_class($client);
+        /* @var \sweelix\oauth2\server\interfaces\ClientModelInterface[] $clientList */
+        $clientList = $clientClass::findAll();
+        foreach ($clientList as $client) {
+            $clientRefreshTokensKey = $this->getClientRefreshTokensKey($client->getKey());
+            $this->db->executeCommand('ZREMRANGEBYSCORE', [$clientRefreshTokensKey, -1, $date]);
+        }
+
+        $userListKey = $this->getUserListKey();
+        $users = $this->db->executeCommand('SMEMBERS', [$userListKey]);
+        foreach ($users as $userId) {
+            $userRefreshTokensKey = $this->getUserRefreshTokensKey($userId);
+            $this->db->executeCommand('ZREMRANGEBYSCORE', [$userRefreshTokensKey, '-inf', $date]);
+        }
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function findAll()
+    {
+        $refreshTokenListKey = $this->getRefreshTokenListKey();
+        $refreshTokenList = $this->db->executeCommand('ZRANGE', [$refreshTokenListKey, 0, -1]);
+        $refreshTokens = [];
+        if ((is_array($refreshTokenList) === true) && (count($refreshTokenList) > 0)) {
+            foreach ($refreshTokenList as $refreshTokenId) {
+                $refreshTokens[] = $this->findOne($refreshTokenId);
+            }
+        }
+        return $refreshTokens;
+    }
 }

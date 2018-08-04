@@ -39,37 +39,54 @@ interface RefreshTokenServiceInterface
     /**
      * @param string $key
      * @return RefreshTokenModelInterface|null
+     * @throws \Exception
      */
     public function findOne($key);
 
     /**
      * @param RefreshTokenModelInterface $refreshToken
      * @return boolean
+     * @throws \Exception
      */
     public function delete(RefreshTokenModelInterface $refreshToken);
 
     /**
      * @param string $userId
      * @return RefreshTokenModelInterface[]
+     * @throws \Exception
      */
     public function findAllByUserId($userId);
 
     /**
      * @param string $userId
      * @return bool
+     * @throws \Exception
      */
     public function deleteAllByUserId($userId);
 
     /**
      * @param string $clientId
      * @return RefreshTokenModelInterface[]
+     * @throws \Exception
      */
     public function findAllByClientId($clientId);
 
     /**
      * @param string $clientId
      * @return bool
+     * @throws \Exception
      */
     public function deleteAllByClientId($clientId);
 
+    /**
+     * @return bool
+     * @throws \Exception
+     */
+    public function deleteAllExpired();
+
+    /**
+     * @return RefreshTokenModelInterface[]
+     * @throws \Exception
+     */
+    public function findAll();
 }

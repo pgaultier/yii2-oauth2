@@ -2,10 +2,21 @@ class_name: FunctionalTester
 modules:
     config:
         Yii2:
-            configFile: 'tests/config/test.php'
+            configFile: 'tests/config/testRedis.php'
             cleanup: false
     enabled:
         - \Helper\Functional
         - Filesystem
         - Asserts
         - Yii2
+env:
+    mysql:
+        modules:
+            config:
+                Yii2:
+                    configFile: 'tests/config/testMysql.php'
+    redis:
+        modules:
+            config:
+                Yii2:
+                    configFile: 'tests/config/testRedis.php'

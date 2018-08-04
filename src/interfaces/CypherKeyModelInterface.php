@@ -67,6 +67,8 @@ interface CypherKeyModelInterface extends BaseModelInterface
 
     /**
      * generate private and public keys
+     * @param int $bits
+     * @param int $type
      * @since 1.0.0
      */
     public function generateKeys($bits = 2048, $type = OPENSSL_KEYTYPE_RSA);

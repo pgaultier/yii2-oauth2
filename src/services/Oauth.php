@@ -44,38 +44,38 @@ class Oauth implements ServiceBootstrapInterface
     public static function register($app)
     {
         $module = Module::getInstance();
-        Yii::$container->set('OAuth2\Server', function($container, $params, $config) use ($module) {
+        Yii::$container->set('OAuth2\Server', function ($container, $params, $config) use ($module) {
             $storage = Yii::createObject('sweelix\oauth2\server\storage\OauthStorage');
             $server = new Server($storage, self::prepareServerConfig($config, $module));
             return $server;
         });
 
-        Yii::$container->set('OAuth2\GrantType\AuthorizationCode', function($container, $params, $config) {
+        Yii::$container->set('OAuth2\GrantType\AuthorizationCode', function ($container, $params, $config) {
             $storage = Yii::createObject('sweelix\oauth2\server\storage\OauthStorage');
             $grantType = new AuthorizationCode($storage);
             return $grantType;
         });
 
-        Yii::$container->set('OAuth2\GrantType\ClientCredentials', function($container, $params, $config) use ($module) {
+        Yii::$container->set('OAuth2\GrantType\ClientCredentials', function ($container, $params, $config) use ($module) {
             $storage = Yii::createObject('sweelix\oauth2\server\storage\OauthStorage');
             $grantType = new ClientCredentials($storage, self::prepareServerConfig($config, $module));
             return $grantType;
         });
 
-        Yii::$container->set('OAuth2\GrantType\JwtBearer', function($container, $params, $config) use ($module) {
+        Yii::$container->set('OAuth2\GrantType\JwtBearer', function ($container, $params, $config) use ($module) {
             $storage = Yii::createObject('sweelix\oauth2\server\storage\OauthStorage');
             $audience = Url::to($module->jwtAudience, true);
             $grantType = new JwtBearer($storage, $audience, null, self::prepareServerConfig($config, $module));
             return $grantType;
         });
 
-        Yii::$container->set('OAuth2\GrantType\RefreshToken', function($container, $params, $config) use ($module) {
+        Yii::$container->set('OAuth2\GrantType\RefreshToken', function ($container, $params, $config) use ($module) {
             $storage = Yii::createObject('sweelix\oauth2\server\storage\OauthStorage');
             $grantType = new RefreshToken($storage, self::prepareServerConfig($config, $module));
             return $grantType;
         });
 
-        Yii::$container->set('OAuth2\GrantType\UserCredentials', function($container, $params, $config) {
+        Yii::$container->set('OAuth2\GrantType\UserCredentials', function ($container, $params, $config) {
             $storage = Yii::createObject('sweelix\oauth2\server\storage\OauthStorage');
             $grantType = new UserCredentials($storage);
             return $grantType;
@@ -91,7 +91,7 @@ class Oauth implements ServiceBootstrapInterface
     protected static function prepareServerConfig($config, $module)
     {
         $baseConfig = [
-            'use_jwt_access_tokens' => $module->allowJwtAccessToken,
+            'use_jwt_access_tokens' => $module->useJwtAccessToken,
             'store_encrypted_token_string' => $module->storeEncryptedTokenString,
             'use_openid_connect' => $module->allowOpenIdConnect,
             'id_lifetime' => $module->idTTL,
