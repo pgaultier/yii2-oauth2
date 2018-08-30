@@ -358,7 +358,7 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
         $refreshTokens = (new Query())->select('*')
             ->from($this->refreshTokensTable)
             ->where('expiry < :date', [':date' => date('Y-m-d H:i:s')])
-            ->all();
+            ->all($this->db);
         foreach ($refreshTokens as $refreshTokenQuery) {
             $refreshToken = $this->findOne($refreshTokenQuery['id']);
             if ($refreshToken instanceof RefreshTokenModelInterface) {

@@ -354,7 +354,7 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
         $accessTokens = (new Query())->select('*')
             ->from($this->accessTokensTable)
             ->where('expiry < :date', [':date' => date('Y-m-d H:i:s')])
-            ->all();
+            ->all($this->db);
         foreach ($accessTokens as $accessTokenQuery) {
             $accessToken = $this->findOne($accessTokenQuery['id']);
             if ($accessToken instanceof AccessTokenModelInterface) {

@@ -299,7 +299,7 @@ class JtiService extends BaseService implements JtiServiceInterface
         $jtis = (new Query())->select('*')
             ->from($this->jtisTable)
             ->where('expires < :date', [':date' => date('Y-m-d H:i:s')])
-            ->all();
+            ->all($this->db);
         foreach ($jtis as $jtiQuery) {
             $jti = $this->findOne($jtiQuery['id']);
             if ($jti instanceof JtiModelInterface) {
