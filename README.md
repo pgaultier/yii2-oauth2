@@ -517,3 +517,4 @@ Several commands are available to manage oauth2 system
  * `php protected/yii.php oauth2:scope/update`
  * `php protected/yii.php oauth2:scope/delete`
  * `php protected/yii.php oauth2:cronjob/remove-expired` - Run this one with your cron manager
+ * `php protected/yii.php oauth2:migrate-redis/migrate` - Migration command for redis
