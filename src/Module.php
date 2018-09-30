@@ -335,5 +335,8 @@ class Module extends BaseModule implements BootstrapInterface
         $app->controllerMap['oauth2:jwt'] = [
             'class' => 'sweelix\oauth2\server\commands\JwtController',
         ];
+        $app->controllerMap['oauth2:migrate-redis'] = [
+            'class' => 'sweelix\oauth2\server\commands\MigrateRedisController',
+        ];
     }
 }

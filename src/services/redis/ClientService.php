@@ -48,7 +48,7 @@ class ClientService extends BaseService implements ClientServiceInterface
      * @return string client Key
      * @since 1.0.0
      */
-    protected function getClientKey($cid)
+    public function getClientKey($cid)
     {
         return $this->namespace . ':' . $cid;
     }
@@ -58,7 +58,7 @@ class ClientService extends BaseService implements ClientServiceInterface
      * @return string clientUsers Key
      * @since 1.0.0
      */
-    protected function getClientUsersListKey($cid)
+    public function getClientUsersListKey($cid)
     {
         return $this->namespace . ':' . $cid . ':users';
     }
@@ -68,7 +68,7 @@ class ClientService extends BaseService implements ClientServiceInterface
      * @return string user clients collection Key
      * @since XXX
      */
-    protected function getUserClientsListKey($uid)
+    public function getUserClientsListKey($uid)
     {
         return $this->userNamespace . ':' . $uid . ':clients';
     }
@@ -76,7 +76,7 @@ class ClientService extends BaseService implements ClientServiceInterface
     /**
      * @return string key of all clients list
      */
-    protected function getClientListKey()
+    public function getClientListKey()
     {
         return $this->namespace . ':keys';
     }

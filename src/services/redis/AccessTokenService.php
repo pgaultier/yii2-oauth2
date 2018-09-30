@@ -53,7 +53,7 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
      * @return string access token Key
      * @since 1.0.0
      */
-    protected function getAccessTokenKey($aid)
+    public function getAccessTokenKey($aid)
     {
         return $this->namespace . ':' . $aid;
     }
@@ -63,7 +63,7 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
      * @return string user access tokens collection Key
      * @since XXX
      */
-    protected function getUserAccessTokensKey($uid)
+    public function getUserAccessTokensKey($uid)
     {
         return $this->userNamespace . ':' . $uid . ':accessTokens';
     }
@@ -73,7 +73,7 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
      * @return string client access tokens collection Key
      * @since XXX
      */
-    protected function getClientAccessTokensKey($cid)
+    public function getClientAccessTokensKey($cid)
     {
         return $this->clientNamespace . ':' . $cid . ':accessTokens';
     }
@@ -81,7 +81,7 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
     /**
      * @return string key of all access tokens list
      */
-    protected function getAccessTokenListKey()
+    public function getAccessTokenListKey()
     {
         return $this->namespace . ':keys';
     }
@@ -89,7 +89,7 @@ class AccessTokenService extends BaseService implements AccessTokenServiceInterf
     /**
      * @return string key of all users list
      */
-    protected function getUserListKey()
+    public function getUserListKey()
     {
         return $this->userNamespace . ':keys';
     }
