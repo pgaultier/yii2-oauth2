@@ -19,7 +19,6 @@ use OAuth2\Response as OAuth2Response;
 use sweelix\oauth2\server\models\Client;
 use sweelix\oauth2\server\models\Scope;
 use sweelix\oauth2\server\Module;
-use yii\db\Exception;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\Response;
@@ -91,8 +90,6 @@ class AuthorizeController extends Controller
         $oauthRequest = OAuth2Request::createFromGlobals();
         $oauthResponse = new OAuth2Response();
         $grantType = Yii::$app->request->getQueryParam('response_type');
-
-        // http://openid.net/specs/openid-connect-core-1_0.html#AuthorizationEndpoint
         $promptValues = key_exists('prompt', $oauthRequest->query) ? explode(" ", $oauthRequest->query['prompt']) : [];
 
         switch ($grantType) {
