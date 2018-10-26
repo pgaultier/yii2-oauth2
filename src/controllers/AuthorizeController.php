@@ -19,6 +19,7 @@ use OAuth2\Response as OAuth2Response;
 use sweelix\oauth2\server\models\Client;
 use sweelix\oauth2\server\models\Scope;
 use sweelix\oauth2\server\Module;
+use yii\db\Exception;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\Response;
@@ -90,6 +91,10 @@ class AuthorizeController extends Controller
         $oauthRequest = OAuth2Request::createFromGlobals();
         $oauthResponse = new OAuth2Response();
         $grantType = Yii::$app->request->getQueryParam('response_type');
+
+        // http://openid.net/specs/openid-connect-core-1_0.html#AuthorizationEndpoint
+        $promptValues = key_exists('prompt', $oauthRequest->query) ? explode(" ", $oauthRequest->query['prompt']) : [];
+
         switch ($grantType) {
             // Authorization Code
             case 'code':
@@ -124,8 +129,17 @@ class AuthorizeController extends Controller
             if (isset($oauthRequest) === true) {
                 Yii::$app->session->set('oauthRequest', $oauthRequest);
             }
-            if (Yii::$app->user->isGuest === true) {
-                $response = $this->redirect(['login']);
+            if (Yii::$app->user->isGuest === true || in_array('login', $promptValues, true)) {
+                //TODO: check if the user should get logged out
+                if(in_array('none', $promptValues, true)) {
+                    Yii::$app->session->setFlash('error', [
+                        'error' => 'login_required',
+                        'error_description' => 'Authentication Request cannot be completed without user authentication.',
+                    ], false);
+                    return $this->redirect(['error']);
+                } else {
+                    $response = $this->redirect(['login']);
+                }
             } else {
                 $response = $this->redirect(['authorize']);
             }
@@ -145,8 +159,9 @@ class AuthorizeController extends Controller
     public function actionLogin()
     {
         Yii::$app->response->headers->add('Content-Security-Policy', 'frame-ancestors \'none\';');
-
+        /** @var \OAuth2\Server $oauthServer */
         $oauthServer = Yii::$app->session->get('oauthServer');
+
         /* @var \Oauth2\Server $oauthServer */
         if ($oauthServer === null) {
             Yii::$app->session->setFlash('error', [
@@ -155,6 +170,9 @@ class AuthorizeController extends Controller
             ], false);
             return $this->redirect(['error']);
         }
+
+        $oauthRequest = Yii::$app->session->get('oauthRequest');
+        $promptValues = $oauthRequest && key_exists('prompt', $oauthRequest->query) ? explode(" ", $oauthRequest->query['prompt']) : [];
 
         $userForm = Yii::createObject('sweelix\oauth2\server\forms\User');
         $response = null;
@@ -175,6 +193,15 @@ class AuthorizeController extends Controller
             }
         }
         if ($response === null) {
+            if(in_array('none', $promptValues, true)) {
+                Yii::$app->session->remove('oauthServer');
+                Yii::$app->session->remove('oauthRequest');
+                Yii::$app->session->setFlash('error', [
+                    'error' => 'login_required',
+                    'error_description' => 'Authentication Request cannot be completed without user authentication.',
+                ], false);
+                return $this->redirect(['error']);
+            }
             // force empty password
             $userForm->password = '';
             $response = $this->render('login', [
@@ -204,8 +231,11 @@ class AuthorizeController extends Controller
         }
         $oauthController = $oauthServer->getAuthorizeController();
         $client = Client::findOne($oauthController->getClientId());
+        $oauthRequest = Yii::$app->session->get('oauthRequest');
+        $promptValues = $oauthRequest && key_exists('prompt', $oauthRequest->query) ? explode(" ", $oauthRequest->query['prompt']) : [];
 
-        if ($client->hasUser(Yii::$app->user->id) === true) {
+        if ($client->hasUser(Yii::$app->user->id) === true && !in_array('consent', $promptValues, true)) {
+            //TODO: check if all consents should be removed
             // already logged
             $oauthRequest = Yii::$app->session->get('oauthRequest');
             $oauthResponse = new OAuth2Response();
@@ -222,6 +252,17 @@ class AuthorizeController extends Controller
             }
         } else {
             // perform regular authorization
+            if(in_array('none', $promptValues, true)) {
+                Yii::$app->session->remove('oauthServer');
+                Yii::$app->session->remove('oauthRequest');
+
+                Yii::$app->session->setFlash('error', [
+                    'error' => 'consent_required',
+                    'error_description' => 'Authentication Request cannot be completed without End-User consent.',
+                ], false);
+                return $this->redirect(['error']);
+            }
+
             $additionalScopes = $oauthController->getScope();
             $requestedScopes = [];
             if (empty($additionalScopes) === false) {
@@ -247,7 +288,9 @@ class AuthorizeController extends Controller
 
                 if ($accept !== null) {
                     $oauthResponse = $oauthServer->handleAuthorizeRequest($oauthRequest, $oauthResponse, true, Yii::$app->user->id);
-                    $client->addUser(Yii::$app->user->id);
+                    if($client->hasUser(Yii::$app->user->id) === false) {
+                        $client->addUser(Yii::$app->user->id);
+                    }
                     // authorize
                 } else {
                     $oauthResponse = $oauthServer->handleAuthorizeRequest($oauthRequest, $oauthResponse, false, Yii::$app->user->id);
@@ -281,6 +324,7 @@ class AuthorizeController extends Controller
      */
     public function actionError()
     {
+        Yii::$app->response->setStatusCode(400);
         Yii::$app->response->headers->add('Content-Security-Policy', 'frame-ancestors \'none\';');
         $errorData = Yii::$app->session->getFlash('error');
         return $this->render('error', [
