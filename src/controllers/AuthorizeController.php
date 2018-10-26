@@ -85,7 +85,6 @@ class AuthorizeController extends Controller
     {
         Yii::$app->response->headers->add('Content-Security-Policy', 'frame-ancestors \'none\';');
         $oauthServer = Yii::createObject('OAuth2\Server');
-        /* @var \Oauth2\Server $oauthServer */
         $status = false;
         $oauthRequest = OAuth2Request::createFromGlobals();
         $oauthResponse = new OAuth2Response();
@@ -156,7 +155,6 @@ class AuthorizeController extends Controller
     public function actionLogin()
     {
         Yii::$app->response->headers->add('Content-Security-Policy', 'frame-ancestors \'none\';');
-        /** @var \OAuth2\Server $oauthServer */
         $oauthServer = Yii::$app->session->get('oauthServer');
 
         /* @var \Oauth2\Server $oauthServer */
