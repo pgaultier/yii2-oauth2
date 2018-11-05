@@ -38,6 +38,11 @@ use Yii;
 class AuthorizeController extends Controller
 {
     /**
+     * @var string
+     */
+    private $userClass;
+
+    /**
      * @inheritdoc
      */
     public function init()
@@ -77,6 +82,7 @@ class AuthorizeController extends Controller
 
     /**
      * Send back an oauth token
+     *
      * @return Response
      * @throws \yii\base\InvalidConfigException
      * @since 1.0.0
@@ -95,31 +101,32 @@ class AuthorizeController extends Controller
 
         $oauthResponse = new OAuth2Response();
 
+        /** @var string $grantType */
         $grantType = Yii::$app->request->getQueryParam('response_type');
         $promptValues = key_exists('prompt', $oauthRequest->query) ? explode(" ", $oauthRequest->query['prompt']) : [];
 
         switch ($grantType) {
-            // Authorization Code
             case 'code':
+                // Authorization Code
                 if (Module::getInstance()->allowAuthorizationCode === true) {
+                    /** @var \Oauth2\GrantType\AuthorizationCode $oauthGrantType */
                     $oauthGrantType = Yii::createObject('OAuth2\GrantType\AuthorizationCode');
                     $oauthServer->addGrantType($oauthGrantType);
-
                     $status = $oauthServer->validateAuthorizeRequest($oauthRequest, $oauthResponse);
                 } else {
                     $status = false;
                     $oauthResponse->setError(400, 'invalid_grant', 'Authorization code grant is not supported');
                 }
                 break;
-
-            // Implicit
             case 'token':
+                // Implicit
                 $status = $oauthServer->validateAuthorizeRequest($oauthRequest, $oauthResponse);
                 break;
         }
 
         if ($status === false) {
-            $this->handleResponse($oauthResponse);
+            // handle request validation error
+            $this->handleErrorResponse($oauthResponse);
         } else {
             Yii::$app->session->set('oauthServer', $oauthServer);
             if (isset($oauthRequest) === true) {
@@ -131,18 +138,14 @@ class AuthorizeController extends Controller
                 $authController = $oauthServer->getAuthorizeController();
 
                 //TODO: check if the user should get logged out
-                if(in_array('none', $promptValues, true)) {
+                if (in_array('none', $promptValues, true)) {
                     $response = new OAuth2Response();
-                    $response->setRedirect(
-                        302,
-                        $authController->getRedirectUri(),
-                        $authController->getState(),
+                    $response->setRedirect(302, $authController->getRedirectUri(), $authController->getState(),
                         'login_required',
                         'Authentication Request cannot be completed without user authentication.',
-                        null
+                        NULL
                     );
-
-                    $this->handleResponse($response);
+                    $this->handleErrorResponse($response);
                 } else {
                     return $this->redirect(['login']);
                 }
@@ -150,45 +153,43 @@ class AuthorizeController extends Controller
                 return $this->redirect(['authorize']);
             }
         }
-
-        return null;
     }
 
     /**
      * Display login page
-     * @return Response|string
+     *
+     * @return Response | string
      * @throws \yii\base\InvalidConfigException
      * @since 1.0.0
      */
     public function actionLogin()
     {
         Yii::$app->response->headers->add('Content-Security-Policy', 'frame-ancestors \'none\';');
-        $oauthServer = Yii::$app->session->get('oauthServer');
 
         /* @var \Oauth2\Server $oauthServer */
+        $oauthServer = Yii::$app->session->get('oauthServer');
+
         if ($oauthServer === null) {
             $response = new OAuth2Response();
             $response->setError(400, 'invalid_request', 'The request was not performed as expected.');
-
-            $this->handleResponse($response);
+            $this->handleErrorResponse($response);
         }
 
+        $response = null;
         $oauthRequest = Yii::$app->session->get('oauthRequest');
         $promptValues = $oauthRequest && key_exists('prompt', $oauthRequest->query) ? explode(" ", $oauthRequest->query['prompt']) : [];
-
-        $userForm = Yii::createObject('sweelix\oauth2\server\forms\User');
-        $response = null;
         /* @var \sweelix\oauth2\server\forms\User $userForm */
+        $userForm = Yii::createObject('sweelix\oauth2\server\forms\User');
+
         if (Yii::$app->request->isPost === true) {
             //TODO: handle case when user decline the grants
             $userForm->load(Yii::$app->request->bodyParams);
             if ($userForm->validate() === true) {
                 $userClass = $this->getUserClass();
-                $realUser = $userClass::findByUsernameAndPassword($userForm->username, $userForm->password);
                 /* @var \sweelix\oauth2\server\interfaces\UserModelInterface $realUser */
+                $realUser = $userClass::findByUsernameAndPassword($userForm->username, $userForm->password);
                 if ($realUser !== null) {
                     Yii::$app->user->login($realUser, Module::getInstance()->loginDuration);
-
                     $response = $this->redirect(['authorize']);
                 } else {
                     $userForm->addError('username');
@@ -200,16 +201,12 @@ class AuthorizeController extends Controller
                 /** @var \Oauth2\Controller\AuthorizeController $authController */
                 $authController = $oauthServer->getAuthorizeController();
                 $oauthResponse = $oauthServer->getResponse();
-                $oauthResponse->setRedirect(
-                    302,
-                    $authController->getRedirectUri(),
-                    $authController->getState(),
+                $oauthResponse->setRedirect(302, $authController->getRedirectUri(), $authController->getState(),
                     'login_required',
                     'Authentication Request cannot be completed without user authentication.',
                     null
                 );
-
-                $this->handleResponse($oauthResponse);
+                $this->handleErrorResponse($oauthResponse);
             }
             // force empty password
             $userForm->password = '';
@@ -217,65 +214,60 @@ class AuthorizeController extends Controller
                 'user' => $userForm,
             ]);
         }
-
         return $response;
     }
 
     /**
      * Display authorize page
-     * @return string|Response
+     *
+     * @return Response | string
      * @throws \yii\base\UnknownClassException
      * @since 1.0.0
      */
     public function actionAuthorize()
     {
         Yii::$app->response->headers->add('Content-Security-Policy', 'frame-ancestors \'none\';');
+
         /* @var \Oauth2\Server $oauthServer */
         $oauthServer = Yii::$app->session->get('oauthServer');
-        if ($oauthServer === null) {
+
+        if ($oauthServer === NULL) {
             $response = new OAuth2Response();
             $response->setError(400, 'invalid_request', 'The request was not performed as expected.');
-
-            $this->handleResponse($response);
+            $this->handleErrorResponse($response);
         }
+
         /** @var \OAuth2\Controller\AuthorizeController $authController */
         $authController = $oauthServer->getAuthorizeController();
         $client = Client::findOne($authController->getClientId());
         $oauthRequest = Yii::$app->session->get('oauthRequest');
         $promptValues = $oauthRequest && key_exists('prompt', $oauthRequest->query) ? explode(" ", $oauthRequest->query['prompt']) : [];
 
+        // user has already granted permission
         if ($client->hasUser(Yii::$app->user->id) === true && !in_array('consent', $promptValues, true)) {
             //TODO: check if all consents should be removed
-            // already logged
-            /** @var OAuth2Response $oauthResponse */
+            /** @var \OAuth2\Response $oauthResponse */
             $oauthResponse = new OAuth2Response();
             $oauthResponse = $oauthServer->handleAuthorizeRequest($oauthRequest, $oauthResponse, true, Yii::$app->user->id);
 
-            Yii::$app->session->remove('oauthServer');
-            Yii::$app->session->remove('oauthRequest');
-            if ($oauthResponse->getParameter('error') === null) {
+            if ($oauthResponse->getParameter('error') === NULL) {
                 Yii::$app->session->remove('oauthServer');
                 Yii::$app->session->remove('oauthRequest');
 
                 return $this->redirect($oauthResponse->getHttpHeader('Location'));
             } else {
-
-                $this->handleResponse($oauthResponse);
+                $this->handleErrorResponse($oauthResponse);
             }
         } else {
             // perform regular authorization
-            if(in_array('none', $promptValues, true)) {
+            if (in_array('none', $promptValues, true)) {
                 $oauthResponse = $oauthServer->getResponse();
-                $oauthResponse->setRedirect(
-                    302,
-                    $authController->getRedirectUri(),
-                    $authController->getState(),
+                $oauthResponse->setRedirect(302, $authController->getRedirectUri(), $authController->getState(),
                     'consent_required',
                     'Authentication Request cannot be completed without End-User consent.',
-                    null
+                    NULL
                 );
-
-                $this->handleResponse($oauthResponse);
+                $this->handleErrorResponse($oauthResponse);
             }
 
             $additionalScopes = $authController->getScope();
@@ -284,29 +276,29 @@ class AuthorizeController extends Controller
                 $additionalScopes = explode(' ', $additionalScopes);
                 foreach ($additionalScopes as $scope) {
                     $dbScope = Scope::findOne($scope);
-                    if ($dbScope !== null) {
+                    if ($dbScope !== NULL) {
                         $requestedScopes[] = $dbScope;
                     } else {
                         $response = new OAuth2Response();
                         $response->setError(400, 'invalid_scope', 'Scope ' . $scope . ' does not exist.');
-
-                        $this->handleResponse($response);
+                        $this->handleErrorResponse($response);
                     }
                 }
             }
             if (Yii::$app->request->isPost === true) {
-                $accept = Yii::$app->request->getBodyParam('accept', null);
+                $accept = Yii::$app->request->getBodyParam('accept');
+                /** @var \Oauth2\Request $oauthRequest */
                 $oauthRequest = Yii::$app->session->get('oauthRequest');
-                /* @var OAuth2Response $oauthResponse */
+                /** @var \Oauth2\Response $oauthResponse */
                 $oauthResponse = new OAuth2Response();
 
-                if ($accept !== null) {
+                if ($accept !== NULL) {
                     // authorize
                     $oauthResponse = $oauthServer->handleAuthorizeRequest($oauthRequest, $oauthResponse, true, Yii::$app->user->id);
-                    if($client->hasUser(Yii::$app->user->id) === false) {
+                    // check if user has not already granted the client
+                    if ($client->hasUser(Yii::$app->user->id) === false) {
                         $client->addUser(Yii::$app->user->id);
                     }
-
                 } else {
                     // decline
                     $oauthResponse = $oauthServer->handleAuthorizeRequest($oauthRequest, $oauthResponse, false, Yii::$app->user->id);
@@ -317,31 +309,30 @@ class AuthorizeController extends Controller
                 Yii::$app->session->remove('oauthRequest');
                 $error = $oauthResponse->getParameters();
                 $redirect = $oauthResponse->getHttpHeader('Location');
-                if ((empty($error) === false) && ($redirect === null)) {
+                if ((empty($error) === false) && ($redirect === NULL)) {
                     Yii::$app->session->setFlash('error', $error, false);
-
                     return $this->redirect(['error']);
                 } else {
-
                     return $this->redirect($redirect);
                 }
             }
         }
-
         return $this->render('authorize', [
-            'client' => $client,
+            'client'          => $client,
             'requestedScopes' => $requestedScopes,
         ]);
     }
 
     /**
      * Display an error page
-     * @return Response|string
+     *
+     * @return Response | string
      * @since 1.0.0
      */
     public function actionError()
     {
         Yii::$app->response->headers->add('Content-Security-Policy', 'frame-ancestors \'none\';');
+
         $errorData = Yii::$app->session->getFlash('error');
         $code = isset($errorData['code']) && is_numeric($errorData['code']) ? $errorData['code'] : 400;
         Yii::$app->response->setStatusCode($code);
@@ -353,9 +344,35 @@ class AuthorizeController extends Controller
     }
 
     /**
-     * @var string
+     * Handles OAuth errors by either displaying an error page or redirecting to the callback
+     *
+     * @param \Oauth2\Response $response
+     * @return Response | null
      */
-    private $userClass;
+    public function handleErrorResponse($response)
+    {
+        if ($response->getParameter('error') !== null) {
+            Yii::$app->session->remove('oauthServer');
+            Yii::$app->session->remove('oauthRequest');
+
+            if ($response->isRedirection()) {
+                return $this->redirect($response->getHttpHeader('Location'));
+            } else {
+                $code = $response->getStatusCode();
+                $error = $response->getParameter('error', 'Unkown error');
+                $description = $response->getParameter('error_description', 'Please check your request.');
+                Yii::$app->session->setFlash('error', [
+                    'code' => $code,
+                    'error' => $error,
+                    'error_description' => $description
+                    ], false
+                );
+                return $this->redirect(['error']);
+            }
+        }
+
+        return null;
+    }
 
     /**
      * @return string classname for selected interface
@@ -369,32 +386,5 @@ class AuthorizeController extends Controller
             $this->userClass = get_class($scope);
         }
         return $this->userClass;
-    }
-
-    /**
-     * @param \Oauth2\Response $response
-     */
-    public function handleResponse($response)
-    {
-
-        if ($response->getParameter('error') !== null) {
-
-            Yii::$app->session->remove('oauthServer');
-            Yii::$app->session->remove('oauthRequest');
-
-            if ($response->isRedirection()) {
-
-                return $this->redirect($response->getHttpHeader('Location'));
-            } else {
-
-                $code = $response->getStatusCode();
-                $error = $response->getParameter('error', 'Unkown error');
-                $description = $response->getParameter('error_description', 'Please check your request.');
-                Yii::$app->session->setFlash('error', ['code' => $code, 'error' => $error, 'error_description' => $description], false);
-
-                return $this->redirect(['error']);
-            }
-        }
-
     }
 }

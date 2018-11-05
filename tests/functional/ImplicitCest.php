@@ -208,7 +208,6 @@ class ImplicitCest extends CestCase
         }
     }
 
-
     public function checkWithPromptNoneWithRequiredLogin(FunctionalTester $I)
     {
         $client = Yii::createObject('sweelix\oauth2\server\interfaces\ClientModelInterface');
