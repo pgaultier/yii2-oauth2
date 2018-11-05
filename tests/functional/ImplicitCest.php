@@ -54,6 +54,7 @@ class ImplicitCest extends CestCase
         $client->name = 'Test client 2';
         $I->assertTrue($client->save());
 
+
         Yii::$app->getModule('oauth2')->allowImplicit = false;
 
         $I->amOnRoute('oauth2/authorize/index', [
@@ -61,8 +62,8 @@ class ImplicitCest extends CestCase
             'client_id' => 'client2',
             'redirect_uri' => 'http://localhost/cb'
         ]);
-        $I->see('Bad Request', 'h1');
-        $I->see('unsupported_response_type', 'h4');
+
+        $I->seeCurrentUrlEquals('/cb?error=unsupported_response_type&error_description=implicit+grant+type+not+supported');
     }
 
     public function checkWithCorrectClientAndDecline(FunctionalTester $I)
@@ -206,4 +207,28 @@ class ImplicitCest extends CestCase
             $I->assertInstanceOf(AccessToken::class, $accessToken);
         }
     }
+
+    public function checkWithPromptNoneWithRequiredLogin(FunctionalTester $I)
+    {
+        $client = Yii::createObject('sweelix\oauth2\server\interfaces\ClientModelInterface');
+        /* @var \sweelix\oauth2\server\interfaces\ClientModelInterface $client */
+        $client->id = 'client2';
+        $client->secret = 'secret2';
+        $client->isPublic = false;
+        $client->userId = 'uid';
+        $client->name = 'Test client 2';
+        $I->assertTrue($client->save());
+
+        $I->amOnRoute('oauth2/authorize/index', [
+            'response_type' => 'token',
+            'client_id' => 'client2',
+            'redirect_uri' => 'http://localhost/cb',
+            'prompt' => 'none'
+        ]);
+
+        $I->seeCurrentUrlEquals('/cb?error=login_required&error_description=Authentication+Request+cannot+be+completed+without+user+authentication.');
+    }
+
+
+
 }
