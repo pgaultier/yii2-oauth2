@@ -51,7 +51,7 @@ class JtiService extends BaseService implements JtiServiceInterface
      * @return string access token Key
      * @since 1.0.0
      */
-    protected function getJtiKey($jid)
+    public function getJtiKey($jid)
     {
         return $this->namespace . ':' . $jid;
     }
@@ -60,7 +60,7 @@ class JtiService extends BaseService implements JtiServiceInterface
      * @param string $sid subject ID
      * @return string user jtis collection Key
      */
-    protected function getSubjectJtisKey($sid)
+    public function getSubjectJtisKey($sid)
     {
         return $this->subjectNamespace . ':' . $sid . ':jtis';
     }
@@ -69,7 +69,7 @@ class JtiService extends BaseService implements JtiServiceInterface
      * @param string $cid client ID
      * @return string client jtis collection Key
      */
-    protected function getClientJtisKey($cid)
+    public function getClientJtisKey($cid)
     {
         return $this->clientNamespace . ':' . $cid . ':jtis';
     }
@@ -77,7 +77,7 @@ class JtiService extends BaseService implements JtiServiceInterface
     /**
      * @return string key of all jtis list
      */
-    protected function getJtiListKey()
+    public function getJtiListKey()
     {
         return $this->namespace . ':keys';
     }
@@ -85,7 +85,7 @@ class JtiService extends BaseService implements JtiServiceInterface
     /**
      * @return string key of all subjects list
      */
-    protected function getSubjectListKey()
+    public function getSubjectListKey()
     {
         return $this->subjectNamespace . ':keys';
     }

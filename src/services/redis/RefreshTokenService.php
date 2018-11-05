@@ -53,7 +53,7 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
      * @return string refresh token Key
      * @since 1.0.0
      */
-    protected function getRefreshTokenKey($rid)
+    public function getRefreshTokenKey($rid)
     {
         return $this->namespace . ':' . $rid;
     }
@@ -63,7 +63,7 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
      * @return string user refresh tokens collection Key
      * @since XXX
      */
-    protected function getUserRefreshTokensKey($uid)
+    public function getUserRefreshTokensKey($uid)
     {
         return $this->userNamespace . ':' . $uid . ':refreshTokens';
     }
@@ -73,7 +73,7 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
      * @return string client refresh tokens collection Key
      * @since XXX
      */
-    protected function getClientRefreshTokensKey($cid)
+    public function getClientRefreshTokensKey($cid)
     {
         return $this->clientNamespace . ':' . $cid . ':refreshTokens';
     }
@@ -81,7 +81,7 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
     /**
      * @return string key of all refresh tokens list
      */
-    protected function getRefreshTokenListKey()
+    public function getRefreshTokenListKey()
     {
         return $this->namespace . ':keys';
     }
@@ -89,7 +89,7 @@ class RefreshTokenService extends BaseService implements RefreshTokenServiceInte
     /**
      * @return string key of all users list
      */
-    protected function getUserListKey()
+    public function getUserListKey()
     {
         return $this->userNamespace . ':keys';
     }
