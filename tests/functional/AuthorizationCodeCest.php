@@ -43,8 +43,7 @@ class AuthorizationCodeCest extends CestCase
     public function checkBadAccess(FunctionalTester $I)
     {
         $I->amOnRoute('oauth2/authorize/login');
-        $I->see('Bad Request', 'h1');
-        $I->see('request_invalid', 'h4');
+        $I->see('invalid_request', 'h4');
     }
 
     public function checkWithBadClient(FunctionalTester $I)
