@@ -66,6 +66,7 @@ interface ClientModelInterface extends BaseModelInterface
      * @param $userId
      * @return bool
      * @since 1.0.0
+     * @throws \yii\base\UnknownClassException
      */
     public function hasUser($userId);
 
@@ -73,6 +74,7 @@ interface ClientModelInterface extends BaseModelInterface
      * @param $userId
      * @return bool
      * @since 1.0.0
+     * @throws \yii\base\UnknownClassException
      */
     public function addUser($userId);
 
@@ -80,6 +82,7 @@ interface ClientModelInterface extends BaseModelInterface
      * @param $userId
      * @return bool
      * @since 1.0.0
+     * @throws \yii\base\UnknownClassException
      */
     public function removeUser($userId);
 
@@ -87,6 +90,13 @@ interface ClientModelInterface extends BaseModelInterface
      * @param $userId
      * @return ClientModelInterface[]
      * @since XXX
+     * @throws \yii\base\UnknownClassException
      */
     public static function findAllByUserId($userId);
+
+    /**
+     * @return ClientModelInterface[]
+     * @throws \yii\base\UnknownClassException
+     */
+    public static function findAll();
 }

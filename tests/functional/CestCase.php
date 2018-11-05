@@ -19,7 +19,6 @@ use yii\helpers\ArrayHelper;
 
 class CestCase
 {
-
     /**
      * Populates Yii::$app with a new application
      * The application will be destroyed on tearDown() automatically.
@@ -38,18 +37,55 @@ class CestCase
      */
     protected function destroyApplication()
     {
-        Yii::$app = null;
+//        Yii::$app = null;
+
+        Yii::$container->clear('sweelix\oauth2\server\interfaces\AccessTokenModelInterface');
+        Yii::$container->clear('sweelix\oauth2\server\interfaces\AuthCodeModelInterface');
+        Yii::$container->clear('sweelix\oauth2\server\interfaces\ClientModelInterface');
+        Yii::$container->clear('sweelix\oauth2\server\interfaces\CypherKeyModelInterface');
+        Yii::$container->clear('sweelix\oauth2\server\interfaces\JtiModelInterface');
+        Yii::$container->clear('sweelix\oauth2\server\interfaces\JwtModelInterface');
+        Yii::$container->clear('sweelix\oauth2\server\interfaces\RefreshTokenModelInterface');
+        Yii::$container->clear('sweelix\oauth2\server\interfaces\ScopeModelInterface');
+        Yii::$container->clear('sweelix\oauth2\server\interfaces\UserModelInterface');
+
+        Yii::$container->clear('sweelix\oauth2\server\interfaces\AccessTokenServiceInterface');
+        Yii::$container->clear('sweelix\oauth2\server\interfaces\AuthCodeServiceInterface');
+        Yii::$container->clear('sweelix\oauth2\server\interfaces\ClientServiceInterface');
+        Yii::$container->clear('sweelix\oauth2\server\interfaces\CypherKeyServiceInterface');
+        Yii::$container->clear('sweelix\oauth2\server\interfaces\JtiServiceInterface');
+        Yii::$container->clear('sweelix\oauth2\server\interfaces\JwtServiceInterface');
+        Yii::$container->clear('sweelix\oauth2\server\interfaces\RefreshTokenServiceInterface');
+        Yii::$container->clear('sweelix\oauth2\server\interfaces\ScopeServiceInterface');
     }
 
     /**
      * Clean everything from database
+     * @param string $env Current Environment (mysql or redis)
+     * @throws \yii\db\Exception
      */
-    protected function cleanDatabase()
+    protected function cleanDatabase($env = null)
     {
-        $keys = Yii::$app->redis->executeCommand('KEYS', ['oauth2:*']);
-        if (empty($keys) === false) {
-            Yii::$app->redis->executeCommand('DEL', $keys);
+        if (($env === 'redis') || ($env === null)) {
+            $keys = Yii::$app->redis->executeCommand('KEYS', ['oauth2:*']);
+            if (empty($keys) === false) {
+                Yii::$app->redis->executeCommand('DEL', $keys);
+            }
+        } else if ($env === 'mysql') {
+            Yii::$app->db->createCommand()->delete('oauthCypherKeys')->execute();
+            Yii::$app->db->createCommand()->delete('oauthScopeRefreshToken')->execute();
+            Yii::$app->db->createCommand()->delete('oauthScopeAuthorizationCode')->execute();
+            Yii::$app->db->createCommand()->delete('oauthClientUser')->execute();
+            Yii::$app->db->createCommand()->delete('oauthClientGrantType')->execute();
+            Yii::$app->db->createCommand()->delete('oauthScopeAccessToken')->execute();
+            Yii::$app->db->createCommand()->delete('oauthRefreshTokens')->execute();
+            Yii::$app->db->createCommand()->delete('oauthAuthorizationCodes')->execute();
+            Yii::$app->db->createCommand()->delete('oauthAccessTokens')->execute();
+            Yii::$app->db->createCommand()->delete('oauthScopeClient')->execute();
+            Yii::$app->db->createCommand()->delete('oauthScopes')->execute();
+            Yii::$app->db->createCommand()->delete('oauthJwts')->execute();
+            Yii::$app->db->createCommand()->delete('oauthJtis')->execute();
+            Yii::$app->db->createCommand()->delete('oauthClients')->execute();
         }
     }
-
 }

@@ -42,7 +42,6 @@ use yii\validators\UrlValidator;
  */
 class Client extends BaseModel implements ClientModelInterface
 {
-
     /**
      * @inheritdoc
      */
@@ -93,6 +92,7 @@ class Client extends BaseModel implements ClientModelInterface
 
     /**
      * @return \sweelix\oauth2\server\interfaces\ClientServiceInterface
+     * @throws \yii\base\InvalidConfigException
      */
     protected static function getDataService()
     {
@@ -187,4 +187,11 @@ class Client extends BaseModel implements ClientModelInterface
         return self::getDataService()->findAllByUserId($userId);
     }
 
+    /**
+     * @inheritdoc
+     */
+    public static function findAll()
+    {
+        return self::getDataService()->findAll();
+    }
 }

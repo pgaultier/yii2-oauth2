@@ -38,7 +38,6 @@ use Yii;
  */
 class ClientService extends BaseService implements ClientServiceInterface
 {
-
     /**
      * @var string user namespace (collection for clients)
      */
@@ -49,7 +48,7 @@ class ClientService extends BaseService implements ClientServiceInterface
      * @return string client Key
      * @since 1.0.0
      */
-    protected function getClientKey($cid)
+    public function getClientKey($cid)
     {
         return $this->namespace . ':' . $cid;
     }
@@ -59,7 +58,7 @@ class ClientService extends BaseService implements ClientServiceInterface
      * @return string clientUsers Key
      * @since 1.0.0
      */
-    protected function getClientUsersListKey($cid)
+    public function getClientUsersListKey($cid)
     {
         return $this->namespace . ':' . $cid . ':users';
     }
@@ -69,9 +68,17 @@ class ClientService extends BaseService implements ClientServiceInterface
      * @return string user clients collection Key
      * @since XXX
      */
-    protected function getUserClientsListKey($uid)
+    public function getUserClientsListKey($uid)
     {
         return $this->userNamespace . ':' . $uid . ':clients';
+    }
+
+    /**
+     * @return string key of all clients list
+     */
+    public function getClientListKey()
+    {
+        return $this->namespace . ':keys';
     }
 
     /**
@@ -104,17 +111,17 @@ class ClientService extends BaseService implements ClientServiceInterface
             return $result;
         }
         $clientKey = $this->getClientKey($client->getKey());
+        $clientListKey = $this->getClientListKey();
         //check if record exists
         $entityStatus = (int)$this->db->executeCommand('EXISTS', [$clientKey]);
         if ($entityStatus === 1) {
-            throw new DuplicateKeyException('Duplicate key "'.$clientKey.'"');
+            throw new DuplicateKeyException('Duplicate key "' . $clientKey . '"');
         }
 
         $values = $client->getDirtyAttributes($attributes);
         $redisParameters = [$clientKey];
         $this->setAttributesDefinitions($client->attributesDefinition());
-        foreach ($values as $key => $value)
-        {
+        foreach ($values as $key => $value) {
             if ($value !== null) {
                 $redisParameters[] = $key;
                 $redisParameters[] = $this->convertToDatabase($key, $value);
@@ -125,6 +132,7 @@ class ClientService extends BaseService implements ClientServiceInterface
         if ($transaction === true) {
             try {
                 $this->db->executeCommand('HMSET', $redisParameters);
+                $this->db->executeCommand('SADD', [$clientListKey, $client->getKey()]);
                 $this->db->executeCommand('EXEC');
             } catch (DatabaseException $e) {
                 // @codeCoverageIgnoreStart
@@ -161,30 +169,32 @@ class ClientService extends BaseService implements ClientServiceInterface
         $modelKey = $client->key();
         $clientId = isset($values[$modelKey]) ? $values[$modelKey] : $client->getKey();
         $clientKey = $this->getClientKey($clientId);
-
+        $clientListKey = $this->getClientListKey();
 
         if (isset($values[$modelKey]) === true) {
             $newClientKey = $this->getClientKey($values[$modelKey]);
             $entityStatus = (int)$this->db->executeCommand('EXISTS', [$newClientKey]);
             if ($entityStatus === 1) {
-                throw new DuplicateKeyException('Duplicate key "'.$newClientKey.'"');
+                throw new DuplicateKeyException('Duplicate key "' . $newClientKey . '"');
             }
         }
 
         $this->db->executeCommand('MULTI');
         try {
+            $reAddKeyInList = false;
             if (array_key_exists($modelKey, $values) === true) {
                 $oldId = $client->getOldKey();
                 $oldClientKey = $this->getClientKey($oldId);
 
                 $this->db->executeCommand('RENAMENX', [$oldClientKey, $clientKey]);
+                $this->db->executeCommand('SREM', [$clientListKey, $oldClientKey]);
+                $reAddKeyInList = true;
             }
 
             $redisUpdateParameters = [$clientKey];
             $redisDeleteParameters = [$clientKey];
             $this->setAttributesDefinitions($client->attributesDefinition());
-            foreach ($values as $key => $value)
-            {
+            foreach ($values as $key => $value) {
                 if ($value === null) {
                     $redisDeleteParameters[] = $key;
                 } else {
@@ -197,6 +207,10 @@ class ClientService extends BaseService implements ClientServiceInterface
             }
             if (count($redisUpdateParameters) > 1) {
                 $this->db->executeCommand('HMSET', $redisUpdateParameters);
+            }
+
+            if ($reAddKeyInList === true) {
+                $this->db->executeCommand('SADD', [$clientListKey, $clientId]);
             }
 
             $this->db->executeCommand('EXEC');
@@ -238,7 +252,7 @@ class ClientService extends BaseService implements ClientServiceInterface
                     $clientData[$i + 1] = $this->convertToModel($clientData[$i], $clientData[($i + 1)]);
                     $record->setAttribute($clientData[$i], $clientData[$i + 1]);
                     $attributes[$clientData[$i]] = $clientData[$i + 1];
-                // @codeCoverageIgnoreStart
+                    // @codeCoverageIgnoreStart
                 } elseif ($record->canSetProperty($clientData[$i])) {
                     // TODO: find a way to test attribute population
                     $record->{$clientData[$i]} = $clientData[$i + 1];
@@ -262,15 +276,19 @@ class ClientService extends BaseService implements ClientServiceInterface
         if ($client->beforeDelete()) {
             $id = $client->getOldKey();
             $clientKey = $this->getClientKey($id);
+            $clientListKey = $this->getClientListKey();
             $clientUsersListKey = $this->getClientUsersListKey($id);
 
+            // before cleaning the client, drop all access tokens, refresh tokens, auth codes and jtis
+            $token = Yii::createObject('sweelix\oauth2\server\interfaces\AccessTokenModelInterface');
+            $tokenClass = get_class($token);
+            $tokenClass::deleteAllByClientId($id);
 
-            // before cleaning the client, drop all access tokens and refresh tokens
             $token = Yii::createObject('sweelix\oauth2\server\interfaces\RefreshTokenModelInterface');
             $tokenClass = get_class($token);
             $tokenClass::deleteAllByClientId($id);
 
-            $token = Yii::createObject('sweelix\oauth2\server\interfaces\AccessTokenModelInterface');
+            $token = Yii::createObject('sweelix\oauth2\server\interfaces\JtiModelInterface');
             $tokenClass = get_class($token);
             $tokenClass::deleteAllByClientId($id);
 
@@ -278,12 +296,13 @@ class ClientService extends BaseService implements ClientServiceInterface
 
             $this->db->executeCommand('MULTI');
             // remove client from all userClient sets
-            foreach($usersList as $user) {
+            foreach ($usersList as $user) {
                 $userClientKey = $this->getUserClientsListKey($user);
                 $this->db->executeCommand('SREM', [$userClientKey, $id]);
             }
             $this->db->executeCommand('DEL', [$clientKey]);
             $this->db->executeCommand('DEL', [$clientUsersListKey]);
+            $this->db->executeCommand('SREM', [$clientListKey, $id]);
             //TODO: check results to return correct information
             $queryResult = $this->db->executeCommand('EXEC');
             $client->setIsNewRecord(true);
@@ -343,7 +362,7 @@ class ClientService extends BaseService implements ClientServiceInterface
         $userClientsListKey = $this->getUserClientsListKey($userId);
         $clientsList = $this->db->executeCommand('SMEMBERS', [$userClientsListKey]);
         $clients = [];
-        foreach($clientsList as $clientId) {
+        foreach ($clientsList as $clientId) {
             $result = $this->findOne($clientId);
             if ($result instanceof ClientModelInterface) {
                 $clients[] = $result;
@@ -352,4 +371,20 @@ class ClientService extends BaseService implements ClientServiceInterface
         return $clients;
     }
 
+    /**
+     * @inheritdoc
+     */
+    public function findAll()
+    {
+        $clientListKey = $this->getClientListKey();
+        $clientList = $this->db->executeCommand('SMEMBERS', [$clientListKey]);
+        $clients = [];
+        foreach ($clientList as $clientId) {
+            $result = $this->findOne($clientId);
+            if ($result instanceof ClientModelInterface) {
+                $clients[] = $result;
+            }
+        }
+        return $clients;
+    }
 }

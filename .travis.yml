@@ -6,6 +6,7 @@ php:
 
 services:
   - redis-server
+  - mysql
 
 # faster builds on new travis setup not using sudo
 sudo: false
@@ -16,6 +17,8 @@ cache:
     - vendor
     - $HOME/.composer/cache
 
+before_install:
+  - mysql -e 'CREATE DATABASE IF NOT EXISTS oauth2;'
 
 install:
   - travis_retry composer self-update && composer --version
@@ -33,7 +36,7 @@ before_script:
       PHPUNIT_FLAGS="--coverage --coverage-xml coverage.clover"
     fi
 script:
-  - php vendor/bin/codecept run $PHPUNIT_FLAGS
+  - php vendor/bin/codecept run unit,functional --env mysql --env redis $PHPUNIT_FLAGS
 
 after_script:
   - |

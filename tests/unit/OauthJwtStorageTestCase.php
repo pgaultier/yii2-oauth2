@@ -1,15 +1,17 @@
 <?php
 
 namespace tests\unit;
+
 use OAuth2\Storage\JwtBearerInterface;
 use sweelix\oauth2\server\exceptions\DuplicateKeyException;
 use sweelix\oauth2\server\interfaces\JwtModelInterface;
 use sweelix\oauth2\server\models\Jwt;
 use Yii;
+
 /**
  * ManagerTestCase
  */
-class OauthJwtStorageTest extends TestCase
+class OauthJwtStorageTestCase extends TestCase
 {
     protected function setUp()
     {
@@ -17,7 +19,9 @@ class OauthJwtStorageTest extends TestCase
         $this->mockApplication([
         ]);
         $this->cleanDatabase();
+        $this->populateClients();
     }
+
     protected function tearDown()
     {
         parent::tearDown();
@@ -58,7 +62,6 @@ class OauthJwtStorageTest extends TestCase
         $jwt->publicKey = 'pub';
         $this->expectException(DuplicateKeyException::class);
         $jwt->save();
-
     }
 
     public function testUpdate()
@@ -129,7 +132,6 @@ class OauthJwtStorageTest extends TestCase
         $this->assertTrue($jwt->delete());
         $jwt = Jwt::findOne($jwtId);
         $this->assertNull($jwt);
-
     }
 
     public function testStorage()
@@ -155,7 +157,5 @@ class OauthJwtStorageTest extends TestCase
         $this->assertEquals('pubKey', $jwtData);
         $jwtData = $storage->getClientKey('client1', 'subject2');
         $this->assertNull($jwtData);
-
-
     }
 }

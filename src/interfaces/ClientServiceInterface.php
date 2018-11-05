@@ -39,12 +39,14 @@ interface ClientServiceInterface
     /**
      * @param string $key
      * @return ClientModelInterface|null
+     * @throws \Exception
      */
     public function findOne($key);
 
     /**
      * @param ClientModelInterface $client
      * @return boolean
+     * @throws \Exception
      */
     public function delete(ClientModelInterface $client);
 
@@ -52,6 +54,7 @@ interface ClientServiceInterface
      * @param ClientModelInterface $client
      * @param string $userId
      * @return bool
+     * @throws \Exception
      */
     public function hasUser(ClientModelInterface $client, $userId);
 
@@ -59,6 +62,7 @@ interface ClientServiceInterface
      * @param ClientModelInterface $client
      * @param string $userId
      * @return bool
+     * @throws \Exception
      */
     public function addUser(ClientModelInterface $client, $userId);
 
@@ -66,12 +70,20 @@ interface ClientServiceInterface
      * @param ClientModelInterface $client
      * @param string $userId
      * @return bool
+     * @throws \Exception
      */
     public function removeUser(ClientModelInterface $client, $userId);
 
     /**
      * @param string $userId
      * @return ClientModelInterface[]
+     * @throws \Exception
      */
     public function findAllByUserId($userId);
+
+    /**
+     * @return ClientModelInterface[]
+     * @throws \Exception
+     */
+    public function findAll();
 }

@@ -14,6 +14,7 @@
 
 namespace sweelix\oauth2\server\storage;
 
+use OAuth2\Encryption\Jwt;
 use OAuth2\OpenID\Storage\AuthorizationCodeInterface;
 use OAuth2\Storage\AccessTokenInterface;
 use OAuth2\Storage\ClientCredentialsInterface;
@@ -24,6 +25,7 @@ use OAuth2\Storage\RefreshTokenInterface;
 use OAuth2\Storage\ScopeInterface;
 use OAuth2\Storage\UserCredentialsInterface;
 use Yii;
+use yii\helpers\ArrayHelper;
 
 /**
  * OauthStorage class
@@ -96,6 +98,7 @@ class OauthStorage implements
 
     /**
      * @return string classname for selected interface
+     * @throws \yii\base\InvalidConfigException
      * @since 1.0.0
      */
     protected function getAccessTokenClass()
@@ -109,6 +112,7 @@ class OauthStorage implements
 
     /**
      * @return string classname for selected interface
+     * @throws \yii\base\InvalidConfigException
      * @since 1.0.0
      */
     protected function getAuthCodeClass()
@@ -122,6 +126,7 @@ class OauthStorage implements
 
     /**
      * @return string classname for selected interface
+     * @throws \yii\base\InvalidConfigException
      * @since 1.0.0
      */
     protected function getClientClass()
@@ -135,6 +140,7 @@ class OauthStorage implements
 
     /**
      * @return string classname for selected interface
+     * @throws \yii\base\InvalidConfigException
      * @since 1.0.0
      */
     protected function getCypherKeyClass()
@@ -148,6 +154,7 @@ class OauthStorage implements
 
     /**
      * @return string classname for selected interface
+     * @throws \yii\base\InvalidConfigException
      * @since 1.0.0
      */
     protected function getJtiClass()
@@ -161,6 +168,7 @@ class OauthStorage implements
 
     /**
      * @return string classname for selected interface
+     * @throws \yii\base\InvalidConfigException
      * @since 1.0.0
      */
     protected function getJwtClass()
@@ -174,6 +182,7 @@ class OauthStorage implements
 
     /**
      * @return string classname for selected interface
+     * @throws \yii\base\InvalidConfigException
      * @since 1.0.0
      */
     protected function getRefreshTokenClass()
@@ -187,6 +196,7 @@ class OauthStorage implements
 
     /**
      * @return string classname for selected interface
+     * @throws \yii\base\InvalidConfigException
      * @since 1.0.0
      */
     public function getScopeClass()
@@ -200,6 +210,7 @@ class OauthStorage implements
 
     /**
      * @return string classname for selected interface
+     * @throws \yii\base\InvalidConfigException
      * @since 1.0.0
      */
     public function getUserClass()
@@ -216,18 +227,34 @@ class OauthStorage implements
      */
     public function getAccessToken($oauth_token)
     {
+        $accessToken = null;
         $accessTokenClass = $this->getAccessTokenClass();
-        $accessToken = $accessTokenClass::findOne($oauth_token);
-        /* @var \sweelix\oauth2\server\interfaces\AccessTokenModelInterface $accessToken */
-        if ($accessToken !== null) {
-            $finalToken = [
-                'expires' => $accessToken->expiry,
-                'client_id' => $accessToken->clientId,
-                'user_id' => $accessToken->userId,
-                'scope' => implode(' ', $accessToken->scopes),
-                'id_token' => $accessToken->id,
-            ];
-            $accessToken = $finalToken;
+        if (preg_match($accessTokenClass::JWT_REGEX, $oauth_token)) {
+            $jwt = new Jwt();
+            $decodedJwt = $jwt->decode($oauth_token, null, false);
+            $key = $this->getPublicKey($decodedJwt['aud']);
+            if (($key !== null) && ($decodedJwt = $jwt->decode($oauth_token, $key, true))) {
+                $accessToken = ArrayHelper::merge([
+                    'expires' => $decodedJwt['exp'],
+                    'client_id' => $decodedJwt['aud'],
+                    'user_id' => $decodedJwt['sub'],
+                    'scope' => $decodedJwt['scope'],
+                    'id_token' => $decodedJwt['jti'],
+                ], $decodedJwt);
+            }
+        } else {
+            $accessToken = $accessTokenClass::findOne($oauth_token);
+            /* @var \sweelix\oauth2\server\interfaces\AccessTokenModelInterface $accessToken */
+            if ($accessToken !== null) {
+                $finalToken = [
+                    'expires' => $accessToken->expiry,
+                    'client_id' => $accessToken->clientId,
+                    'user_id' => $accessToken->userId,
+                    'scope' => implode(' ', $accessToken->scopes),
+                    'id_token' => $accessToken->id,
+                ];
+                $accessToken = $finalToken;
+            }
         }
         return $accessToken;
     }
@@ -237,19 +264,28 @@ class OauthStorage implements
      */
     public function setAccessToken($oauth_token, $client_id, $user_id, $expires, $scope = null)
     {
-        $accessToken = Yii::createObject('sweelix\oauth2\server\interfaces\AccessTokenModelInterface');
-        /* @var \sweelix\oauth2\server\interfaces\AccessTokenModelInterface $accessToken */
-        $accessToken->id = $oauth_token;
-        $accessToken->clientId = $client_id;
-        $accessToken->userId = $user_id;
-        $accessToken->expiry = $expires;
-        if ($scope === null) {
-            $scopes = [];
-        } else {
-            $scopes = explode(' ', $scope);
+        $response = false;
+        if ($expires > time()) {
+            $accessTokenClass = $this->getAccessTokenClass();
+            if (preg_match($accessTokenClass::JWT_REGEX, $oauth_token)) {
+                $response = true;
+            } else {
+                $accessToken = Yii::createObject('sweelix\oauth2\server\interfaces\AccessTokenModelInterface');
+                /* @var \sweelix\oauth2\server\interfaces\AccessTokenModelInterface $accessToken */
+                $accessToken->id = $oauth_token;
+                $accessToken->clientId = $client_id;
+                $accessToken->userId = $user_id;
+                $accessToken->expiry = $expires;
+                if ($scope === null) {
+                    $scopes = [];
+                } else {
+                    $scopes = explode(' ', $scope);
+                }
+                $accessToken->scopes = $scopes;
+                $response = $accessToken->save();
+            }
         }
-        $accessToken->scopes = $scopes;
-        return $accessToken->save();
+        return $response;
     }
 
     /**
@@ -292,20 +328,24 @@ class OauthStorage implements
      */
     public function setAuthorizationCode($code, $client_id, $user_id, $redirect_uri, $expires, $scope = null, $id_token = null)
     {
-        $authCode = Yii::createObject('sweelix\oauth2\server\interfaces\AuthCodeModelInterface');
-        $authCode->id = $code;
-        $authCode->clientId = $client_id;
-        $authCode->userId = $user_id;
-        $authCode->redirectUri = $redirect_uri;
-        $authCode->expiry = $expires;
-        $authCode->tokenId = $id_token;
-        if ($scope === null) {
-            $scopes = [];
-        } else {
-            $scopes = explode(' ', $scope);
+        $response = false;
+        if ($expires > time()) {
+            $authCode = Yii::createObject('sweelix\oauth2\server\interfaces\AuthCodeModelInterface');
+            $authCode->id = $code;
+            $authCode->clientId = $client_id;
+            $authCode->userId = $user_id;
+            $authCode->redirectUri = $redirect_uri;
+            $authCode->expiry = $expires;
+            $authCode->tokenId = $id_token;
+            if ($scope === null) {
+                $scopes = [];
+            } else {
+                $scopes = explode(' ', $scope);
+            }
+            $authCode->scopes = $scopes;
+            $response = $authCode->save();
         }
-        $authCode->scopes = $scopes;
-        return $authCode->save();
+        return $response;
     }
 
     /**
@@ -320,6 +360,7 @@ class OauthStorage implements
         }
         return true;
     }
+
     /**
      * @inheritdoc
      */
@@ -421,14 +462,18 @@ class OauthStorage implements
      */
     public function setJti($client_id, $subject, $audience, $expiration, $jti)
     {
-        $jtiModel = Yii::createObject('sweelix\oauth2\server\interfaces\JtiModelInterface');
-        /* @var \sweelix\oauth2\server\interfaces\JtiModelInterface $jtiModel */
-        $jtiModel->clientId = $client_id;
-        $jtiModel->subject = $subject;
-        $jtiModel->audience = $audience;
-        $jtiModel->expires = $expiration;
-        $jtiModel->jti = $jti;
-        return $jtiModel->save();
+        $response = false;
+        if ($expiration > time()) {
+            $jtiModel = Yii::createObject('sweelix\oauth2\server\interfaces\JtiModelInterface');
+            /* @var \sweelix\oauth2\server\interfaces\JtiModelInterface $jtiModel */
+            $jtiModel->clientId = $client_id;
+            $jtiModel->subject = $subject;
+            $jtiModel->audience = $audience;
+            $jtiModel->expires = $expiration;
+            $jtiModel->jti = $jti;
+            $response = $jtiModel->save();
+        }
+        return $response;
     }
 
     /**
@@ -530,18 +575,22 @@ class OauthStorage implements
      */
     public function setRefreshToken($refresh_token, $client_id, $user_id, $expires, $scope = null)
     {
-        $refreshToken = Yii::createObject('sweelix\oauth2\server\interfaces\RefreshTokenModelInterface');
-        $refreshToken->id = $refresh_token;
-        $refreshToken->clientId = $client_id;
-        $refreshToken->userId = $user_id;
-        $refreshToken->expiry = $expires;
-        if ($scope === null) {
-            $scopes = [];
-        } else {
-            $scopes = explode(' ', $scope);
+        $response = false;
+        if ($expires > time()) {
+            $refreshToken = Yii::createObject('sweelix\oauth2\server\interfaces\RefreshTokenModelInterface');
+            $refreshToken->id = $refresh_token;
+            $refreshToken->clientId = $client_id;
+            $refreshToken->userId = $user_id;
+            $refreshToken->expiry = $expires;
+            if ($scope === null) {
+                $scopes = [];
+            } else {
+                $scopes = explode(' ', $scope);
+            }
+            $refreshToken->scopes = $scopes;
+            $response = $refreshToken->save();
         }
-        $refreshToken->scopes = $scopes;
-        return $refreshToken->save();
+        return $response;
     }
 
     /**
@@ -600,7 +649,7 @@ class OauthStorage implements
     {
         $userClass = $this->getUserClass();
         $user = $userClass::findByUsername($username);
-        /* @var \sweelix\oauth2\server\interfaces\UserModelInterface $user) */
+        /* @var \sweelix\oauth2\server\interfaces\UserModelInterface $user ) */
         $details = false;
         if ($user !== null) {
             $details = [

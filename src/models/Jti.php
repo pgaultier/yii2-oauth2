@@ -37,7 +37,6 @@ use Yii;
  */
 class Jti extends BaseModel implements JtiModelInterface
 {
-
     /**
      * @inheritdoc
      */
@@ -51,6 +50,7 @@ class Jti extends BaseModel implements JtiModelInterface
 
     /**
      * @return \sweelix\oauth2\server\interfaces\JtiServiceInterface
+     * @throws \yii\base\InvalidConfigException
      */
     protected static function getDataService()
     {
@@ -76,7 +76,7 @@ class Jti extends BaseModel implements JtiModelInterface
             'clientId' => 'string',
             'subject' => 'string',
             'audience' => 'string',
-            'expires' => 'string',
+            'expires' => 'date',
             'jti' => 'string',
         ];
     }
@@ -135,5 +135,53 @@ class Jti extends BaseModel implements JtiModelInterface
     public static function getFingerprint($clientId, $subject, $audience, $expires, $jti)
     {
         return hash(self::HASH_ALGO, $clientId.':'.$subject.':'.$audience.':'.$expires.':'.$jti);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function findAllBySubject($subject)
+    {
+        return self::getDataService()->findAllBySubject($subject);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function deleteAllBySubject($subject)
+    {
+        return self::getDataService()->deleteAllBySubject($subject);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function findAllByClientId($clientId)
+    {
+        return self::getDataService()->findAllByClientId($clientId);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function deleteAllByClientId($clientId)
+    {
+        return self::getDataService()->deleteAllByClientId($clientId);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function deleteAllExpired()
+    {
+        return self::getDataService()->deleteAllExpired();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function findAll()
+    {
+        return self::getDataService()->findAll();
     }
 }

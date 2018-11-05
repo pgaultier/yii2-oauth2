@@ -39,13 +39,54 @@ interface JtiServiceInterface
     /**
      * @param string $key
      * @return JtiModelInterface|null
+     * @throws \Exception
      */
     public function findOne($key);
 
     /**
      * @param JtiModelInterface $jti
      * @return boolean
+     * @throws \Exception
      */
     public function delete(JtiModelInterface $jti);
 
+    /**
+     * @param string $subject
+     * @return JtiModelInterface[]
+     * @throws \Exception
+     */
+    public function findAllBySubject($subject);
+
+    /**
+     * @param string $subject
+     * @return bool
+     * @throws \Exception
+     */
+    public function deleteAllBySubject($subject);
+
+    /**
+     * @param string $clientId
+     * @return JtiModelInterface[]
+     * @throws \Exception
+     */
+    public function findAllByClientId($clientId);
+
+    /**
+     * @param string $clientId
+     * @return bool
+     * @throws \Exception
+     */
+    public function deleteAllByClientId($clientId);
+
+    /**
+     * @return bool
+     * @throws \Exception
+     */
+    public function deleteAllExpired();
+
+    /**
+     * @return JtiModelInterface[]
+     * @throws \Exception
+     */
+    public function findAll();
 }

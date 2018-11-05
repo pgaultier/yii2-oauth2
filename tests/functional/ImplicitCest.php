@@ -14,22 +14,22 @@
 
 namespace tests\functional;
 
+use Codeception\Scenario;
 use FunctionalTester;
 use sweelix\oauth2\server\models\AccessToken;
 use Yii;
-use yii\helpers\Json;
 
 class ImplicitCest extends CestCase
 {
-    public function _before(FunctionalTester $I)
+    public function _before(FunctionalTester $I, Scenario $scenario)
     {
-        $this->cleanDatabase();
+        $this->cleanDatabase($scenario->current('env'));
     }
 
     public function _after(FunctionalTester $I)
     {
         // Yii::$app->redis->close();
-        // $this->destroyApplication();
+        $this->destroyApplication();
     }
 
     public function checkWithBadClient(FunctionalTester $I)
@@ -116,6 +116,12 @@ class ImplicitCest extends CestCase
         $client->name = 'Test client 2';
         $I->assertTrue($client->save());
 
+        $cypherKey = Yii::createObject('sweelix\oauth2\server\interfaces\CypherKeyModelInterface');
+        /* @var \sweelix\oauth2\server\interfaces\CypherKeyModelInterface $cypherKey */
+        $cypherKey->id = 'client2';
+        $cypherKey->generateKeys();
+        $I->assertTrue($cypherKey->save());
+
         $I->amOnRoute('oauth2/authorize/index', [
             'response_type' => 'token',
             'client_id' => 'client2',
@@ -134,12 +140,19 @@ class ImplicitCest extends CestCase
         $I->click('AUTHORIZE');
 
         $I->seeInCurrentUrl('access_token=');
-        $I->seeInCurrentUrl('#');
-        $I->seeInCurrentUrl('token_type=Bearer');
         $token = $I->grabFromCurrentUrl('~access_token=([^&]+)~');
+        $I->seeInCurrentUrl('#');
 
-        $accessToken = AccessToken::findOne($token);
-        $I->assertInstanceOf(AccessToken::class, $accessToken);
+        if (preg_match('/^[^.]+[.]{1}[^.]+[.]{1}[^.]+$/', $token)) {
+            // Fix for https://github.com/bshaffer/oauth2-server-php/issues/918
+            $I->seeInCurrentUrl('token_type=bearer');
+            $payload = (new \OAuth2\Encryption\Jwt())->decode($token, $cypherKey->publicKey, true);
+            $I->assertTrue(!!$payload);
+        } else {
+            $I->seeInCurrentUrl('token_type=Bearer');
+            $accessToken = AccessToken::findOne($token);
+            $I->assertInstanceOf(AccessToken::class, $accessToken);
+        }
 
         // check we can skip login and authorize
         $I->amOnRoute('oauth2/authorize/index', [
@@ -148,12 +161,19 @@ class ImplicitCest extends CestCase
             'redirect_uri' => 'http://localhost/cb'
         ]);
         $I->seeInCurrentUrl('access_token=');
-        $I->seeInCurrentUrl('#');
-        $I->seeInCurrentUrl('token_type=Bearer');
         $token = $I->grabFromCurrentUrl('~access_token=([^&]+)~');
+        $I->seeInCurrentUrl('#');
 
-        $accessToken = AccessToken::findOne($token);
-        $I->assertInstanceOf(AccessToken::class, $accessToken);
+        if (preg_match('/^[^.]+[.]{1}[^.]+[.]{1}[^.]+$/', $token)) {
+            // Fix for https://github.com/bshaffer/oauth2-server-php/issues/918
+            $I->seeInCurrentUrl('token_type=bearer');
+            $payload = (new \OAuth2\Encryption\Jwt())->decode($token, $cypherKey->publicKey, true);
+            $I->assertTrue(!!$payload);
+        } else {
+            $I->seeInCurrentUrl('token_type=Bearer');
+            $accessToken = AccessToken::findOne($token);
+            $I->assertInstanceOf(AccessToken::class, $accessToken);
+        }
 
         $I->assertTrue($client->hasUser('userid1'));
 
@@ -172,14 +192,18 @@ class ImplicitCest extends CestCase
         $I->click('AUTHORIZE');
 
         $I->seeInCurrentUrl('access_token=');
-        $I->seeInCurrentUrl('#');
-        $I->seeInCurrentUrl('token_type=Bearer');
         $token = $I->grabFromCurrentUrl('~access_token=([^&]+)~');
+        $I->seeInCurrentUrl('#');
 
-        $accessToken = AccessToken::findOne($token);
-        $I->assertInstanceOf(AccessToken::class, $accessToken);
-
-
-
+        if (preg_match('/^[^.]+[.]{1}[^.]+[.]{1}[^.]+$/', $token)) {
+            // Fix for https://github.com/bshaffer/oauth2-server-php/issues/918
+            $I->seeInCurrentUrl('token_type=bearer');
+            $payload = (new \OAuth2\Encryption\Jwt())->decode($token, $cypherKey->publicKey, true);
+            $I->assertTrue(!!$payload);
+        } else {
+            $I->seeInCurrentUrl('token_type=Bearer');
+            $accessToken = AccessToken::findOne($token);
+            $I->assertInstanceOf(AccessToken::class, $accessToken);
+        }
     }
 }

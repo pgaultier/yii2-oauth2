@@ -1,6 +1,6 @@
 <?php
 /**
- * test.php
+ * testMysql.php
  *
  * PHP version 5.6+
  *
@@ -11,22 +11,24 @@
  * @link http://www.sweelix.net
  * @since XXX
  */
+
 return [
     'basePath' => __DIR__ . '/../../src',
     // Force vendor path to avoid misconfiguration
-    'vendorPath' => __DIR__.'/../../vendor',
+    'vendorPath' => __DIR__ . '/../../vendor',
     'id' => 'sweelix/yii2-oauth2-server-testing',
     'timeZone' => 'Europe/Paris',
     'bootstrap' => ['oauth2'],
     'modules' => [
         'oauth2' => [
+            'baseEndPoint' => 'redis',
             'class' => 'sweelix\oauth2\server\Module',
             'backend' => 'redis',
             'db' => 'redis',
             // 'identityClass' => 'app\models\User',
             'enforceState' => false,
             'allowImplicit' => true,
-            // 'allowJwtAccesToken' => true,
+            'useJwtAccessToken' => false
         ],
     ],
     'components' => [
